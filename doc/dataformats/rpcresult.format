@@ -1,0 +1,18 @@
+rpcresult: dict with_members
+{
+	header: dict with_members
+	{
+		session_id: string;
+		errorid: integer;
+		error: string;
+		required: optional string; // what this?
+		whyrequired: optional string;
+	};
+	body: dict with_members
+	{
+		data: dict with_members
+		{
+			*:*
+		};
+	};
+};

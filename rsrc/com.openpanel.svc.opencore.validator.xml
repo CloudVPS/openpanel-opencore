@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<grace.validator>
+  <datarule id="root">
+    <match.mandatory>
+      <mandatory type="child" key="system"/>
+      <mandatory type="child" key="rpc"/>
+      <mandatory type="child" key="alert"/>
+    </match.mandatory>
+    <match.child>
+      <and>
+        <match.id>system</match.id>
+        <match.rule>system</match.rule>
+      </and>
+      <and>
+      	<match.id>rpc</match.id>
+      	<match.rule>rpc</match.rule>
+      </and>
+      <and>
+        <match.id>alert</match.id>
+        <match.rule>alert</match.rule>
+      </and>
+    </match.child>
+  </datarule>
+  
+  <datarule id="system">
+    <match.mandatory>
+      <mandatory type="child" key="eventlog"/>
+    </match.mandatory>
+    <match.child>
+      <match.id>eventlog</match.id>
+      <match.id>debuglog</match.id>
+    </match.child>
+  </datarule>
+  
+  <datarule id="rpc">
+  	<match.mandatory>
+  		<mandatory type="child" key="unixsocket"/>
+  		<mandatory type="child" key="httpsocket"/>
+  	</match.mandatory>
+  	<match.child>
+		<and>
+		  <match.id>unixsocket</match.id>
+		  <match.rule>unixsocket</match.rule>
+		</and>
+		<and>
+		  <match.id>httpsocket</match.id>
+		  <match.rule>httpsocket</match.rule>
+		</and>
+  	</match.child>
+  </datarule>
+
+  <datarule id="unixsocket">
+    <match.mandatory>
+      <mandatory type="child" key="minthreads"/>
+      <mandatory type="child" key="maxthreads"/>
+    </match.mandatory>
+    <match.child>
+      <and><match.id>minthreads</match.id></and>
+      <and><match.id>maxthreads</match.id></and>
+    </match.child>
+  </datarule>
+
+  <datarule id="httpsocket">
+    <match.mandatory>
+      <mandatory type="child" key="listenport"/>
+      <mandatory type="child" key="minthreads"/>
+      <mandatory type="child" key="maxthreads"/>
+    </match.mandatory>
+    <match.child>
+      <and><match.id>listenport</match.id></and>
+      <and><match.id>minthreads</match.id></and>
+      <and><match.id>maxthreads</match.id></and>
+    </match.child>
+  </datarule>
+
+  <datarule id="alert">
+    <match.mandatory>
+      <mandatory type="child" key="routing"/>
+    </match.mandatory>
+    <match.child>
+      <and>
+        <match.id>routing</match.id>
+        <match.data>
+          <text>smtp</text>
+          <text>http</text>
+        </match.data>
+      </and>
+      <and>
+        <match.id>http</match.id>
+        <match.rule>httpalert</match.rule>
+      </and>
+      <and>
+        <match.id>smtp</match.id>
+        <match.rule>smtpalert</match.rule>
+      </and>
+    </match.child>
+  </datarule>
+  
+  <datarule id="httpalert">
+    <match.mandatory>
+      <mandatory type="child" key="url"/>
+    </match.mandatory>
+  </datarule>
+
+  <datarule id="smtpalert">
+    <match.mandatory>
+      <mandatory type="child" key="to"/>
+      <mandatory type="child" key="from"/>
+      <mandatory type="child" key="subject"/>
+      <mandatory type="child" key="server"/>
+    </match.mandatory>
+  </datarule>
+
+</grace.validator>

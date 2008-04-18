@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<grace.validator>
+  <datarule id="root">
+    <match.mandatory>
+      <mandatory type="child" key="name"/>
+      <mandatory type="child" key="version"/>
+      <mandatory type="child" key="uuid"/>
+	  <mandatory type="child" key="languages"/>
+      <mandatory type="child" key="classes"/>
+      <mandatory type="child" key="implementation"/>
+    </match.mandatory>
+    
+    <match.child>
+      <match.id>version</match.id>
+      <match.id>opencoreversion</match.id>
+      <and><match.id>enums</match.id><match.rule>enums</match.rule></and>
+      <and><match.id>uuid</match.id><match.rule>uuid</match.rule></and>
+      <and><match.id>name</match.id><match.rule>modulename</match.rule></and>
+      <and><match.id>classes</match.id><match.rule>classes</match.rule></and>
+      <and><match.id>quotas</match.id><match.rule>quotas</match.rule></and>
+      <and><match.id>authdops</match.id><match.rule>authdops</match.rule></and>
+      <and>
+        <match.id>implementation</match.id>
+        <match.rule>implementation</match.rule>
+      </and>
+	  <match.id>languages</match.id>
+	  <match.id>requires</match.id>
+    </match.child>
+    
+  </datarule>
+  
+  <datarule id="quotas">
+    <match.child>
+      <match.class>quota</match.class>
+    </match.child>
+  </datarule>
+  
+  <datarule id="modulename">
+    <match.data>
+      <regexp>[-a-zA-Z0-9_.]*</regexp>
+    </match.data>
+  </datarule>
+  
+  <datarule id="classname">
+    <match.data>
+      <regexp>[a-zA-Z_]+(:[a-zA-Z_]*)*</regexp>
+    </match.data>
+  </datarule>
+  
+  <datarule id="uuid">
+    <match.data>
+      <regexp>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}</regexp>
+    </match.data>
+  </datarule>
+  
+  <datarule id="version">
+    <match.data>
+      <regexp>[[:digit:]]+\.[[:digit:]]+</regexp>
+    </match.data>
+  </datarule>
+  
+  <datarule id="classes">
+    <match.child>
+      <and>
+        <match.class>class</match.class>
+        <match.rule>class</match.rule>
+      </and>
+    </match.child>
+  </datarule>
+  
+  <datarule id="class">
+  
+    <match.mandatory>
+      <mandatory type="child" key="indexing"/>
+      <mandatory type="child" key="shortname"/>
+      <mandatory type="child" key="title"/>
+      <mandatory type="child" key="description"/>
+      <mandatory type="child" key="uuid"/>
+      <mandatory type="child" key="version"/>
+    </match.mandatory>
+    
+    <match.child>
+      <and>
+        <match.id>indexing</match.id>
+        <match.data>
+          <text>auto</text>
+          <text>manual</text>
+        </match.data>
+      </and>
+      <match.id>requires</match.id>
+      <match.id>icon</match.id>
+      <match.id>shortname</match.id>
+      <match.id>title</match.id>
+      <match.id>description</match.id>
+      <match.id>explanation</match.id>
+      <match.id>sortindex</match.id>
+      <match.id>capabilities</match.id>
+      <match.id>maxinstances</match.id>
+      <match.id>singleton</match.id>
+      <match.id>uniqueclass</match.id>
+      <match.id>parentrealm</match.id>
+      <match.id>childrendep</match.id>
+      <match.id>dynamic</match.id>
+      <match.id>worldreadable</match.id>
+      <match.id>menuclass</match.id>
+      <and><match.id>methods</match.id><match.rule>methods</match.rule></and>
+      <and><match.id>uuid</match.id><match.rule>uuid</match.rule></and>
+      <and><match.id>version</match.id><match.data><gt>0</gt></match.data></and>
+      <match.id>allchildren</match.id>
+      <and>
+        <match.id>uniquein</match.id>
+        <match.data>
+          <text>class</text>
+          <text>parent</text>
+        </match.data>
+      </and>
+      <and>
+        <match.class>parameters</match.class>
+        <match.rule>parameters</match.rule>
+      </and>
+      <match.id>magicdelimiter</match.id>
+      <match.id>prototype</match.id>
+      <and>
+        <match.id>metatype</match.id>
+        <match.data>
+          <text>base</text>
+          <text>derived</text>
+          <text>none</text>
+        </match.data>
+      </and>
+      <match.id>metabase</match.id>
+      <match.id>metadescription</match.id>
+    </match.child>
+  </datarule>
+  
+  <datarule id="parameters">
+    <match.child>
+      <and>
+        <match.class>p</match.class>
+        <match.rule>parameter</match.rule>
+      </and>
+    </match.child>
+  </datarule>
+  
+  <datarule id="parameter">
+    <match.mandatory>
+      <mandatory type="attribute" key="type"/>
+    </match.mandatory>
+    <match.attribute>
+      <and>
+        <match.id>crypt</match.id>
+        <match.data>
+          <text>extern</text>
+          <text>md5</text>
+        </match.data>
+      </and>
+      <and>
+        <match.id>type</match.id>
+        <match.data>
+          <text>string</text>
+          <text>integer</text>
+          <text>enum</text>
+          <text>bool</text>
+          <text>ref</text>
+          <text>password</text>
+          <text>group</text>
+        </match.data>
+      </and>
+      <match.id>nick</match.id>
+      <match.id>group</match.id>
+      <match.id>ref</match.id>
+      <match.id>clihide</match.id>
+      <match.id>cliwidth</match.id>
+      <match.id>gridhide</match.id>
+      <match.id>gridwidth</match.id>
+      <match.id>description</match.id>
+      <match.id>enabled</match.id>
+      <match.id>visible</match.id>
+      <match.id>required</match.id>
+      <match.id>regexp</match.id>
+      <match.id>example</match.id>
+      <match.id>type</match.id>
+      <match.id>default</match.id>
+      <match.id>tooltip</match.id>
+    </match.attribute>
+  </datarule>
+    
+  <datarule id="methods">
+    <match.child>
+      <and>
+        <match.class>method</match.class>
+        <match.rule>method</match.rule>
+      </and>
+    </match.child>
+  </datarule>
+  
+  <datarule id="method">
+    <match.attribute>
+      <and>
+        <match.id>args</match.id>
+        <match.data>
+          <text>static</text>
+          <text>dynamic</text>
+        </match.data>
+      </and>
+      <match.id>description</match.id>
+    </match.attribute>
+    <match.child>
+      <and>
+        <match.class>p</match.class>
+        <match.rule>parameter</match.rule>
+      </and>
+    </match.child>
+  </datarule>
+
+  <datarule id="implementation">
+    <match.mandatory>
+      <mandatory type="child" key="apitype"/>
+    </match.mandatory>
+    <match.child>
+      <and>
+        <match.id>apitype</match.id>
+        <match.data>
+          <text>commandline</text>
+          <text>cgi</text>
+          <text>xml</text>
+          <text>php</text>
+          <text>perl</text>
+          <text>yaml</text>
+          <text>grace</text>
+        </match.data>
+      </and>
+      <match.id>wantsrpc</match.id>
+      <match.id>getconfig</match.id>
+    </match.child>
+  </datarule>
+  
+  <datarule id="authdops">
+	<match.child>
+      	<and><match.id>fileops</match.id><match.rule>fileops</match.rule></and>
+	    <match.id>objects</match.id>
+	    <match.id>services</match.id>
+	    <match.id>commands</match.id>
+	    <match.id>commandclasses</match.id>
+	    <match.id>scripts</match.id>
+	</match.child>
+  </datarule>
+	
+  <datarule id="fileops">
+    <match.child>
+      <match.class>fileop</match.class>
+    </match.child>
+  </datarule>
+  
+  <datarule id="files">
+    <match.child>
+      <match.class>file</match.class>
+    </match.child>
+  </datarule>
+  
+  <datarule id="enums">
+    <match.child>
+      <and>
+        <match.class>enum</match.class>
+        <match.rule>enum</match.rule>
+      </and>
+    </match.child>
+  </datarule>
+
+  <datarule id="enum">
+    <match.child>
+        <match.class>value</match.class>
+    </match.child>
+  </datarule>
+
+</grace.validator>

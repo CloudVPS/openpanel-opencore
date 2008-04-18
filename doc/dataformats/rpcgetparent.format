@@ -1,0 +1,12 @@
+rpcdata: dict with_members
+{
+	header: dict with_members
+	{
+		command: string = "getparent";
+		session_id: string;
+	};
+	body: dict with_members
+	{
+		objectid: string;
+	};
+};

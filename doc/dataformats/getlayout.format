@@ -1,0 +1,28 @@
+root: dict with_members
+{
+	layout: dict with_members
+	{
+		id: string;
+		options: dict with_members 
+		{
+			*: dict with_members 
+			{
+				enabled: bool;
+				visible: bool;
+				default: string | bool | integer;
+				regexp: string
+				required: bool;
+				example: string
+				options: optional dict with_members
+				{
+					*: dict with_members
+					{
+						default: string | bool | integer;
+						regexp: string
+						example: string
+					}
+				}
+			};
+		};
+	};
+};

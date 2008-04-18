@@ -1,0 +1,9 @@
+#include "version.h"
+
+namespace version
+{
+	const string release ("%BUILD_VERSION%");
+	const string hostname ("%BUILD_HOST%");
+	const string user ("%BUILD_USER%");
+	const string date ("%BUILD_DATE%");
+};

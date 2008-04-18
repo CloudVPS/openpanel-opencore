@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml.schema>
+
+  <xml.class name="com.openpanel.svc.opencore.conf">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="system" 	id="system"/>
+      <xml.member class="rpc"		id="rpc"/>
+      <xml.member class="alert"		id="alert"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="system">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="eventlog" id="eventlog"/>
+      <xml.member class="debuglog" id="debuglog"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="eventlog">
+    <xml.type>string</xml.type>
+  </xml.class>
+  
+  <xml.class name="debuglog">
+    <xml.type>string</xml.type>
+  </xml.class>
+  
+  <xml.class name="rpc">
+  	<xml.type>dict</xml.type>
+  	<xml.proplist>
+	  	<xml.member class="unixsocket"	id="unixsocket"/>
+  		<xml.member class="httpsocket" 	id="httpsocket"/> 
+  	</xml.proplist>
+  </xml.class>
+  
+  <xml.class name="unixsocket">
+  	<xml.type>dict</xml.type>
+  	<xml.proplist>
+	  	<xml.member class="minthreads"	id="minthreads"/>
+  		<xml.member class="maxthreads"	id="maxthreads"/>
+  	</xml.proplist>
+  </xml.class>
+  
+  <xml.class name="httpsocket">
+  	<xml.type>dict</xml.type>
+  	<xml.proplist>
+	  	<xml.member class="minthreads"	id="minthreads"/>
+  		<xml.member class="maxthreads"	id="maxthreads"/>
+		<xml.member class="listenport"	id="listenport"/>  
+	</xml.proplist>
+  </xml.class>
+  
+  <xml.class name="minthreads"><xml.type>integer</xml.type></xml.class>
+  <xml.class name="maxthreads"><xml.type>integer</xml.type></xml.class>  
+  <xml.class name="listenport"><xml.type>integer</xml.type></xml.class>
+
+  <xml.class name="alert">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="routing" id="routing"/>
+      <xml.member class="smtp" id="smtp"/>
+      <xml.member class="http" id="http"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="routing"><xml.type>string</xml.type></xml.class>
+  
+  <xml.class name="smtp">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="from" id="from"/>
+      <xml.member class="to" id="to"/>
+      <xml.member class="subject" id="subject"/>
+      <xml.member class="server" id="server"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="from"><xml.type>string</xml.type></xml.class>
+  <xml.class name="to"><xml.type>string</xml.type></xml.class>
+  <xml.class name="subject"><xml.type>string</xml.type></xml.class>
+  <xml.class name="server"><xml.type>string</xml.type></xml.class>
+  
+  <xml.class name="http">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="url" id="url"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="url"><xml.type>string</xml.type></xml.class>
+
+</xml.schema>

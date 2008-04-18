@@ -1,0 +1,21 @@
+.timeout 10000
+-- if any of these queries return rows, something is wrong.
+SELECT "% checking for stale owners";
+SELECT o.id FROM objects o, objects o2 WHERE o.owner=o2.id AND NOT ((o2.wanted=1 AND o2.reality=1) OR o2.deleted=1);
+SELECT "% checking for stale parents";
+SELECT o.id FROM objects o, objects o2 WHERE o.parent=o2.id AND NOT ((o2.wanted=1 AND o2.reality=1) OR o2.deleted=1);
+SELECT "% checking for multiple wanted-markers on same UUID";
+SELECT uuid,COUNT(wanted) FROM objects WHERE wanted=1 GROUP BY uuid HAVING COUNT(wanted)>1;
+SELECT "% checking for multiple reality-markers on same UUID";
+SELECT uuid,COUNT(reality) FROM objects WHERE wanted=1 GROUP BY uuid HAVING COUNT(reality)>1;
+SELECT "% checking for multiple deleted-markers on same UUID";
+SELECT uuid,COUNT(deleted) FROM objects WHERE wanted=1 GROUP BY uuid HAVING COUNT(deleted)>1;
+SELECT "% checking for circular references";
+SELECT o6.class,o5.class,o4.class,o3.class,o2.class,o.metaid, o.parent, o.metaid FROM objects o, objects o2, objects o3, objects o4, objects o5, objects o6 WHERE o6.id=o5.parent AND o5.id=o4.parent AND o4.id=o3.parent AND o3.id=o2.parent AND o2.id=o.parent AND o6.id!=1;
+SELECT "% checking for stale references in other tables";
+SELECT "%% classquota";
+SELECT cq.id FROM classquota cq, objects o WHERE cq.userid=o.id AND NOT ((o.wanted=1 AND o.reality=1) OR o.deleted=1);
+SELECT "%% specialquota";
+SELECT sq.id FROM specialquota sq, objects o WHERE sq.userid=o.id AND NOT ((o.wanted=1 AND o.reality=1) OR o.deleted=1);
+SELECT "%% specialquotausage";
+SELECT squ.id FROM specialquotausage squ, objects o WHERE squ.userid=o.id AND NOT ((o.wanted=1 AND o.reality=1) OR o.deleted=1);

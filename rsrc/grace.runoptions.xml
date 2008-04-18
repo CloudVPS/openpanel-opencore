@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<grace.runoptions>
+  <grace.option id="-h">
+    <grace.long>--help</grace.long>
+  </grace.option>
+  <grace.option id="-d">
+    <grace.long>--debugging-console</grace.long>
+  </grace.option>
+  <grace.option id="-q">
+    <grace.long>--disable-debugging</grace.long>
+  </grace.option>
+  <grace.option id="--reinitialize-module-config">
+    <grace.argc>0</grace.argc>
+    <grace.help>Force a module to resubmit its initial configuration</grace.help>
+  </grace.option>
+  <grace.option id="--emit-dancing-bears">
+    <grace.argc>0</grace.argc>
+    <grace.help>Enable the dancing bears.</grace.help>
+  </grace.option>
+  <grace.option id="--help">
+    <grace.argc>0</grace.argc>
+  </grace.option>
+  <grace.option id="--cookie">
+    <grace.argc>1</grace.argc>
+    <grace.hide>true</grace.hide>
+  </grace.option>
+  <grace.option id="--debugging-console">
+    <grace.argc>0</grace.argc>
+    <grace.help>Enable debugging console</grace.help>
+  </grace.option>
+  <grace.option id="--debug">
+    <grace.argc>1</grace.argc>
+    <grace.help>Selective debugging, use a comma-separated list</grace.help>
+  </grace.option>
+  <grace.option id="--disable-debugging">
+    <grace.argc>0</grace.argc>
+    <grace.help>Disable all debugging dumps</grace.help>
+  </grace.option>
+</grace.runoptions>

@@ -1,0 +1,17 @@
+rpcdata: dict with_members
+{
+	header: dict with_members
+	{
+		command: string; // Can be anything
+		session_id: string; // The only actually important bit.
+	};
+	body: dict with_members
+	{
+		class: string;
+		id: string;
+		data: dict with_members
+		{
+			#:string; // password
+		};
+	};
+};

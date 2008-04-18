@@ -1,0 +1,16 @@
+root: dict with_members
+{
+	$classname: dict with_attributes { type: string = "class"; }
+	with_members
+	{
+		$id: dict with_attributes
+		{
+			type: string = "object"
+		}
+		with_members
+		{
+			class,uuid,metaid,id: string;
+		    *: string | integer | bool;
+		};
+	};
+};

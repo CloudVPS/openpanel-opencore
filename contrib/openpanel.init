@@ -1,0 +1,37 @@
+#! /bin/sh
+# Version:	@(#)openpanel 0.99 11-Nov-2006  danny@panelsix.com
+#
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+NAME=openpanel
+
+set -e
+
+case "$1" in
+  start)
+    /etc/init.d/openpanel-ssl start || true
+	/etc/init.d/openpanel-authd start || true
+	/etc/init.d/openpanel-swupd start || true
+	/etc/init.d/openpanel-core start || true
+	;;
+
+  stop)
+	/etc/init.d/openpanel-core stop || true
+	/etc/init.d/openpanel-authd stop || true
+	/etc/init.d/openpanel-swupd stop || true
+	/etc/init.d/openpanel-ssl stop || true
+	;;
+  restart)
+    stop
+    sleep 10
+    start
+    ;;
+  *)
+	N=/etc/init.d/$NAME
+	# echo "Usage: $N {start|stop}" >&2
+	echo "Usage: $N {start|stop}" >&2
+	exit 1
+	;;
+esac
+
+exit 0

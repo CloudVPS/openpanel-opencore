@@ -1,0 +1,14 @@
+rpcdata: dict with_members
+{
+	header: dict with_members
+	{
+		command: string = "setactorquota";
+		session_id: string;
+	};
+	body: dict with_members
+	{
+		classid: string; // uuid
+		count: int;
+		actorid: string; // uuid
+	};
+};

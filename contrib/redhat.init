@@ -1,0 +1,120 @@
+#!/bin/bash
+#
+# Init file for OpenPanel opencore daemon
+#
+# chkconfig: 2345 92 24
+# description: OpenPanel opencore daeemon
+#
+# processname: opencore
+# pidfile: /var/run/com.openpanel.svc.opencore.pid
+
+# Source function library
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+[ -r /etc/sysconfig/network ] && . /etc/sysconfig/network
+
+[ -n "$ROOTDIR" ] && ROOTDIR=`echo $ROOTDIR | sed 's#//*#/#g;s#/$##'`
+
+RETVAL=0
+prog="opencore"
+
+# Check that networking is up.
+[ "${NETWORKING}" = "no" ] && exit 1
+
+DAEMON=/var/opencore/bin/opencore
+NAME=com.openpanel.svc.opencore
+
+# Check if executable exists
+test -x $DAEMON || exit 0
+
+startauthd() {
+	service openpanel-authd start
+	sleep 2
+}
+
+startswupd() {
+	service openpanel-swupd start
+}
+
+start() {
+	if [ ! -f /etc/init.d/openpanel-authd ]; then
+	  echo -n "authd not installed"
+	  failure
+	  echo
+	  return 1
+	fi
+	if [ ! -f /var/run/com.openpanel.svc.authd.pid ]; then
+	  startauthd
+	else
+	  kill -0 `cat /var/run/com.openpanel.svc.authd.pid` >/dev/null 2>&1 || startauthd
+	fi
+	if [ ! -f /etc/init.d/openpanel-swupd ]; then
+	  echo -n ""
+	elif [ ! -f /var/run/com.openpanel.svc.swupd.pid ]; then
+	  startswupd
+	else
+	  kill -0 `cat /var/run/com.openpanel.svc.swupd.pid` >/dev/null 2>&1 || startswupd
+	fi
+	echo -n $"Starting $prog: "
+	if [ -f /var/run/${NAME}.pid ]; then
+	  if kill -0 `cat /var/run/${NAME}.pid` 2>/dev/null; then
+		echo -n $"$prog: already running"
+		failure
+		echo
+		return 1
+	  fi
+	fi
+	daemon $DAEMON || {
+	  failure
+	  echo
+	  return 1
+	}
+	success
+	echo
+}
+
+
+stop() {
+	echo -n $"Stopping $prog: "
+		if [ -f /var/run/${NAME}.pid ]; then
+			if kill -TERM `cat /var/run/${NAME}.pid` 2>/dev/null; then
+				RETVAL=0
+				success
+			else
+				RETVAL=1
+				failure
+			fi
+        else
+        	RETVAL=1
+            failure
+        fi;
+        echo
+        return $RETVAL
+}
+
+
+restart () {
+	stop
+	sleep 4
+	start
+}
+
+
+# See how we were called.
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart)
+		restart
+		;;
+	*)
+	echo $"Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?

@@ -1,0 +1,18 @@
+rpcdata: dict with_members
+{
+	header: dict with_members
+	{
+		command: string = "create";
+		session_id: string;
+	};
+	body: dict with_members
+	{
+		class: string;
+		id: string; // may be empty, otherwise metaid.
+		parent_id: string; // uuid of parent, or empty for root object
+		data: dict with_members
+		{
+			*:*; // Member data for the specific class.
+		};
+	};
+};

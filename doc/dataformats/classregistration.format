@@ -1,0 +1,25 @@
+root: dict with_attributes
+{
+	name: string;
+	uuid: string;
+	version: integer;
+	indexing: enum ("manual", "auto");
+	uniquein: enum ("parent", "class");
+	shortname: string;
+	description: string;
+	requires: optional string;
+	allchildren: bool;
+	maxinstances: optional integer;
+}
+with_members
+{
+	*:string with_attributes
+	{
+		type: string;
+		description: string;
+		refclass: optional string;
+		reflabel: optional string;
+		nick: optional string;
+	};
+};
+

@@ -1,0 +1,7 @@
+#!/bin/sh
+exec > api/python/package/OpenPanel/error.py
+perl -ne '
+if (m!^#define (ERR_[^ ]+)\s+(0x\d+)\s*//\s*(.*)!)
+{
+	print "$1 = $2\n";
+}' < error.h

@@ -1,0 +1,8 @@
+rpcdata: dict with_members
+{
+	header: dict with_members
+	{
+		command: string = "quit";
+		session_id: string;
+	};
+};

@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml.schema>
+
+  <xml.schema.options>
+    <xml.option.rootclass>com.openpanel.opencore.module</xml.option.rootclass>
+  </xml.schema.options>
+  
+  <xml.class name="com.openpanel.opencore.module">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="name" 				id="name"/>
+      <xml.member class="opencoreversion" 	id="opencoreversion" type="string"/>
+      <xml.member class="requires"			id="requires"/>
+      <xml.member class="uuid" 				id="uuid"/>
+      <xml.member class="version" 			id="version"/>
+      <xml.member class="languages"			id="languages"/>
+      <xml.member class="classes" 			id="classes"/>
+      <xml.member class="quotas"			id="quotas"/>
+      <xml.member class="enums" 			id="enums"/>
+      <xml.member class="authdops" 			id="authdops"/>
+      <xml.member class="implementation" 	id="implementation"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="languages"><xml.type>void</xml.type></xml.class>
+
+  <xml.class name="name"><xml.type>string</xml.type></xml.class>
+  <xml.class name="uuid"><xml.type>string</xml.type></xml.class>
+  <xml.class name="version"><xml.type>integer</xml.type></xml.class>
+  
+  <xml.class name="classes">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="class"/>
+    </xml.proplist>
+  </xml.class>
+  
+  
+  <xml.class name="class">
+    <xml.type>dict</xml.type>
+    <xml.attributes>
+      <xml.attribute label="id" mandatory="true" isindex="true">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+    </xml.attributes>
+    <xml.proplist>
+      <xml.member class="uuid"				id="uuid"/>
+      <xml.member class="version"			id="version"/>
+      <xml.member class="indexing"			id="indexing"/>
+      <xml.member class="requires"			id="requires"/>
+      <xml.member class="shortname"			id="shortname"/>
+      <xml.member class="title"				id="title"/>
+      <xml.member class="description"		id="description"/>
+      <xml.member class="explanation"		id="explanation"/>
+      <xml.member class="sortindex"			id="sortindex"/>
+      <xml.member class="icon"				id="icon"/>
+      <xml.member class="allchildren"		id="allchildren"/>
+      <xml.member class="parentrealm"		id="parentrealm"/>
+      <xml.member class="parameters"		id="parameters"/>
+      <xml.member class="capabilities"		id="capabilities"/>
+      <xml.member class="methods"			id="methods"/>
+      <xml.member class="dynamic"			id="dynamic"/>
+      <xml.member class="maxinstances"		id="maxinstances"/>
+      <xml.member class="singleton"		    id="singleton"/>
+      <xml.member class="uniquein"			id="uniquein"/>
+      <xml.member class="uniqueclass"		id="uniqueclass"/>
+      <xml.member class="childrendep"		id="childrendep"/>
+      <xml.member class="worldreadable"		id="worldreadable"/>
+      <xml.member class="menuclass"			id="menuclass"/>
+      <xml.member class="magicdelimiter"	id="magicdelimiter"/>
+      <xml.member class="prototype"			id="prototype"/>
+      <xml.member class="metatype"          id="metatype"/>
+      <xml.member class="metabase"          id="metabase"/>
+      <xml.member class="metadescription"   id="metadescription"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="indexing"><xml.type>string</xml.type></xml.class>
+  <xml.class name="requires"><xml.type>string</xml.type></xml.class>
+  <xml.class name="shortname"><xml.type>string</xml.type></xml.class>
+  <xml.class name="title"><xml.type>string</xml.type></xml.class>
+  <xml.class name="description"><xml.type>string</xml.type></xml.class>
+  <xml.class name="explanation"><xml.type>string</xml.type></xml.class>
+  <xml.class name="sortindex"><xml.type>integer</xml.type></xml.class>
+  <xml.class name="icon"><xml.type>string</xml.type></xml.class>
+  <xml.class name="allchildren"><xml.type>bool</xml.type></xml.class>
+  <xml.class name="parentrealm"><xml.type>string</xml.type></xml.class>
+  <xml.class name="maxinstances"><xml.type>integer</xml.type></xml.class>
+  <xml.class name="singleton"><xml.type>string</xml.type></xml.class>
+  <xml.class name="uniquein"><xml.type>string</xml.type></xml.class>
+  <xml.class name="uniqueclass"><xml.type>string</xml.type></xml.class>
+  <xml.class name="childrendep"><xml.type>string</xml.type></xml.class>
+  <xml.class name="worldreadable"><xml.type>bool</xml.type></xml.class>
+  <xml.class name="dynamic"><xml.type>bool</xml.type></xml.class>
+  <xml.class name="menuclass"><xml.type>string</xml.type></xml.class>
+  <xml.class name="magicdelimiter"><xml.type>string</xml.type></xml.class>
+  <xml.class name="prototype"><xml.type>string</xml.type></xml.class>
+  <xml.class name="metatype"><xml.type>string</xml.type></xml.class>
+  <xml.class name="metabase"><xml.type>string</xml.type></xml.class>
+  <xml.class name="metadescription"><xml.type>string</xml.type></xml.class>
+
+  <xml.class name="capabilities">
+    <xml.type>void</xml.type>
+    <xml.attributes>
+      <xml.attribute label="create">
+      	<xml.type>void</xml.type>
+      </xml.attribute>
+      <xml.attribute label="update">
+      	<xml.type>void</xml.type>
+      </xml.attribute>
+      <xml.attribute label="delete">
+      	<xml.type>void</xml.type>
+      </xml.attribute>
+      <xml.attribute label="validate">
+      	<xml.type>void</xml.type>
+      </xml.attribute>
+      <xml.attribute label="admin">
+        <xml.type>void</xml.type>
+      </xml.attribute>
+    </xml.attributes>
+  </xml.class>
+  
+  <xml.class name="methods">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="method"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="method">
+    <xml.type>dict</xml.type>
+    <xml.attributes>
+      <xml.attribute label="id" mandatory="true" isindex="true">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+      <xml.attribute label="args">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+      <xml.attribute label="description">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+    </xml.attributes>
+    <xml.proplist>
+      <xml.member class="p"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="parameters">
+  	<xml.type>dict</xml.type>
+  	<xml.proplist>
+  	  <xml.member class="p"/>
+  	</xml.proplist>
+  </xml.class>
+  
+  
+  <xml.class name="p">
+  	<xml.type>string</xml.type>
+  	<xml.attributes>
+  	  <xml.attribute label="id" mandatory="true" isindex="true"> 
+  	  	<xml.type>string</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="type" mandatory="true">
+  	    <xml.type>string</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="nick">
+  	    <xml.type>string</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="group">
+  	    <xml.type>string</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="ref">
+  	    <xml.type>string</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="crypt">
+  	    <xml.type>string</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="clihide">
+  	    <xml.type>bool</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="cliwidth">
+  	    <xml.type>integer</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="gridhide">
+  	    <xml.type>bool</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="gridwidth">
+  	    <xml.type>integer</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="enabled">
+  	    <xml.type>void</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="visible">
+  	    <xml.type>void</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="required">
+  	  	<xml.type>void</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="regexp">
+  	  	<xml.type>string</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="example">
+  	  	<xml.type>string</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="default">
+  	    <xml.type>string</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="tooltip">
+  	    <xml.type>string</xml.type>
+  	  </xml.attribute>
+  	</xml.attributes>
+  </xml.class>
+  
+  <xml.class name="quotas">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="quota"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="quota">
+    <xml.type>string</xml.type>
+    <xml.attributes>
+      <xml.attribute label="tag" mandatory="true" isindex="true">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+    </xml.attributes>
+  </xml.class>
+  
+  <xml.class name="enums">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="enum"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="enum">
+    <xml.type>dict</xml.type>
+    <xml.attributes>
+      <xml.attribute label="id" mandatory="true" isindex="true">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+    </xml.attributes>
+    <xml.proplist>
+      <xml.member class="value"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="value">
+    <xml.type>string</xml.type>
+    <xml.attributes>
+      <xml.attribute label="id" mandatory="true" isindex="true">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+    </xml.attributes>
+  </xml.class>
+  
+  <xml.class name="implementation">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="apitype" id="apitype"/>
+      <xml.member class="wantsrpc" id="wantsrpc"/>
+      <xml.member class="getconfig" id="getconfig"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="apitype">
+    <xml.type>string</xml.type>
+  </xml.class>
+  
+  <xml.class name="wantsrpc">
+    <xml.type>bool</xml.type>
+  </xml.class>
+
+  <xml.class name="getconfig">
+    <xml.type>bool</xml.type>
+  </xml.class>
+  
+  <xml.class name="authdops">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="fileops" id="fileops"/>
+      <xml.member class="objects" id="objects"/>
+      <xml.member class="services" id="services"/>
+      <xml.member class="commands" id="commands"/>
+      <xml.member class="commandclasses" id="commandclasses"/>
+      <xml.member class="scripts" id="scripts"/>
+      <xml.member class="fileops" id="fileops"/>
+    </xml.proplist>
+  </xml.class>
+
+  <xml.class name="fileops">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="fileop"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="fileop">
+    <xml.type>string</xml.type>
+    <xml.attributes>
+      <xml.attribute label="pattern" mandatory="true" isindex="true">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+      <xml.attribute label="user"><xml.type>string</xml.type></xml.attribute>
+      <xml.attribute label="group"><xml.type>string</xml.type></xml.attribute>
+      <xml.attribute label="mode"><xml.type>string</xml.type></xml.attribute>
+    </xml.attributes>
+  </xml.class>
+
+  <xml.class name="objects">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="object"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="object">
+    <xml.type>string</xml.type>
+    <xml.attributes>
+      <xml.attribute label="id" mandatory="true" isindex="true">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+    </xml.attributes>
+  </xml.class>
+  
+  <xml.class name="services">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="service"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="service">
+    <xml.type>string</xml.type>
+    <xml.attributes>
+      <xml.attribute label="id" mandatory="true" isindex="true">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+    </xml.attributes>
+  </xml.class>
+
+  <xml.class name="commands">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="command"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="command">
+    <xml.type>string</xml.type>
+    <xml.attributes>
+      <xml.attribute label="id" mandatory="true" isindex="true">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+    </xml.attributes>
+  </xml.class>
+
+  <xml.class name="commandclasses">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="commandclass"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="commandclass">
+    <xml.type>string</xml.type>
+    <xml.attributes>
+      <xml.attribute label="id" mandatory="true" isindex="true">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+    </xml.attributes>
+  </xml.class>
+
+  <xml.class name="scripts">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="script"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="script">
+    <xml.type>string</xml.type>
+    <xml.attributes>
+      <xml.attribute label="id" mandatory="true" isindex="true">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+      <xml.attribute label="asroot" mandatory="false" isindex="false">
+        <xml.type>bool</xml.type>
+      </xml.attribute>
+      <xml.attribute label="asuser" mandatory="false" isindex="false">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+    </xml.attributes>
+  </xml.class>
+
+</xml.schema>

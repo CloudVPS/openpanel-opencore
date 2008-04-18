@@ -1,0 +1,23 @@
+syntax: glob
+*.o
+*.a
+*.pyo
+*.pyc
+makeinclude
+platform.h
+.gdb_history
+ktrace.out
+zones/
+opencore
+opencore.app
+techsupport
+techsupport.app
+version.cpp
+version.id
+kickstart.panel.db
+doc/generated
+configure.paths
+configure.log
+graceclient/opencli.app
+api/python/package/OpenPanel/error.py
+rsrc/resources.xml

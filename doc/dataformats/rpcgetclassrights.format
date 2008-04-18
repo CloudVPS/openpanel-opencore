@@ -1,0 +1,12 @@
+rpcdata: dict with_members
+{
+	header: dict with_members
+	{
+		command: string = "getclassrights";
+		session_id: string;
+	};
+	body: dict with_members
+	{
+                userid: optional string; // uuid or meta
+	};
+};

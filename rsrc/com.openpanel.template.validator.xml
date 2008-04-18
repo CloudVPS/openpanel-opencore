@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<grace.validator>
+  <datarule id="root">
+    <match.mandatory>
+      <mandatory type="child" key="name"/>
+      <mandatory type="child" key="description"/>
+      <mandatory type="child" key="longdesc"/>
+      <mandatory type="child" key="parameters"/>
+      <mandatory type="child" key="objects"/>
+    </match.mandatory>
+    <match.child>
+      <match.id>name</match.id>
+      <match.id>description</match.id>
+      <match.id>longdesc</match.id>
+      <match.id>context</match.id>
+      <and>
+        <match.id>parameters</match.id>
+        <match.rule>parameters</match.rule>
+      </and>
+      <and>
+        <match.id>layout</match.id>
+        <match.rule>single-layout</match.rule>
+      </and>
+      <and>
+        <match.id>layouts</match.id>
+        <match.rule>layouts</match.rule>
+      </and>
+      <and>
+        <match.id>objects</match.id>
+        <match.rule>objects</match.rule>
+      </and>
+    </match.child>
+  </datarule>
+  
+  <datarule id="single-layout">
+    <match.child>
+      <and>
+        <match.class>opt</match.class>
+        <match.rule>opt</match.rule>
+      </and>
+    </match.child>
+  </datarule>
+  
+  <datarule id="layout">
+    <match.mandatory>
+      <mandatory type="attribute" key="description"/>
+    </match.mandatory>
+    <match.child>
+      <and>
+        <match.class>opt</match.class>
+        <match.rule>opt</match.rule>
+      </and>
+    </match.child>
+  </datarule>
+  
+  <datarule id="layouts">
+    <match.child>
+      <match.rule>layout</match.rule>
+    </match.child>
+  </datarule>
+  
+  <datarule id="opt">
+    <match.mandatory>
+      <mandatory type="attribute" key="regexp"/>
+      <mandatory type="attribute" key="example"/>
+    </match.mandatory>
+    <match.attribute>
+      <match.id>enabled</match.id>
+      <match.id>visible</match.id>
+      <match.id>required</match.id>
+      <match.id>regexp</match.id>
+      <match.id>example</match.id>
+    </match.attribute>
+    <match.child>
+      <and>
+        <match.class>opt</match.class>
+        <match.rule>opt</match.rule>
+      </and>
+    </match.child>
+  </datarule>
+
+  <datarule id="parameters">
+    <match.child>
+      <and>
+        <match.class>p</match.class>
+        <match.rule>parameter</match.rule>
+      </and>
+    </match.child>
+  </datarule>
+  
+  <datarule id="parameter">
+    <match.mandatory>
+      <mandatory type="attribute" key="type"/>
+    </match.mandatory>
+    <match.attribute>
+      <and>
+        <match.id>crypt</match.id>
+        <match.data>
+          <text>extern</text>
+          <text>md5</text>
+        </match.data>
+      </and>
+      <and>
+        <match.id>type</match.id>
+        <match.data>
+          <text>string</text>
+          <text>integer</text>
+          <text>enum</text>
+          <text>bool</text>
+          <text>layoutid</text>
+          <text>ref</text>
+          <text>password</text>
+          <text>group</text>
+        </match.data>
+      </and>
+      <match.id>nick</match.id>
+      <match.id>ref</match.id>
+    </match.attribute>
+  </datarule>
+
+  <datarule id="objects">
+    <match.child>
+      <and>
+        <match.class>object</match.class>
+        <match.rule>object</match.rule>
+      </and>
+    </match.child>
+  </datarule>
+  
+  <datarule id="object">
+    <match.mandatory>
+      <mandatory type="attribute" key="class"/>
+      <mandatory type="child" key="members"/>
+    </match.mandatory>
+    <match.child>
+      <and><match.id>members</match.id><match.rule>members</match.rule></and>
+      <and><match.id>children</match.id><match.rule>objects</match.rule></and>
+    </match.child>
+  </datarule>
+  
+  <datarule id="members">
+    <match.child>
+      <match.class>string</match.class>
+      <match.class>integer</match.class>
+    </match.child>
+  </datarule>
+  
+</grace.validator>

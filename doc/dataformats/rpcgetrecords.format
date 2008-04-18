@@ -1,0 +1,16 @@
+rpcdata: dict with_members
+{
+	header: dict with_members
+	{
+		command: string = "getrecords";
+		session_id: string;
+	};
+	body: dict with_members
+	{
+                parentid: optional string; // uuid
+                classid: optional string; // uuid
+                offset: optional int; // always together with count
+		count: optional int; // always together with offset
+		whitelist: optional array;
+	};
+};

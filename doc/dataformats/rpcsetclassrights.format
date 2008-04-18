@@ -1,0 +1,16 @@
+rpcdata: dict with_members
+{
+	header: dict with_members
+	{
+		command: string = "setclassrights";
+		session_id: string;
+	};
+	body: dict with_members
+	{
+		userid: string; // uuid or meta
+		rights: dict with_members
+		{
+			*:*; // Member data for the specific class.
+		};
+	};
+};

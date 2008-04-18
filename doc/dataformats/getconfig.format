@@ -1,0 +1,21 @@
+opencore.module: dict with_members
+{
+	$classname: dict with_attributes { type: string = "class"; }
+	with_members
+	{
+		*: dict with_members
+		{
+			*: string | integer | bool;
+			$classname: optional dict with_attributes { type: string; }
+			with_members
+			{
+				// keep on nesting for child objects.
+			};
+		};
+	};
+	"OpenCORE:result": dict with_members
+	{
+		id: integer;
+		message: string;
+	};
+};

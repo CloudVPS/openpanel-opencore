@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml.schema>
+
+  <!-- template root class -->
+  <xml.class name="template">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="name" id="name" type="string"/>
+      <xml.member class="description" id="description" type="string"/>
+      <xml.member class="longdesc" id="longdesc" type="string"/>
+      <xml.member class="context" id="context" type="string"/>
+      <xml.member class="parameters" id="parameters"/>
+      <xml.member class="layouts" id="layouts"/>
+      <xml.member class="layout" id="layout"/>
+      <xml.member class="objects" id="objects"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <!-- parameters class, borrowed from module schema -->
+  <xml.class name="parameters">
+  	<xml.type>dict</xml.type>
+  	<xml.proplist>
+  	  <xml.member class="p"/>
+  	</xml.proplist>
+  </xml.class>
+  
+  <xml.class name="p">
+  	<xml.type>string</xml.type>
+  	<xml.attributes>
+  	  <xml.attribute label="id" mandatory="true" isindex="true"> 
+  	  	<xml.type>string</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="type" mandatory="true">
+  	    <xml.type>string</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="nick">
+  	    <xml.type>string</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="ref">
+  	    <xml.type>string</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="crypt">
+  	    <xml.type>string</xml.type>
+  	  </xml.attribute>
+  	</xml.attributes>
+  </xml.class>
+
+  <!-- layout classes, borrowed from module schema -->
+  <xml.class name="layout">
+  	<xml.type>dict</xml.type>
+  	<xml.attributes>
+  		<xml.attribute label="id" isindex="true">
+  		  <xml.type>string</xml.type>
+  		</xml.attribute>
+  		<xml.attribute label="description">
+  		  <xml.type>string</xml.type>
+  		</xml.attribute>
+  	</xml.attributes>
+  	<xml.proplist>
+  	  <xml.member class="opt"	id="opt"/>
+  	</xml.proplist>
+  </xml.class>
+
+  <xml.class name="layouts">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="layout" 	id="layout"/>
+    </xml.proplist>
+  </xml.class>
+    
+  <xml.class name="opt">
+  	<xml.type>dict</xml.type>
+  	<xml.attributes>
+  	  <xml.attribute label="id" mandatory="true" isindex="true">
+  	  	<xml.type>string</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="enabled">
+  	    <xml.type>void</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="visible">
+  	    <xml.type>void</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="required">
+  	  	<xml.type>void</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="regexp">
+  	  	<xml.type>string</xml.type>
+  	  </xml.attribute>
+  	  <xml.attribute label="example">
+  	  	<xml.type>string</xml.type>
+  	  </xml.attribute>
+  	</xml.attributes>
+  	<xml.proplist>
+  	  <xml.member class="opt" />
+  	</xml.proplist>
+  </xml.class>
+
+  <xml.class name="objects">
+    <xml.type>array</xml.type>
+    <xml.proplist>
+      <xml.member class="object"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="object">
+    <xml.type>dict</xml.type>
+    <xml.attributes>
+      <xml.attribute label="class" mandatory="true">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+      <xml.attribute label="id" mandatory="true">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+      <xml.attribute label="__internally_remapped_id__" isindex="true">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+    </xml.attributes>
+    <xml.proplist>
+      <xml.member class="members" id="members"/>
+      <xml.member class="children" id="children"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="members">
+    <xml.type>dict</xml.type>
+    <xml.proplist>
+      <xml.member class="string"/>
+      <xml.member class="integer"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="string">
+    <xml.type>string</xml.type>
+    <xml.attributes>
+      <xml.attribute label="id" mandatory="true" isindex="true">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+    </xml.attirbutes>
+  </xml.class>
+  
+  <xml.class name="integer">
+    <xml.type>integer</xml.type>
+    <xml.attributes>
+      <xml.attribute label="id" mandatory="true" isindex="true">
+        <xml.type>string</xml.type>
+      </xml.attribute>
+    </xml.attributes>
+  </xml.class>
+  
+  <xml.class name="children">
+    <xml.type>array</xml.type>
+    <xml.proplist>
+      <xml.member class="object"/>
+    </xml.proplist>
+  </xml.class>
+
+</xml.schema>

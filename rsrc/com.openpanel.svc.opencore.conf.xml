@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.openpanel.svc.opencore.conf>
+  <system>
+    <eventlog>/var/opencore/log/opencore.event.log</eventlog>
+    <debuglog>/var/opencore/log/opencore.debug.log</debuglog>
+  </system>
+  <alert>
+    <routing>smtp</routing>
+    <smtp>
+      <to>root</to>
+      <from>opencore@localhost</from>
+      <subject>Critical OpenPanel error</subject>
+      <server>127.0.0.1</server>
+    </smtp>
+  </alert>
+  <rpc>
+    <unixsocket>
+      <minthreads>4</minthreads>
+      <maxthreads>16</maxthreads>
+    </unixsocket>
+    <httpsocket>
+      <listenport>3300</listenport>
+      <minthreads>4</minthreads>
+      <maxthreads>16</maxthreads>    
+    </httpsocket>
+  </rpc>
+</com.openpanel.svc.opencore.conf>

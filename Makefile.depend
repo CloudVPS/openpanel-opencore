@@ -1,0 +1,29 @@
+# DO NOT DELETE
+
+alerts.o: alerts.h paths.h opencore.h moduledb.h module.h session.h api.h
+alerts.o: dbmanager.h status.h opencorerpc.h
+api.o: api.h opencore.h moduledb.h module.h session.h dbmanager.h paths.h
+api.o: status.h opencorerpc.h debug.h
+dbmanager.o: dbmanager.h paths.h opencore.h moduledb.h module.h session.h
+dbmanager.o: api.h status.h opencorerpc.h debug.h error.h
+debug.o: debug.h opencore.h moduledb.h module.h session.h api.h dbmanager.h
+debug.o: paths.h status.h opencorerpc.h
+livesource.o: livesource.h opencore.h moduledb.h module.h session.h api.h
+livesource.o: dbmanager.h paths.h status.h opencorerpc.h
+main.o: opencore.h moduledb.h module.h session.h api.h dbmanager.h paths.h
+main.o: status.h opencorerpc.h version.h debug.h alerts.h
+module.o: module.h session.h api.h dbmanager.h paths.h status.h opencore.h
+module.o: moduledb.h opencorerpc.h debug.h alerts.h
+moduledb.o: moduledb.h module.h session.h api.h dbmanager.h paths.h status.h
+moduledb.o: error.h opencore.h opencorerpc.h debug.h alerts.h
+opencorerpc.o: opencorerpc.h opencore.h moduledb.h module.h session.h api.h
+opencorerpc.o: dbmanager.h paths.h status.h rpcrequesthandler.h
+rpc.o: rpc.h session.h api.h dbmanager.h paths.h error.h opencore.h
+rpc.o: moduledb.h module.h status.h opencorerpc.h debug.h
+rpcrequesthandler.o: rpcrequesthandler.h opencore.h moduledb.h module.h
+rpcrequesthandler.o: session.h api.h dbmanager.h paths.h status.h
+rpcrequesthandler.o: opencorerpc.h debug.h rpc.h
+session.o: session.h api.h dbmanager.h paths.h moduledb.h module.h status.h
+session.o: error.h opencore.h opencorerpc.h debug.h alerts.h
+techsupport.o: dbmanager.h paths.h
+version.o: version.h

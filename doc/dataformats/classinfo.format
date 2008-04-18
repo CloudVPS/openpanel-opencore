@@ -1,0 +1,81 @@
+root: dict with_members
+{
+	layouts: dict with_members
+	{
+		*:string; // Description
+	};
+	structure: dict with_members
+	{
+		parameters: dict with_members
+		{
+			*: dict with_members
+			{
+				description: string;
+				type: string;
+				refclass: optional string;
+				reflabel: optional string;
+				nick: optional string;
+			};
+		};
+		methods: optional dict with_members
+		{
+			*: dict with_members
+			{
+				description: string;
+				type: string; // "static" or "dynamic"
+				param: optional dict_with_members
+				{
+					*: dict with_members
+					{
+						type: string;
+						description: string;
+					}
+				}
+			}
+		}
+	};
+	capabilities: dict with_members
+	{
+		create: bool;
+		delete: bool;
+		update: bool;
+		getinfo: bool;
+	};
+	enums: dict with_members
+	{
+		*: dict_with_members
+		{
+			*:void; // Just a list of keys.
+		};
+	};
+	class: dict with_members
+	{
+		id: string; // classname
+		uuid: string; // class-uuid
+		shortname: string; // short name
+		description: string; // description
+	};
+	
+	// The following node is not created in coreclass::makeclassinfo
+	
+	info: dict with_members
+	{
+		parent: dict with_members
+		{
+			id: string; // classname
+			uuid: string; // class-uuid
+			shortname: string; // short name
+			description: string;
+		}
+		children: dict with_members
+		{
+			*: dict with_members
+			{
+				id: string; // classname
+				uuid: string; // class-uuid
+				shortname: string; // short name
+				description: string; // description
+			};
+		};
+	};
+};

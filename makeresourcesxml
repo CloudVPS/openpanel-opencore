@@ -1,0 +1,20 @@
+#!/bin/sh
+exec > rsrc/resources.xml
+cat << __EOF
+<?xml version="1.0" encoding="utf-8"?>
+<opencore.rsrc>
+  <dict id="errors">
+    <dict id="en">
+__EOF
+
+perl -ne '
+if (m!^#define (ERR_[^ ]+)\s+(0x\d+)\s*//\s*(.*)!)
+{
+	print "	  <string id=\"$2\">$3</string>\n";
+}' < error.h
+
+cat << __EOF
+    </dict>
+  </dict>
+</opencore.rsrc>
+__EOF

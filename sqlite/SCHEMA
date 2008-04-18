@@ -1,0 +1,74 @@
+-- no ordering should be inferred from any ID - look at transactions for that
+--
+-- uniquecontext, when NOT NULL, points to objects.id
+--
+-- classes that demand contextless uniqueness on the metaid (domains, http vhosts)
+-- refer to the class object; class objects have class 1
+-- 
+-- UNIQUE index on
+-- * (uuid,version)
+-- * (uniquecontext,metaid); adding class to this one is up for debate
+-- 
+-- content is always a serialized GRACE value, according to some 
+-- efficient XML schema with output similar to
+--   <s id="host">www</s><s id="type">A</s><s id="target">1.2.3.4</s>
+-- the wanted and reality columns are purely caching and up for debate
+--
+-- no attributes-table - attributes are either childobjects, or part of
+-- the serialization
+--
+-- TODO: indexes!
+-- maybe make reality and wanted NULL for false so we can enforce
+-- through indexes that only one version of an object is ever marked
+-- although we guarantee that through smart update-queries right now
+CREATE TABLE objects (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+uuid TEXT NOT NULL,
+version NUMERIC NOT NULL,
+metaid TEXT COLLATE NOCASE,
+parent INTEGER,
+owner INTEGER,
+uniquecontext INTEGER,
+class NUMERIC NOT NULL,
+content TEXT NOT NULL,
+reality BOOL DEFAULT 0,
+wanted BOOL DEFAULT 0,
+deleted BOOL DEFAULT 0,
+postponed BOOL DEFAULT 0,
+UNIQUE (uuid,version),
+UNIQUE (uniquecontext,metaid,version));
+
+CREATE INDEX metaid ON objects (metaid);
+
+CREATE TABLE classquota (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+userid INTEGER NOT NULL,
+classid INTEGER NOT NULL,
+quota INTEGER,
+UNIQUE (userid, classid));
+
+CREATE TABLE specialquota (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+userid INTEGER NOT NULL,
+tag TEXT NOT NULL,
+quota INTEGER,
+warning INTEGER,
+UNIQUE (userid, tag));
+
+CREATE TABLE specialquotausage (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+userid INTEGER NOT NULL,
+tag TEXT NOT NULL,
+usage INTEGER,
+UNIQUE (userid, tag));
+
+CREATE TABLE powermirror (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+userid INTEGER NOT NULL,
+powerid INTEGER NOT NULL);
+
+-- searchability; valueid refers to an entry in objectvalues 
+CREATE TABLE searchkeys (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+searchkey TEXT,
+objectid NUMERIC NOT NULL);

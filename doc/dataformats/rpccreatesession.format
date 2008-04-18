@@ -1,0 +1,16 @@
+rpcdata: dict with_members
+{
+	header: dict with_members
+	{
+		command: string = "bind";
+	};
+	body: dict with_members
+	{
+		class: string = "User";
+		id: string;
+		data: dict with_members
+		{
+			#:string; // password
+		};
+	};
+};
