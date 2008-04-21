@@ -247,7 +247,7 @@ bool coreclass::normalizelayoutnode (value &p, value &mdata, string &error)
 		nm = "field-%s.%s" %format (name, p.id());
 		DEBUG.storefile ("class", nm, p, "normalizelayoutnode");
 
-		bool exists = mdata.exists (p.id());
+		bool exists = mdata.exists (p.id()) && mdata[p.id()].sval();
 		if ((! exists) && (! p("default").sval()))
 		{
 			DEBUG.storefile ("class","req-no-default", p, "normalizelayoutnode");
