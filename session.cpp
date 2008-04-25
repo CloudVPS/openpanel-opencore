@@ -1703,6 +1703,16 @@ value *coresession::getobject (const statstring &parentid,
 		return &res;
 	}
 	
+	// Is the class dynamic? NB: dynamic classes can not be derived
+	// from a metaclass, ktxbai.
+	if (mdb.isdynamic (ofclass))
+	{
+		CORE->log (log::debug, "session", "Class is dynamic");
+		
+		if (! syncdynamicobjects (parentid, ofclass, 0, -1))
+			return &res;
+	}
+	
 	if (! db.fetchobject (res, uuid, false /* formodule */))
 	{
 		CORE->log (log::critical, "session", "Database failure getting object-"
