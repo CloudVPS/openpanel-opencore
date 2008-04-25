@@ -1063,6 +1063,10 @@ bool coresession::deleteobject (const statstring &parentid,
 		return false;
 	}
 	
+	// Inspect the first object for $prototype$ mess.
+	// FIXME: be smarter about this.
+	bool firstobject = true;
+	
 	foreach(uuid, uuidlist)
 	{	
 		bool deletesucceeded = db.deleteobject (uuid, immediate, true);
@@ -1083,6 +1087,21 @@ bool coresession::deleteobject (const statstring &parentid,
 
 		// Get the parameters for the module action.
 		db.fetchobject (parm, uuid, true /* formodule */);
+		
+		if (firstobject)
+		{
+			firstobject = false;
+			foreach (obj, parm)
+			{
+				if (obj["metaid"].sval().strstr("$prototype$") >= 0)
+				{
+					CORE->log (log::error, "session", "Denied delete of "
+							   "prototype object");
+					seterror (ERR_SESSION_NOTALLOWED);
+					return false;
+				}
+			}
+		}
 
 		DEBUG.storefile ("session", "fetched", parm, "deleteobject");
 
