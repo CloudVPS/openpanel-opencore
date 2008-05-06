@@ -1227,6 +1227,13 @@ bool dbmanager::updateobject(const value &withmembers, const statstring &uuid, b
 
     if(deleted)
     {
+	// don't allow deleting yourself
+	if(localid==userid)
+	{
+		errorcode = ERR_DBMANAGER_FAILURE;
+		lasterror = "Cannot delete yourself";
+		return false;
+	}
         // check that the object to be deleted is not the owner of anything
         query.crop();
         query.printf("SELECT /* updateobject deleting owner? */ COUNT(id) FROM objects WHERE owner=%d AND wanted=1 AND deleted=0", localid);
