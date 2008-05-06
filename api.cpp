@@ -113,14 +113,15 @@ int api::commandline (const string &mname, const string &fullcmd,
 	
 	pid_t t = kernel.proc.self();
 	systemprocess proc (argv, env, false);
+	
+	// Connect to authd in child context.
 	if (t != kernel.proc.self())
 	{
 		if (! connectauthd (s, mname))
-			exit (1);
+			exit (187);
 	}
 	
 	proc.run();
-	
 	string blk;
 	string dt;
 	
@@ -150,7 +151,15 @@ int api::commandline (const string &mname, const string &fullcmd,
 	
 	proc.serialize();
 	i = proc.retval();
-	CORE->log (log::debug, "api", "Return-value: %i" %format (i));
+	
+	if (i == 187)
+	{
+		CORE->log (log::critical, "api", "Error connecting to authd");
+	}
+	else
+	{
+		CORE->log (log::debug, "api", "Return-value: %i" %format (i));
+	}
 	return i;
 }
 
@@ -161,7 +170,6 @@ bool api::connectauthd (tcpsocket &s, const string &mname)
 {
 	if (! s.uconnect ("/var/opencore/sockets/authd/authd.sock"))
 	{
-		CORE->log (log::error, "api", "Error connecting to authd");
 		return false;
 	}
 	
@@ -182,7 +190,6 @@ bool api::connectauthd (tcpsocket &s, const string &mname)
 		if (line[0] != '+')
 		{
 			s.close();
-			CORE->log (log::error, "api", "Error in handshake: %S" %format (line));
 			return false;
 		}
 		return true;
