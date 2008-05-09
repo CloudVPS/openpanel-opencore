@@ -376,7 +376,7 @@ protected:
 
 						 /// Helper function for handling modules we see
 						 /// for the first time.
-	void				 handlenewmodule (const string &mname, value &cache,
+	void				 handlegetconfig (const string &mname, value &cache,
 										  class dbmanager &db,
 										  coremodule *m);
 

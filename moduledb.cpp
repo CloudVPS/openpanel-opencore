@@ -205,10 +205,7 @@ void moduledb::loadmodule (const string &mname, value &cache, dbmanager &db)
 	registerclasses (mname, cache, db, m);
 	makestagingdir (mname);
 	
-	if (firsttime)
-	{
-		handlenewmodule (mname, cache, db, m);
-	}
+	handlegetconfig (mname, cache, db, m);
 }
 
 // ==========================================================================
@@ -423,14 +420,15 @@ void moduledb::registerclasses (const string &mname, value &cache,
 }
 
 // ==========================================================================
-// METHOD moduledb::handlenewmodule
+// METHOD moduledb::handlegetconfig
 // ==========================================================================
-void moduledb::handlenewmodule (const string &mname, value &cache,
-							   dbmanager &db, coremodule *m)
+void moduledb::handlegetconfig (const string &mname, value &cache,
+							    dbmanager &db, coremodule *m)
 {
 	value current; //< Return from the module call.
 	value out; //< Translated for dbmanager flattening.
 	value uuids; //< Local-to-global id mapping for flattening.
+	value skipparents; // parent-uuids that already existed
 	
 	CORE->log (log::info, "moduledb", "Getconfig for <%s>" %format (mname));
 	
@@ -476,6 +474,8 @@ void moduledb::handlenewmodule (const string &mname, value &cache,
 					// so now we have the parent as a uuid
 					parentid = uuids[obj["parent"].sval()];
 				}
+				
+				if (skipparents.exists (parentid)) continue;
 			}
 			
 			foreach (memb, obj["members"])
@@ -501,7 +501,7 @@ void moduledb::handlenewmodule (const string &mname, value &cache,
 			uuid = db.createobject (parentid, obj["members"],
 									oclass, metaid, false, true);
 			
-			if (! uuid)
+			if ((! uuid) && (db.getlasterrorcode() != ERR_DBMANAGER_EXISTS))
 			{
 				CORE->log (log::critical, "moduledb", "Could not "
 						   "commit initial <%S> object in database: "
@@ -509,6 +509,12 @@ void moduledb::handlenewmodule (const string &mname, value &cache,
 						   
 				cache["modules"].rmval (mname.str());
 				throw (moduleInitException());
+			}
+			else if (! uuid)
+			{
+				uuid = db.findobject (parentid, oclass, nokey, metaid);
+				skipparents[uuid] = true;
+				continue;
 			}
 			
 			value vdebug = $("parentid", parentid) ->
