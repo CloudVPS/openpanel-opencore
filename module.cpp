@@ -561,8 +561,7 @@ coremodule::coremodule (const string &mpath, const string &mname,
 	
 	DEBUG.storefile ("coremodule","loaded-meta", meta);
 	
-	string metaname = mname.copyuntil (".module");
-	if (meta["name"].sval() != metaname)
+	if (meta["name"].sval() != mname)
 	{
 		CRIT_FAILURE ("Module name does not match directory name for "
 					  "<%S>" %format (mpath));
