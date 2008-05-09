@@ -475,7 +475,11 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 					parentid = uuids[obj["parent"].sval()];
 				}
 				
-				if (skipparents.exists (parentid)) continue;
+				if (skipparents.exists (obj["parent"]))
+				{
+					skipparents[metaid] = true;
+					continue;
+				}
 			}
 			
 			foreach (memb, obj["members"])
@@ -512,8 +516,7 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 			}
 			else if (! uuid)
 			{
-				uuid = db.findobject (parentid, oclass, nokey, metaid);
-				skipparents[uuid] = true;
+				skipparents[metaid] = true;
 				continue;
 			}
 			
