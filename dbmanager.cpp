@@ -2025,10 +2025,23 @@ bool dbmanager::registerclass(const value &classdata)
 	v["content"]=serialize(classdata);
 	v["wanted"]=v["reality"]=1; // FIXME: handle migrations from old to new versions
 	
+    int oldid = findclassid(classdata("name"));
+    
 	query.strcat(escapeforinsert(v));
 	value qres = dosqlite(query); // FIXME: handle error
 	if(!qres)
 		return false;
+		
+    if (oldid != 1)
+    {
+        query.crop();
+        query.printf("UPDATE /* registerclass */ objects SET class=%d WHERE class=%d", qres["insertid"].ival(), oldid);
+        qres = dosqlite(query);
+        if(! qres)
+        {
+        	return false;
+        }
+    }
 
 	if(!markcolumn("wanted", classdata("uuid").sval(), classdata("version")))
 		return false;
