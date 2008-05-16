@@ -477,7 +477,7 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 				
 				if (skipparents.exists (obj["parent"]))
 				{
-					skipparents[metaid] = true;
+					skipparents[localid] = true;
 					continue;
 				}
 			}
