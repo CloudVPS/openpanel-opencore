@@ -67,8 +67,8 @@ class CoreRPCClient(object):
         req["body"] = args
         
         headers = {}
-        headers["Content-type"] = "application/x-php-serialized"
-        headers["X-OpenCORE"] = "pieton"
+        headers["Content-type"] = "application/json"
+        headers["X-OpenCORE"] = "coreclient.py"
         
         try:
             try:
