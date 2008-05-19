@@ -852,6 +852,7 @@ bool coresession::updateobject (const statstring &parentid,
 	value withparam = withparam_;
 	string uuid;
 	string nuuid;
+	string err;
 	
 	DEBUG.storefile ("session", "param", withparam, "updateobject");
 	
@@ -922,6 +923,14 @@ bool coresession::updateobject (const statstring &parentid,
 		{
 			withparam[par.id()] = oldobject[ofclass][par.id()];
 		}
+	}
+	
+	if (! cl.normalize (withparam, err))
+	{
+		CORE->log (log::error, "session", "Input data validation error: "
+				   "%S" %format (err));
+		seterror (ERR_SESSION_VALIDATION, err);
+		return false;
 	}
 
 	bool updatesucceeded;
