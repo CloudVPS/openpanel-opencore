@@ -1100,15 +1100,12 @@ bool coresession::deleteobject (const statstring &parentid,
 		if (firstobject)
 		{
 			firstobject = false;
-			foreach (obj, parm)
+			if (parm[0]["metaid"].sval().strstr("$prototype$") >= 0)
 			{
-				if (obj["metaid"].sval().strstr("$prototype$") >= 0)
-				{
-					CORE->log (log::error, "session", "Denied delete of "
-							   "prototype object");
-					seterror (ERR_SESSION_NOTALLOWED);
-					return false;
-				}
+				CORE->log (log::error, "session", "Denied delete of "
+						   "prototype object");
+				seterror (ERR_SESSION_NOTALLOWED);
+				return false;
 			}
 		}
 
@@ -1163,8 +1160,6 @@ bool coresession::deleteobject (const statstring &parentid,
 
 	return true;
 }
-
-void csbreakme (void) {}
 
 // ==========================================================================
 // METHOD coresession::getclassinfo

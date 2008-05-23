@@ -440,7 +440,7 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 		// Go over the type="object" nodes inside
 		foreach (node, current)
 		{
-			// excluse the result node
+			// exclude the result node
 			if (node.id() != "OpenCORE:Result")
 			{
 				// flatten into the 'out' array.
@@ -450,7 +450,7 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 		
 		DEBUG.storefile ("moduledb","getconfig-tree", out, "handlenewmodule");
 		
-		// Iterate over the out array
+		// Iterate over the flattened out array
 		foreach (obj, out)
 		{
 			statstring oclass = obj["class"].sval();
