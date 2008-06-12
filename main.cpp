@@ -490,8 +490,9 @@ int opencoreApp::cmdShowClasses (const value &cmdata)
 // ==========================================================================
 // METHOD openoreApp::logerror
 // ==========================================================================
-void opencoreApp::logerror (const string &who, const string &what)
+void opencoreApp::logerror (const string &who, const string &_what)
 {
+	string what = "%s (%s)" %format (_what, DEBUG.uuid());
 	daemon::log (log::error, who, what);
 	
 	timestamp ts;
@@ -510,11 +511,11 @@ void opencoreApp::logerror (const string &who, const string &what)
 // ==========================================================================
 // METHOD opencoreApp::log
 // ==========================================================================
-void opencoreApp::log (log::priority p, const string &who, const string &what)
+void opencoreApp::log (log::priority p, const string &who, const string &_what)
 {
 	if (p == log::error)
 	{
-		logerror (who, what);
+		logerror (who, _what);
 		return;
 	}
 	
@@ -526,6 +527,7 @@ void opencoreApp::log (log::priority p, const string &who, const string &what)
 		if (DISABLE_DEBUGGING) return;
 	}
 	
+	string what = "%s (%s)" %format (_what, DEBUG.uuid());
 	daemon::log (p, who, what);
 }
 
