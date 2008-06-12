@@ -1298,6 +1298,7 @@ bool dbmanager::updateobject(const value &withmembers, const statstring &uuid, b
 			  
 	v["content"]=serialize(members);
 	v["class"]=updatedclassid;
+	v["uuid"]=uuid;
 	
 	v["version"]=fetched["version"].ival() + 1;
 	v["metaid"]=fetched["metaid"];
