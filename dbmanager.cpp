@@ -46,7 +46,7 @@ static xmlschema schema;
 
 void _dbmanager_sqlite3_trace_rcvr(void *ignore, const char *query)
 {
-	CORE->log (log::debug, "dbmgr", "(%s) sqlite3_trace: %s", DEBUG.uuid().cval(), query);
+	CORE->log (log::debug, "dbmgr", "sqlite3_trace: %s", query);
 }
 
 dbmanager::dbmanager (void)
@@ -109,7 +109,7 @@ string *dbmanager::findparent (const statstring &uuid)
     where["wanted"]=1;
 	query.strcat(escapeforsql("=", " AND ", where));
 	value dbres = dosqlite(query);
-	CORE->log(log::debug, "dbmgr", "(%s) findparent SQL: %s", DEBUG.uuid().cval(), query.cval());
+	CORE->log(log::debug, "dbmgr", "findparent SQL: %s" %format (query));
 	if(!dbres["rows"].count())
 	{
 		lasterror = "Object not found in findparent";
@@ -176,7 +176,9 @@ string *dbmanager::findobject (const statstring &parent, const statstring &ofcla
 	value where;
 	int classid;
 	
-	CORE->log(log::debug, "dbmgr", "(%s) findobject(parent=%s, ofclass=%s, withuuid=%s, withmetaid=%s)", DEBUG.uuid().cval(), parent.cval(), ofclass.cval(), withuuid.cval(), withmetaid.cval());
+	CORE->log(log::debug, "dbmgr", "findobject(parent=%s, ofclass=%s, "
+			  "withuuid=%s, withmetaid=%s)" %format (parent, ofclass,
+			   withuuid, withmetaid));
 
 	classid=findclassid(ofclass); // TODO: handle 'class not found'
 	if(ofclass && !classid)
@@ -206,7 +208,7 @@ string *dbmanager::findobject (const statstring &parent, const statstring &ofcla
     where["wanted"]=1;
 	query.strcat(escapeforsql("=", " AND ", where));
 	query.strcat(" ORDER BY version DESC LIMIT 1");
-	CORE->log(log::debug, "dbmgr", "(%s) findobject: classid: %d", DEBUG.uuid().cval(), classid);
+	CORE->log(log::debug, "dbmgr", "findobject: classid: %d" %format (classid));
 	value v = dosqlite(query);
 	DEBUG.storefile("dbmgr", "dbres", v, "findobject");
 	
@@ -416,7 +418,8 @@ bool dbmanager::listobjects (value &into, const statstring &parent, const value 
 		
 		if(formodule && classhasattrib(row["class"].ival(), "allchildren"))
 		{	
-			CORE->log(log::debug, "dbmgr", "(%s) listobjects: doing allchildren (%s)", DEBUG.uuid().cval(), row["uuid"].cval());
+			CORE->log(log::debug, "dbmgr", "listobjects: doing "
+					  "allchildren (%s)" %format (row["uuid"]));
 			value mergev;
 			if(listobjects(mergev, row["uuid"], nokey, formodule))
 			{
@@ -430,7 +433,8 @@ bool dbmanager::listobjects (value &into, const statstring &parent, const value 
 		if(formodule && classhasattrib(row["class"].ival(), "childrendep"))
 		{	
 			string depclass = classgetattrib(row["class"].ival(), "childrendep");
-			CORE->log(log::debug, "dbmgr", "(%s) listobjects: doing childrendep (%s, %s)", DEBUG.uuid().cval(), depclass.cval(), row["uuid"].cval());
+			CORE->log(log::debug, "dbmgr", "listobjects: doing childrendep "
+					  "(%s, %s)" %format (depclass, row["uuid"]));
 			value mergev;
 			if(listobjects(mergev, row["uuid"], $(depclass), formodule))
 			{
@@ -629,7 +633,9 @@ bool dbmanager::fetchobject (value &into, const statstring &uuid, bool formodule
 		
 		if(formodule && classdata.attribexists("allchildren") && module == classdata("modulename").sval())
 		{	
-			CORE->log(log::debug, "dbmgr", "(%s) fetchobject: doing allchildren (%s)", DEBUG.uuid().cval(), row["uuid"].cval());
+			CORE->log(log::debug, "dbmgr", "fetchobject: doing "
+					  "allchildren (%s)" %format (row["uuid"]));
+					  
 			value mergev;
 			if(listobjects(mergev, row["uuid"], nokey, formodule))
 			{
@@ -643,8 +649,9 @@ bool dbmanager::fetchobject (value &into, const statstring &uuid, bool formodule
 		if(formodule && classdata.attribexists("childrendep"))
 		{	
 			DEBUG.storefile("dbmgr", "childrendep", classdata, "fetchobject");
-			
-			CORE->log(log::debug, "dbmgr", "(%s) fetchobject: doing childrendep (%s, %s)", DEBUG.uuid().cval(), classdata("childrendep").cval(), row["uuid"].cval());
+			CORE->log(log::debug, "dbmgr", "fetchobject: doing childrendep "
+					 "(%s, %s)" %format (classdata("childrendep"), row["uuid"]));
+					 
 			value mergev;
 			if(listobjects(mergev, row["uuid"], $(classdata("childrendep")), formodule))
 			{
@@ -668,10 +675,12 @@ bool dbmanager::fetchobject (value &into, const statstring &uuid, bool formodule
         //          }
 		if(!formodule || !classdata.attribexists("requires") || !row["parent"].ival())
 		{
-			CORE->log(log::debug, "dbmgr", "(%s) fetchobject: NOT recursing upward from %d", DEBUG.uuid().cval(), localid);
+			CORE->log(log::debug, "dbmgr", "fetchobject: NOT recursing "
+					 "upward from %d" %format(localid));
 			break;
 		}
-		CORE->log(log::debug, "dbmgr", "(%s) fetchobject: recursing upward from %d to %d", DEBUG.uuid().cval(), localid, row["parent"].ival());
+		CORE->log(log::debug, "dbmgr", "fetchobject: recursing upward "
+				  "from %i to %i" %format (localid, row["parent"]));
 		localid = row["parent"].ival();
 	}
 	
@@ -726,7 +735,8 @@ string *dbmanager::createobject(const statstring &parent, const value &withmembe
 
 	members = withmembers;
 	
-	CORE->log(log::debug, "dbmgr", "(%s) createobject(parent=%s, [members], ofclass=%s, metaid=%s)", DEBUG.uuid().cval(), parent.cval(), ofclass.cval(), metaid.cval());
+	CORE->log(log::debug, "dbmgr", "createobject(parent=%s, [members], "
+			 "ofclass=%s, metaid=%s)" %format (parent, ofclass, metaid));
 	DEBUG.storefile("dbmgr", "members", withmembers, "createobject");
 	
 	classid=findclassid(ofclass);  // FIXME: handle failure
@@ -848,7 +858,8 @@ string *dbmanager::createobject(const statstring &parent, const value &withmembe
 	
 	if(classdata.attribexists("singleton"))
 	{
-		CORE->log(log::debug, "dbmgr", "(%s) comparing [%s] to singleton metaid [%s]", DEBUG.uuid().cval(), metaid.str(), classdata("singleton").str());
+		CORE->log(log::debug, "dbmgr", "comparing [%s] to singleton "
+				  "metaid [%s]" %format (metaid, classdata("singleton")));
 		
 		if(classdata("singleton") != metaid)
 		{
@@ -996,7 +1007,8 @@ string *dbmanager::copyprototype(int fromid, int parentid, int ownerid, value &r
 {
 	returnclass (string) res retain;
 
-	CORE->log(log::debug, "dbmgr", "(%s) copyprototype %d -> child of %d", DEBUG.uuid().cval(), fromid, parentid);
+	CORE->log(log::debug, "dbmgr", "copyprototype %d -> child of "
+			 "%d" %format (fromid, parentid));
 
 	// (a) copy fromid as child of parentid
 	// (b) find all children of fromid
@@ -1024,7 +1036,9 @@ string *dbmanager::copyprototype(int fromid, int parentid, int ownerid, value &r
 	value v;
 	int classid = in["class"];
 	v["class"] = classid;
-	CORE->log(log::debug, "dbmgr", "(%s) copyprototype: valueparsing [%s]", DEBUG.uuid().cval(), in["metaid"].str());
+	CORE->log(log::debug, "dbmgr", "copyprototype: valueparsing "
+			  "[%s]" %format (in["metaid"]));
+			  
 	DEBUG.storefile("dbmgr", "repl", repl, "copyprototype");
 	v["metaid"] = strutil::valueparse(in["metaid"], repl);
 
@@ -1192,7 +1206,7 @@ bool dbmanager::setpowermirror(int uid)
 
 bool dbmanager::deleteobject(const statstring &uuid, bool immediate, bool asgod)
 {
-	CORE->log(log::debug, "dbmgr", "(%s) deleteobject(uuid=%s)", DEBUG.uuid().cval(), uuid.cval());
+	CORE->log(log::debug, "dbmgr", "deleteobject(uuid=%s)" %format (uuid));
 	
 	value empty;
 	return updateobject(empty, uuid, immediate, true, asgod);
@@ -1207,7 +1221,8 @@ bool dbmanager::updateobject(const value &withmembers, const statstring &uuid, b
 	
 	members=withmembers;
 	
-	CORE->log(log::debug, "dbmgr", "(%s) updateobject([members], uuid=%s, deleted=%d)", DEBUG.uuid().cval(), uuid.cval(), deleted ? 1 : 0);
+	CORE->log(log::debug, "dbmgr", "updateobject([members], uuid=%s, "
+			  "deleted=%d)" %format (uuid, deleted ? 1 : 0));
 	
     localid=findlocalid(uuid);
     
@@ -1278,18 +1293,22 @@ bool dbmanager::updateobject(const value &withmembers, const statstring &uuid, b
 		return false;
 	}
 
+	CORE->log(log::debug, "dbmgr", "%s %i %i" %format (fetched["version"],
+			  fetched["version"], fetched["version"].ival() + 1));
+			  
 	v["content"]=serialize(members);
-
 	v["class"]=updatedclassid;
-	v["uuid"]=uuid;
-	CORE->log(log::debug, "dbmgr", "(%s) %s %d %d", DEBUG.uuid().cval(), fetched["version"].cval(), fetched["version"].ival(), fetched["version"].ival() + 1);
+	
 	v["version"]=fetched["version"].ival() + 1;
 	v["metaid"]=fetched["metaid"];
+
 	if(fetched["uniquecontext"] != "")
 		v["uniquecontext"]=fetched["uniquecontext"];
+
 	v["parent"]=fetched["parent"];
 	v["deleted"]=deleted ? 1 : 0;
 	v["owner"]=fetched["owner"];
+	
 	query="INSERT /* updateobject */ INTO objects ";
 	query.strcat(escapeforinsert(v));
 	value qres = dosqlite(query); // FIXME: handle errors
@@ -1335,7 +1354,7 @@ int dbmanager::findclassid(const statstring &classname)
 	v = dosqlite(query);
 	DEBUG.storefile("dbmgr", "dbres", v, "findclassid");
 	
-	CORE->log(log::debug, "dbmgr", "(%s) findclassid: %d", DEBUG.uuid().cval(), v["rows"][0]["id"].ival());
+	CORE->log(log::debug, "dbmgr","findclassid: %i" %format(v["rows"][0]["id"]));
     return v["rows"][0]["id"].ival(); // FIXME: check if it's there?
 }
 
@@ -1401,7 +1420,7 @@ value *dbmanager::_dosqlite (const statstring &query)
 	int colcount=0;
 	
 	t1 = kernel.time.unow();
-	CORE->log (log::debug, "dbmgr", "(%s) dosqlite: %s", DEBUG.uuid().cval(), query.cval());
+	CORE->log (log::debug, "dbmgr", "dosqlite: %s" %format (query));
 	
 	if(sqlite3_prepare(dbhandle.o, query.str(), -1, &qhandle, 0) != SQLITE_OK)
 	{
@@ -1424,7 +1443,8 @@ value *dbmanager::_dosqlite (const statstring &query)
 			case SQLITE_MISUSE:  // fallthrough
 			case SQLITE_ERROR:
 				// the -useful- errors seem to come from _finalize - let's hope that's a consistent assumption
-				CORE->log (log::debug, "dbmgr", "(%s) sqlite3_step(%s) failed: %s", DEBUG.uuid().cval(), query.cval(), sqlite3_errmsg(dbhandle.o));
+				CORE->log (log::debug, "dbmgr", "sqlite3_step(%s) failed: "
+						   "%s" %format (query, sqlite3_errmsg(dbhandle.o)));
 				// fallthrough to DONE
 			case SQLITE_DONE:
 				done=true;
@@ -1442,7 +1462,7 @@ value *dbmanager::_dosqlite (const statstring &query)
 				{
 					if(sqlite3_column_type(qhandle, i) != SQLITE_NULL)
 						row[sqlite3_column_name(qhandle, i)]=(const char *) sqlite3_column_text(qhandle, i);
-					CORE->log (log::debug, "dbmgr", "(%s) column text: %s", DEBUG.uuid().cval(), sqlite3_column_text(qhandle,i));
+					CORE->log (log::debug, "dbmgr", "column text: %s" %format (sqlite3_column_text(qhandle,i)));
 				}
 				
 				res["rows"].newval()=row;
@@ -1450,7 +1470,7 @@ value *dbmanager::_dosqlite (const statstring &query)
 		}
 		rt2 = kernel.time.unow();
 		rt1 = rt2 - rt1;
-		CORE->log (log::debug, "dbmgr", "(%s) row %d: %U usecs", DEBUG.uuid().cval(), rowcount, rt1.getusec());
+		CORE->log (log::debug, "dbmgr", "row %d: %U usecs", rowcount, rt1.getusec());
 		rowcount++;		
 	}
 	
@@ -1467,7 +1487,9 @@ value *dbmanager::_dosqlite (const statstring &query)
 	
 	if(sqlite3_finalize(qhandle) != SQLITE_OK)
 	{
-		CORE->log (log::debug, "dbmgr", "(%s) sqlite3_finalize(%s) failed (%s): %s", DEBUG.uuid().cval(), query.cval(), sqlite3_errmsg(dbhandle.o));
+		CORE->log (log::debug, "dbmgr", "sqlite3_finalize(%s) failed (%s): "
+				  "%s" %format (query, sqlite3_errmsg(dbhandle.o)));
+				  
 		lasterror.crop();
 		lasterror.printf("sqlite3_finalize(%s) failed: %s", query.cval(), sqlite3_errmsg(dbhandle.o));
 		errorcode = ERR_DBMANAGER_FAILURE;
@@ -1477,7 +1499,7 @@ value *dbmanager::_dosqlite (const statstring &query)
 	res["insertid"]=sqlite3_last_insert_rowid(dbhandle.o);
 	t2 = kernel.time.unow();
 	t1 = t2 - t1;
-	CORE->log (log::debug, "dbmgr", "(%s) dosqlite (%U usecs) returning result of: %s", DEBUG.uuid().cval(), t1.getusec(), query.cval());	
+	CORE->log (log::debug, "dbmgr", "dosqlite (%U usecs) returning result of: %s", t1.getusec(), query.cval());	
 	return &res;
 }
 
@@ -1593,7 +1615,10 @@ bool dbmanager::deref(value &members, int localclassid)
 	{
 		if(classdata[field.id()]("type") == "ref")
 		{
-			CORE->log(log::debug, "dbmgr", "(%s) replacing ref %s from object %s, field %s", DEBUG.uuid().cval(), field.id().cval(), field.cval(), classdata[field.id()]("reflabel").cval());
+			CORE->log(log::debug, "dbmgr", "replacing ref %s from object %s, "
+					 "field %s" %format (field.id(), field,
+					 					 classdata[field.id()]("reflabel")));
+					 					 
 			value where;
 			where["uuid"]=field.cval();
 			where["wanted"]=1;
@@ -1626,11 +1651,11 @@ bool dbmanager::deref(value &members, int localclassid)
 			// members[classdata[field.id()]("nick")] = fields[classdata[field.id()]("reflabel")];
 			members[classdata[field.id()]("nick")] = fields[classdata[field.id()]("reflabel")];
 			
-			CORE->log(log::debug, "dbmgr", "(%s) deref: debugcontent found: %s", DEBUG.uuid().cval(), classdata[field.id()]("reflabel").cval());
-			CORE->log(log::debug, "dbmgr", "(%s) deref: debugcontent found: %s", DEBUG.uuid().cval(), classdata[field.id()]("nick").cval());
+			CORE->log(log::debug, "dbmgr", "deref: debugcontent found: %s", classdata[field.id()]("reflabel").cval());
+			CORE->log(log::debug, "dbmgr", "deref: debugcontent found: %s", classdata[field.id()]("nick").cval());
 			DEBUG.storefile("dbmgr", "field", fields, "deref");
 
-			CORE->log(log::debug, "dbmgr", "(%s) content found: %s", DEBUG.uuid().cval(), fields[classdata[field.id()]("reflabel")].cval());
+			CORE->log(log::debug, "dbmgr", "content found: %s", fields[classdata[field.id()]("reflabel")].cval());
 			// FIXME: do the replace -> fetch the right field from the right object etc.
 		}
 		else if(classdata[field.id()].attribexists("nick"))
@@ -1679,7 +1704,7 @@ value *dbmanager::hidepasswords(const value &members, int localclassid, bool tag
 	
 	string query;
 	
-	CORE->log(log::debug, "dbmgr", "(%s) hidepasswords: (%d, %s)", DEBUG.uuid().cval(), localclassid, tagonly ? "EGWEL" : "EGNIE");
+	CORE->log(log::debug, "dbmgr", "hidepasswords: (%d, %s)", localclassid, tagonly ? "EGWEL" : "EGNIE");
     // DEBUG.storefile("dbmgr", "members", members, "hidepasswords");
 	
 	query.printf("SELECT /* hidepasswords */ content FROM objects WHERE id=%d", localclassid);
@@ -1789,7 +1814,7 @@ bool dbmanager::login(const statstring &username, const statstring &password)
 		}
 		string h;
 		h = csum.md5pw(password.str(), members["password"].str());
-		CORE->log(log::debug, "dbmgr", "(%s) checking password: [%s] [%s]", DEBUG.uuid().cval(), members["password"].str(), h.str());
+		CORE->log(log::debug, "dbmgr", "checking password: [%s] [%s]", members["password"].str(), h.str());
 		if(members["password"].sval() == h)
 		{
 			int id=qres["rows"][0]["id"].ival();
@@ -1955,7 +1980,7 @@ bool dbmanager::registerclass(const value &classdata)
 	string debug;
 	DEBUG.storefile("dbmgr", "parm", classdata, "registerclass");
 
-	CORE->log(log::debug, "dbmgr", "(%S) registerclass UUID: %S", DEBUG.uuid().cval(), classdata("uuid").cval());
+	CORE->log(log::debug, "dbmgr", "registerclass UUID: %S", classdata("uuid").cval());
 	if(!classdata.attribexists("uuid"))
 	{
 		lasterror = "Class needs a UUID";
@@ -1974,7 +1999,7 @@ bool dbmanager::registerclass(const value &classdata)
 		return false;
 	} 
 
-	CORE->log(log::debug, "dbmgr", "(%S) registerclass ID: [%S]", DEBUG.uuid().cval(), classdata("name").cval());
+	CORE->log(log::debug, "dbmgr", "registerclass ID: [%S]", classdata("name").cval());
 	
 	if(! classdata("name").sval().strlen())
 	{
@@ -2007,7 +2032,7 @@ bool dbmanager::registerclass(const value &classdata)
 			return false;
 		}
 		
-		CORE->log(log::debug, "dbmgr", "(%S) versions: %d %d", DEBUG.uuid().cval(), row["version"].ival(), classdata("version").ival());
+		CORE->log(log::debug, "dbmgr", "versions: %d %d", row["version"].ival(), classdata("version").ival());
 		if(row["version"].ival() == classdata("version").ival())
 		{
 			// the version is the same, so everything is cool
@@ -2353,7 +2378,7 @@ int dbmanager::getuserquota(const statstring &ofclass, const statstring &useruui
         value dbres = dosqlite(q);
         *usage = dbres["rows"][0][0].ival();
 
-    	CORE->log(log::debug, "dbmgr", "(%S) getuserquota: usage: %d out of %d allowed", DEBUG.uuid().cval(), *usage, quota);
+    	CORE->log(log::debug, "dbmgr", "getuserquota: usage: %d out of %d allowed", *usage, quota);
 	}
 
 	return quota;
@@ -2396,7 +2421,7 @@ bool dbmanager::haspower(int oid, int uid)
 		return false;
 		
 	string tmp=dbres.toxml();
-	CORE->log(log::debug, "dbmgr", "(%S) haspower: %s", DEBUG.uuid().cval(), tmp.cval());
+	CORE->log(log::debug, "dbmgr", "haspower: %s" %format (tmp));
 	
 	owner=dbres["rows"][0]["owner"];
 	if(owner == uid)
@@ -2427,7 +2452,7 @@ value *dbmanager::getclassdata(int classid)
 	returnclass (value) res retain;
 	string query;
 
-	CORE->log(log::debug, "dbmgr", "(%s) getclassdata %d", DEBUG.uuid().cval(), classid);
+	CORE->log(log::debug, "dbmgr", "getclassdata %i" %format (classid));
 
 	idstring.printf("%i", classid);
 	sharedsection(cache_getclassdata)
