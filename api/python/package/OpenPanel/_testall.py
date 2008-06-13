@@ -168,7 +168,7 @@ def runtests(deleteuser=True):
     print "[%s seconds] %s" % (c.rpc.lastreqduration, awstatsid)
 
     print "% Creating vhost -at- domain"
-    vhost2name = domain
+    vhost2name = "blog.%s" % domain
     vhost2id = c.createobject(classid="Domain:Vhost", objectid=vhost2name, parentid=domainid, data={"admin":"peter@example.net"})
     print "[%s seconds] %s" % (c.rpc.lastreqduration, vhostid)
 
