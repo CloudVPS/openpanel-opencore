@@ -7,11 +7,11 @@ OBJ =	alerts.o api.o dbmanager.o main.o module.o moduledb.o \
 TSOBJ = techsupport.o dbmanager.o debug.o
 
 all: opencore.exe techsupport.exe api/python/package/OpenPanel/error.py
-	mkapp opencore
-	mkapp techsupport
+	grace mkapp opencore
+	grace mkapp techsupport
 
 version.cpp:
-	mkversion version.cpp
+	grace mkversion version.cpp
 
 api/python/package/OpenPanel/error.py: error.h
 	api/python/makeerrorpy
