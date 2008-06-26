@@ -127,7 +127,8 @@ int opencoreApp::main (void)
 	gid_authd = gw["gid"].uval();
 	
 	// Fiddle the credentials we should get.
-	settargetgid (gid_opencore, gid_authd);
+	settargetgroups ($("authd"));
+	settargetgid (gid_opencore, gid_opencore);
 	settargetuid (uid_opencore);
 
 	// Set up collection objects.
