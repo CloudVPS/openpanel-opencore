@@ -1708,12 +1708,7 @@ value *dbmanager::hidepasswords(const value &members, int localclassid, bool tag
 	CORE->log(log::debug, "dbmgr", "hidepasswords: (%d, %s)", localclassid, tagonly ? "EGWEL" : "EGNIE");
     // DEBUG.storefile("dbmgr", "members", members, "hidepasswords");
 	
-	query.printf("SELECT /* hidepasswords */ content FROM objects WHERE id=%d", localclassid);
-	value classdbres = dosqlite(query);
-	
-	// FIXME: check count()
-	value classdata;
-	classdata.fromxml(classdbres["rows"][0]["content"].sval());
+	value classdata = getclassdata(localclassid);
 		
 	// string s = members.toxml();
 	// string s2 = classdata.toxml();
