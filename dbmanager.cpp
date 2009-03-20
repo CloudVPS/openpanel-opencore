@@ -749,19 +749,7 @@ string *dbmanager::createobject(const statstring &parent, const value &withmembe
 	string classuuid = findobject("", "Class", nokey, ofclass);
 	// TODO: check user quota 
 
-	// find class data
-	string classquery;
-	classquery.printf("SELECT /* createobject uniquecontext */ content FROM objects WHERE id=%d", classid);
-	value classdbres = dosqlite(classquery);
-	if(!classdbres["rows"].count())
-	{
-		lasterror = "Class not found";
-		errorcode = ERR_DBMANAGER_NOTFOUND;
-		res.clear();
-		return &res;
-	}
-
-	value classdata = deserialize(classdbres["rows"][0]["content"]);
+  value classdata = getclassdata(classid);
 
 	if(parent)
 	{
