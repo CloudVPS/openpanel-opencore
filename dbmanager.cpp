@@ -950,7 +950,7 @@ string *dbmanager::createobject(const statstring &parent, const value &withmembe
   exclusivesection (dbhandle)
   {
     value qres, disposeme;
-    qres=_dosqlite("BEGIN TRANSACTION /* reportsuccess */");
+    qres=_dosqlite("BEGIN TRANSACTION /* createobject */");
     if(!qres)
     {
       goto createobject_rollbackandbreak;
