@@ -947,48 +947,80 @@ string *dbmanager::createobject(const statstring &parent, const value &withmembe
 		}
 	}
 
-	query="INSERT /* createobject */ INTO objects ";
-	query.strcat(escapeforinsert(v));
-	value qres = dosqlite(query); // FIXME: handle errors
-	
-	if(!qres)
-	{
-		res.clear();
-		return &res; // dosqlite has set a message for us
-					 // TODO: replace with nicer message
-	}
-	
-	if(ofclass == "User")
-	{
-		if(!setpowermirror(qres["insertid"].ival()))
-		{
-			res.clear();
-			return &res;
-		}
-		if(userid == 0)
-		{
-			string query;
+  exclusivesection (dbhandle)
+  {
+    value qres, disposeme;
+    qres=_dosqlite("BEGIN TRANSACTION /* reportsuccess */");
+    if(!qres)
+    {
+      goto createobject_rollbackandbreak;
+    }
 
-			query.crop();
-			query.printf("REPLACE INTO powermirror (userid,powerid) VALUES(0,%d)", qres["insertid"].ival());
-			value qres = dosqlite(query);
-			if(!qres)
-			{
-				res.clear();
-				return &res;
-			}
-		}
-	}
+  	query="INSERT /* createobject */ INTO objects ";
+  	query.strcat(escapeforinsert(v));
+  	qres = _dosqlite(query); // FIXME: handle errors
 	
-	markcolumn("wanted", v["uuid"].str(), v["version"].ival());
-	res=v["uuid"].sval();
+  	if(!qres)
+  	{
+      goto createobject_rollbackandbreak; // dosqlite has set a message for us
+  					 // TODO: replace with nicer message
+  	}
+	
+  	if(ofclass == "User")
+  	{
+  		if(!_setpowermirror(qres["insertid"].ival()))
+  		{
+        goto createobject_rollbackandbreak;
+  		}
+  		if(userid == 0)
+  		{
+  			string query;
+
+  			query.crop();
+  			query.printf("REPLACE INTO powermirror (userid,powerid) VALUES(0,%d)", qres["insertid"].ival());
+  			value qres = _dosqlite(query);
+  			if(!qres)
+  			{
+          goto createobject_rollbackandbreak;
+  			}
+  		}
+  	}
+	
+    query.crop();
+  	query.printf("UPDATE /* createobject markcolumn */ objects SET wanted=(CASE WHEN version!=%d THEN 0 WHEN version=%d THEN 1 END) WHERE uuid='%s'", 
+                 v["version"].ival(), v["version"].ival(), v["uuid"].str());
+    qres=_dosqlite(query);
+    if(!qres)
+		{
+      goto createobject_rollbackandbreak;
+		}
+  	res=v["uuid"].sval();
 
     if (immediate)
     {
-        reportsuccess(res);
+        bool rsres = _reportsuccess(res);
+        if (!rsres)
+        {
+          goto createobject_rollbackandbreak;
+        }
+    }
+
+    qres = _dosqlite("COMMIT TRANSACTION /* createobject */");
+    if (!qres)
+    {
+      goto createobject_rollbackandbreak;
     }
     
-    return &res;	
+    goto createobject_success;
+    
+createobject_rollbackandbreak:
+    disposeme = _dosqlite("ROLLBACK TRANSACTION /* createobject */");
+    res.clear();
+    // fallthrough
+createobject_success:
+    breaksection return &res;
+  }
+  // return &res;
 }
 
 string *dbmanager::copyprototype(int fromid, int parentid, int ownerid, value &repl, bool rootobj, const value &members)
@@ -1184,6 +1216,37 @@ bool dbmanager::setpowermirror(int uid)
 	query.crop();
 	query.printf("REPLACE INTO powermirror (userid,powerid) SELECT %d, powerid FROM powermirror WHERE userid=%d", uid, userid);
 	qres = dosqlite(query);
+	if(!qres)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool dbmanager::_setpowermirror(int uid)
+{
+	string query;
+	
+	query.crop();
+	query.printf("REPLACE INTO powermirror (userid,powerid) VALUES(%d,%d)", uid, userid);
+	value qres = _dosqlite(query);
+	if(!qres)
+	{
+		return false;
+	}
+	
+	query.crop();
+	query.printf("REPLACE INTO powermirror (userid,powerid) VALUES(%d,%d)", uid, uid);
+	qres = _dosqlite(query);
+	if(!qres)
+	{
+		return false;
+	}
+
+	query.crop();
+	query.printf("REPLACE INTO powermirror (userid,powerid) SELECT %d, powerid FROM powermirror WHERE userid=%d", uid, userid);
+	qres = _dosqlite(query);
 	if(!qres)
 	{
 		return false;

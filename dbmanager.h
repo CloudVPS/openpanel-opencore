@@ -221,6 +221,9 @@ protected:
 					/// fill the ancestry mirror for a userid
 					bool setpowermirror(int aid);
 
+					/// fill the ancestry mirror for a userid
+					bool _setpowermirror(int aid);
+
 					/// to our short xml format
 					string *serialize(const value &members);
 					
