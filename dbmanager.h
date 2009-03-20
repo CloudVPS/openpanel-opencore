@@ -146,10 +146,10 @@ public:
                     void getcredentials(value &creds);
                     void setcredentials(const value &creds);
 protected:
-                    /// did someone delete/change our user while we were logged in?
-                    bool userisgone();
+          /// did someone delete/change our user while we were logged in?
+          bool userisgone();
 
-    				/// helper function for markaswanted, markasreality
+  				/// helper function for markaswanted, markasreality
 					bool markcolumn(const statstring &column, const statstring &uuid, int version);
 
 					/// local id of authenticated user
@@ -245,6 +245,9 @@ protected:
 					/// checks whether one metaid fits into another domainwise
 					bool _checkdomainsuffix(const string &child, const string &parent, const char sep);
 					
+					/// mark object as reality
+					bool _reportsuccess(const statstring &uuid);
+
 					/// copy tree from prototype, return uuid of copy root
 					string *copyprototype(int fromid, int parentid, int ownerid, value &repl, bool rootobj = true, const value &members = emptyvalue);
 

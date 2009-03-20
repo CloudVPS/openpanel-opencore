@@ -2063,136 +2063,145 @@ bool dbmanager::registerclass(const value &classdata)
 
 bool dbmanager::reportsuccess(const statstring &uuid)
 {
-	string query;
+  bool res;
+  value qres;
+    
+  exclusivesection (dbhandle)
+  {
+    qres=_dosqlite("BEGIN TRANSACTION /* reportsuccess */");
+  	if(!qres)
+  	{
+  		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportsuccess */");
+  		breaksection return false;
+  	}
+  	
+    res = _reportsuccess(uuid);
+    
+    if(res)
+    {
+      qres=_dosqlite("COMMIT TRANSACTION /* _reportsuccess */");
+    	if(!qres)
+    	{
+    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* _reportsuccess */");
+    		return false;
+    	}
+    }
+    else
+    {
+      value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportsuccess */");
+    }
+  }
+  
+  return res;
+}
+  
+bool dbmanager::_reportsuccess(const statstring &uuid)
+{
+  string query;
 	value where;
 	int oldid, newid;
-    
-    exclusivesection (dbhandle)
-    {
-    	query = "SELECT /* reportsuccess */ id FROM objects WHERE ";
-    	where.clear();
-    	where["uuid"]=uuid;
-    	where["reality"]=1;
-    	where["deleted"]=0;
-    	query.strcat(escapeforsql("=", " AND ", where));
-    	value qres = _dosqlite(query);
-    	if(! qres)
-    		breaksection return false;
-		
-    	if(qres["rows"].count())
-    		oldid=qres["rows"][0]["id"].ival();
-    	else
-    		oldid=0;	
 
-    	query = "SELECT /* reportsuccess */ id FROM objects WHERE ";
-    	where.clear();
-    	where["uuid"]=uuid;
-    	where["wanted"]=1;
-    	query.strcat(escapeforsql("=", " AND ", where));
-    	query.strcat(" ORDER BY version DESC LIMIT 1");
-    	qres = _dosqlite(query);
-    	if(! qres)
-    		breaksection return false;
-	
-    	newid=qres["rows"][0]["id"].ival();
+	query = "SELECT /* _reportsuccess */ id FROM objects WHERE ";
+	where.clear();
+	where["uuid"]=uuid;
+	where["reality"]=1;
+	where["deleted"]=0;
+	query.strcat(escapeforsql("=", " AND ", where));
+	value qres = _dosqlite(query);
+	if(! qres)
+		return false;
 
-    	qres=_dosqlite("BEGIN TRANSACTION /* reportsuccess */");
-    	if(!qres)
-    	{
-    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportsuccess */");
-    		breaksection return false;
-    	}
-	
-    	query.crop();
-    	query.printf("UPDATE /* reportsuccess */ objects SET reality=(CASE WHEN (deleted=0 AND id=%d) THEN 1 ELSE 0 END), wanted=(CASE WHEN (deleted=0 AND id=%d) THEN 1 ELSE 0 END) WHERE ", newid, newid);
-    	where.clear();
-    	where["uuid"]=uuid;
-    	query.strcat(escapeforsql("=", " AND ", where));
-    	qres = _dosqlite(query);
-    	if(! qres)
-    	{
-    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportsuccess */");
-    		breaksection return false;
-    	}
-	
-    	if(oldid)
-    	{	
-    		query.crop();
-    		query.printf("UPDATE /* reportsuccess */ objects SET parent=%d WHERE parent=%d", newid, oldid);
-    		qres = _dosqlite(query);
-    		if(! qres)
-    		{
-    			value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportsuccess */");
-    			breaksection return false;
-    		}
-		
-    		query.crop();
-    		query.printf("UPDATE /* reportsuccess */ objects SET owner=%d WHERE owner=%d", newid, oldid);
-    		qres = _dosqlite(query);
-    		if(! qres)
-    		{
-    			value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportsuccess */");
-    			breaksection return false;
-    		}	
-		
-    		query.crop();
-    		query.printf("UPDATE /* reportsuccess */ classquota SET userid=%d WHERE userid=%d", newid, oldid);
-    		qres = _dosqlite(query);
-    		if(! qres)
-    		{
-    			value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportsuccess */");
-    			breaksection return false;
-    		}	
-		
-    		query.crop();
-    		query.printf("UPDATE /* reportsuccess */ specialquota SET userid=%d WHERE userid=%d", newid, oldid);
-    		qres = _dosqlite(query);
-    		if(! qres)
-    		{
-    			value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportsuccess */");
-    			breaksection return false;
-    		}	
-		
-    		query.crop();
-    		query.printf("UPDATE /* reportsuccess */ specialquotausage SET userid=%d WHERE userid=%d", newid, oldid);
-    		qres = _dosqlite(query);
-    		if(! qres)
-    		{
-    			value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportsuccess */");
-    			breaksection return false;
-    		}	
-		
-    		query.crop();
-    		query.printf("UPDATE /* reportsuccess */ powermirror SET userid=%d WHERE userid=%d", newid, oldid);
-    		qres = _dosqlite(query);
-    		if(! qres)
-    		{
-    			value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportsuccess */");
-    			breaksection return false;
-    		}
+	if(qres["rows"].count())
+		oldid=qres["rows"][0]["id"].ival();
+	else
+		oldid=0;	
 
-    		query.crop();
-    		query.printf("UPDATE /* reportsuccess */ powermirror SET powerid=%d WHERE powerid=%d", newid, oldid);
-    		qres = _dosqlite(query);
-    		if(! qres)
-    		{
-    			value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportsuccess */");
-    			breaksection return false;
-    		}
+	query = "SELECT /* _reportsuccess */ id FROM objects WHERE ";
+	where.clear();
+	where["uuid"]=uuid;
+	where["wanted"]=1;
+	query.strcat(escapeforsql("=", " AND ", where));
+	query.strcat(" ORDER BY version DESC LIMIT 1");
+	qres = _dosqlite(query);
+	if(! qres)
+		return false;
 
-    		if(userid == oldid)
-    			userid = newid;
-    	}
+	newid=qres["rows"][0]["id"].ival();
 
-    	qres=_dosqlite("COMMIT TRANSACTION /* reportsuccess */");
-    	if(!qres)
-    	{
-    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportsuccess */");
-    		breaksection return false;
-    	}
-	
-    	breaksection return true;
-    }
+	query.crop();
+	query.printf("UPDATE /* _reportsuccess */ objects SET reality=(CASE WHEN (deleted=0 AND id=%d) THEN 1 ELSE 0 END), wanted=(CASE WHEN (deleted=0 AND id=%d) THEN 1 ELSE 0 END) WHERE ", newid, newid);
+	where.clear();
+	where["uuid"]=uuid;
+	query.strcat(escapeforsql("=", " AND ", where));
+	qres = _dosqlite(query);
+	if(! qres)
+	{
+		return false;
+	}
+
+	if(oldid)
+	{	
+		query.crop();
+		query.printf("UPDATE /* _reportsuccess */ objects SET parent=%d WHERE parent=%d", newid, oldid);
+		qres = _dosqlite(query);
+		if(! qres)
+		{
+			return false;
+		}
+
+		query.crop();
+		query.printf("UPDATE /* _reportsuccess */ objects SET owner=%d WHERE owner=%d", newid, oldid);
+		qres = _dosqlite(query);
+		if(! qres)
+		{
+			return false;
+		}	
+
+		query.crop();
+		query.printf("UPDATE /* _reportsuccess */ classquota SET userid=%d WHERE userid=%d", newid, oldid);
+		qres = _dosqlite(query);
+		if(! qres)
+		{
+			return false;
+		}	
+
+		query.crop();
+		query.printf("UPDATE /* _reportsuccess */ specialquota SET userid=%d WHERE userid=%d", newid, oldid);
+		qres = _dosqlite(query);
+		if(! qres)
+		{
+			return false;
+		}	
+
+		query.crop();
+		query.printf("UPDATE /* _reportsuccess */ specialquotausage SET userid=%d WHERE userid=%d", newid, oldid);
+		qres = _dosqlite(query);
+		if(! qres)
+		{
+			return false;
+		}	
+
+		query.crop();
+		query.printf("UPDATE /* _reportsuccess */ powermirror SET userid=%d WHERE userid=%d", newid, oldid);
+		qres = _dosqlite(query);
+		if(! qres)
+		{
+			return false;
+		}
+
+		query.crop();
+		query.printf("UPDATE /* _reportsuccess */ powermirror SET powerid=%d WHERE powerid=%d", newid, oldid);
+		qres = _dosqlite(query);
+		if(! qres)
+		{
+			return false;
+		}
+
+		if(userid == oldid)
+			userid = newid;
+	}
+
+  return true;
 }
 
 // TODO: if version 1 fails, recursively clean all children too, for
