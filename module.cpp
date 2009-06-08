@@ -331,7 +331,7 @@ value *coreclass::flattenparam (void)
 
 		p["enabled"] = CPBOOLATTR("enabled");
 		p["visible"] = CPBOOLATTR("visible");
-		p["required"] = CPBOOLATTR("requires");
+		p["required"] = CPBOOLATTR("required");
 		
 		#undef CPBOOLATTR
 		
