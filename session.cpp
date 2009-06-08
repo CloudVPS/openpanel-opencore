@@ -1692,6 +1692,16 @@ value *coresession::getobject (const statstring &parentid,
 		return &res;
 	}
 
+	// Is the class dynamic? NB: dynamic classes can not be derived
+	// from a metaclass, ktxbai.
+	if (mdb.isdynamic (ofclass))
+	{
+		CORE->log (log::debug, "session", "Class is dynamic");
+		
+		if (! syncdynamicobjects (parentid, ofclass, 0, -1))
+			return &res;
+	}
+	
 	// Find the object, either by uuid or by metaid.
 	uuid = db.findobject (parentid, ofclass, withid, nokey);
 	if (! uuid) uuid = db.findobject (parentid, ofclass, nokey, withid);
@@ -1705,16 +1715,6 @@ value *coresession::getobject (const statstring &parentid,
 
 		seterror (ERR_SESSION_OBJECT_NOT_FOUND);
 		return &res;
-	}
-	
-	// Is the class dynamic? NB: dynamic classes can not be derived
-	// from a metaclass, ktxbai.
-	if (mdb.isdynamic (ofclass))
-	{
-		CORE->log (log::debug, "session", "Class is dynamic");
-		
-		if (! syncdynamicobjects (parentid, ofclass, 0, -1))
-			return &res;
 	}
 	
 	if (! db.fetchobject (res, uuid, false /* formodule */))
