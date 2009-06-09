@@ -23,7 +23,7 @@
 	<string id="email">^$_email$$</string>
 	<string id="url">^(http://)?(www\.)?$domain$\.([a-zA-Z]){2,4}$_dompages$$$</string>
 	<string id="domain">^([a-z0-9][a-z0-9-]*)(\.[a-z0-9][a-z0-9-]*)+$$</string>
-	<string id="hostname">^(localhost)$$|^($_domain$\.([a-zA-Z]){2,4})$$</string>
+	<string id="hostname">^(localhost)$$|^($_domain$\.([a-zA-Z]){2,5})$$|\$$prototype\$$|^($_domain$\.\$$prototype\$$)$$</string>
 	<string id="host">^(localhost|($_ipv4$\.$_ipv4$\.$_ipv4$\.$_ipv4$)|^($_domain$\.([a-zA-Z]){2,4}))$$</string>
 	<string id="hostport">^(localhost|($_ipv4$\.$_ipv4$\.$_ipv4$\.$_ipv4$)|^($_domain$\.[a-zA-Z]{2,4}))(:[0-9]+)?$$</string>
 	<string id="ip">^($_ipv4$\.$_ipv4$\.$_ipv4$\.$_ipv4$)$$|^($_ipv6_1$)$$|^($_ipv6_2$)$$|^($_ipv6_3$)$$|^($_ipv6_4$)$$|^($_ipv6_5$)$$|^($_ipv6_6$)$$|^($_ipv6_7$)$$</string>
