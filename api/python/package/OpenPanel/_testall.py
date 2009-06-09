@@ -137,7 +137,7 @@ def runtests(deleteuser=True):
     
     print "% Creating Alias destination"
     destbox = "%s@othersite.local" % (randomdomainpart())
-    destboxid = c.createobject (classid="Mail:Destination", parentid=aliasboxid, data={"addressval":destbox})
+    destboxid = c.createobject (classid="Mail:Destination", parentid=aliasboxid, data={"address":destbox})
     print "[%s seconds] %s" % (c.rpc.lastreqduration, destboxid);
     
     print "% Testing bogus destination"
