@@ -80,7 +80,7 @@ def runtests(deleteuser=True):
 
     print "% Creating DNSDomain:A object"
     time.sleep(1) # serial generation is per-second
-    dnsdomainrecordid = c.createobject(classid="DNSDomain:A", parentid=dnsdomainid, data={"name":"flierp", "addressval":"192.168.2.2"})
+    dnsdomainrecordid = c.createobject(classid="DNSDomain:A", parentid=dnsdomainid, data={"name":"flierp", "address":"192.168.2.2"})
     print "[%s seconds] %s" % (c.rpc.lastreqduration, dnsdomainrecordid)
     cmdres = cmdtolist("dig +short a flierp.%s @localhost flierp.%s @localhost" % (domain, domainalias))
     if cmdres != ["192.168.2.2\n", "192.168.2.2\n"]:
