@@ -32,5 +32,5 @@
 	<string id="name">$names$$</string>
 	<string id="hostprefix">^(([a-zA-Z0-9]){1}([a-zA-Z0-9-]+))$$</string>
 	<string id="emailorhostname">^($_email$)$$|^($_hostname$)$$</string>
-	<string id="password">^$|^.{4,}$</string>
+	<string id="password">^$$|^.{4,}$$</string>
 </regexpclasses>
