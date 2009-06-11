@@ -268,7 +268,6 @@ value *coreclass::flattenparam (void)
 			p["refclass"] = tmpl;
 			p["reflabel"] = tmpr;
 		}
-		if (pobj.attribexists ("nick")) p["nick"] = pobj ("nick");
 		if (pobj.attribexists ("clihide"))
 		{
 			p["clihide"] = (pobj("clihide") == "true");
