@@ -169,6 +169,7 @@
       <match.id>cliwidth</match.id>
       <match.id>gridhide</match.id>
       <match.id>gridwidth</match.id>
+      <match.id>textwidth</match.id>
       <match.id>description</match.id>
       <match.id>enabled</match.id>
       <match.id>visible</match.id>
