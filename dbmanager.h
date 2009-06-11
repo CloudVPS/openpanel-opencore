@@ -87,6 +87,9 @@ public:
 					                    const statstring &metaid = nokey,
 					                    bool permcheck = false,
 					                    bool immediate = false);
+					                    
+					/// determine whether an object can be deleted.
+					bool candelete(const statstring &uuid);
 
 					/// mark object deleted
 					bool deleteobject(const statstring &uuid, bool immediate=false, bool asgod=false);

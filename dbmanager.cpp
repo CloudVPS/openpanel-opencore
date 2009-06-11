@@ -1255,6 +1255,12 @@ bool dbmanager::_setpowermirror(int uid)
 	return true;
 }
 
+bool dbmanager::candelete(const statstring &uuid)
+{
+	// FIXME: implement
+	return true;
+}
+
 bool dbmanager::deleteobject(const statstring &uuid, bool immediate, bool asgod)
 {
 	CORE->log(log::debug, "dbmgr", "deleteobject(uuid=%s)" %format (uuid));

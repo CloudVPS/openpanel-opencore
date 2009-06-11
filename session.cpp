@@ -450,8 +450,6 @@ void coresession::setcredentials (const value &creds)
     db.setcredentials (creds);
 }
 
-
-
 // ==========================================================================
 /// METHOD coresession::userlogin
 // ==========================================================================
@@ -1060,9 +1058,17 @@ bool coresession::deleteobject (const statstring &parentid,
 		return false;
 	}
 
+	if (!db.candelete (uuidt))
+	{
+		CORE->log (log::error, "session", "Error deleting object <%S>: "
+				   "%s" %format (uuidt, db.getlasterror()));
+		seterror (db.getlasterrorcode(), db.getlasterror());
+		return false;
+	}
+
 	value uuidlist;
 	
-	if(!db.listrecursively(uuidlist, uuidt))
+	if (!db.listrecursively(uuidlist, uuidt))
 	{
 		CORE->log (log::error, "session", "Error deleting object <%S>:"
 					"recursive listing failed: %s" %format (uuidt,
@@ -1076,7 +1082,7 @@ bool coresession::deleteobject (const statstring &parentid,
 	// FIXME: be smarter about this.
 	bool firstobject = true;
 	
-	foreach(uuid, uuidlist)
+	foreach (uuid, uuidlist)
 	{	
 		bool deletesucceeded = db.deleteobject (uuid, immediate, true);
 		if (! deletesucceeded) // FIXME: get rid of bool var?
