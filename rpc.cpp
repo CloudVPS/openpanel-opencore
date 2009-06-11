@@ -20,7 +20,6 @@ rpchandler::rpchandler (sessiondb *s) : handler (this), sdb (*s)
 	AddCommand  (classinfo);
 	AddCommand  (classxml);
 	AddCommand  (callmethod);
-	AddCommand  (getreferences);
 	AddCommand  (getrecord);
 	AddCommand  (getrecords);
 	AddCommand  (getparent);
@@ -386,26 +385,6 @@ value *rpchandler::callmethod (const value &v, coresession &cs)
 	cs.munlock ();
 	
 	res["body"]["data"] = tval;
-	return &res;
-}
-
-// ==========================================================================
-// METHOD rpchandler::getreferences
-// ==========================================================================
-value *rpchandler::getreferences (const value &v, coresession &cs)
-{
-	RPCRETURN (res);
-	const value &vbody = v["body"];
-	string in_reflabel = vbody["refstring"];
-	statstring in_refclass = in_reflabel.cutat ('/');
-	statstring in_parentid = vbody["parentid"];
-	
-	cs.mlockr ();
-	
-		res["body"]["data"] = cs.getreferences (in_parentid, in_refclass,
-												in_reflabel);
-		
-	cs.munlock ();
 	return &res;
 }
 

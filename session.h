@@ -252,19 +252,6 @@ public:
 										const statstring &ofclass = nokey,
 										int offset=0, int count=-1);
 	
-	
-						 /// Get a list of references. Returns a dictionary
-						 /// keyed by uuid containing the value of the
-						 /// reflabel.
-						 /// \param parentid Parent-id or empty.
-						 /// \param refclass The referenced class.
-						 /// \param reflabel The referenced label.
-	value				*getreferences (const statstring &parentid,
-										const statstring &refclass,
-										const statstring &reflabel);
-	
-	
-	
 						 /// Filter a listobjects resultset through a fieldname
 						 /// whitelist
 						 /// \param objs listobjects result

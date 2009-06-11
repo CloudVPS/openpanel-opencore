@@ -162,15 +162,6 @@
   	  <xml.attribute label="type" mandatory="true">
   	    <xml.type>string</xml.type>
   	  </xml.attribute>
-  	  <xml.attribute label="nick">
-  	    <xml.type>string</xml.type>
-  	  </xml.attribute>
-  	  <xml.attribute label="group">
-  	    <xml.type>string</xml.type>
-  	  </xml.attribute>
-  	  <xml.attribute label="ref">
-  	    <xml.type>string</xml.type>
-  	  </xml.attribute>
   	  <xml.attribute label="crypt">
   	    <xml.type>string</xml.type>
   	  </xml.attribute>

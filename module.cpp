@@ -159,49 +159,10 @@ bool coreclass::normalize (value &mdata, string &error)
 
 	DEBUG.storefile ("class", "gathered", dbug, "normalize");
 	
-	value groupset;
-	
-	foreach (p, param)
-	{
-		if (p("type") == "group")
-		{
-			if (! groupset.exists (p.id())) groupset[p.id()] = false;
-		}
-		else if (p.attribexists ("group"))
-		{
-			if (mdata.exists (p.id()) && mdata[p.id()].sval())
-			{
-				if (groupset[p("group")])
-				{
-					error = "More than one parameter for group "
-							"'%s'" %format (p("group"));
-					return false;
-				}
-				groupset[p("group")] = true;
-			}
-			else
-			{
-				if (! groupset.exists (p("group").sval()))
-					groupset[p("group")] = false;
-			}
-		}
-	}
-	
-	// Figure out missing groups.
-	foreach (g, groupset)
-	{
-		if (! g)
-		{
-			error = "Missing group parameter '%s'" %format (g.id());
-			return false;
-		}
-	}
-	
 	foreach (p, param)
 	{
 		bool r;
 		
-		if (p("type") == "group") continue;
 		if (! normalizelayoutnode (p, mdata, error))
 			return false;
 	}
@@ -236,7 +197,6 @@ bool coreclass::normalizelayoutnode (value &p, value &mdata, string &error)
 {
 	if (p.id() == "id") return true;
 	if (! param.exists (p.id())) return true;
-	if (p.attribexists ("group") && p("group").sval()) return true;
 	
 	if ((p.attribexists ("required")))
 	{
@@ -309,7 +269,6 @@ value *coreclass::flattenparam (void)
 			p["reflabel"] = tmpr;
 		}
 		if (pobj.attribexists ("nick")) p["nick"] = pobj ("nick");
-		if (pobj.attribexists ("group")) p["group"] = pobj ("group");
 		if (pobj.attribexists ("clihide"))
 		{
 			p["clihide"] = (pobj("clihide") == "true");
@@ -400,6 +359,9 @@ value *coreclass::flattenmethods (void)
 value *coreclass::flattenenums (void)
 {
 	returnclass (value) res retain;
+	
+	res.type (t_dict);
+	
 	foreach (myenum, enums)
 	{
 		value &crsr = res[myenum.id()];

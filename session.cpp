@@ -1525,29 +1525,10 @@ value *coresession::listmeta (const statstring &parentid,
 				foreach (p, metaclass.param)
 				{
 					statstring pid = p.id();
-					bool isnick;
-					if (p.attribexists ("nick"))
-					{
-						pid = p("nick");
-					}
 					
 					if (row.exists (p.id()) && row[p.id()].sval())
 					{
-						value &rp = realclass.param[p.id()];
-						
-						// Resolve ref.
-						if (rp("type") == "ref")
-						{
-							statstring rlabel = rp("ref").sval().copyafter ('/');
-							
-							value rlist;
-							db.fetchobject (rlist, row[p.id()]);
-							into[pid] = rlist[0][rlabel];
-						}
-						else
-						{
-							into[pid] = row[p.id()];
-						}
+						into[pid] = row[p.id()];
 					}
 				}
 				
@@ -1625,41 +1606,6 @@ value *coresession::listobjects (const statstring &parentid,
 	
 	DEBUG.storefile ("session", "res", res, "listobjects");
 
-	return &res;
-}
-
-// ==========================================================================
-// METHOD coresession::getreferences
-// ==========================================================================
-value *coresession::getreferences (const statstring &parentid,
-								   const statstring &refclass,
-								   const statstring &reflabel)
-{
-	returnclass (value) res retain;
-	
-	if (! mdb.classexists (refclass))
-	{
-		CORE->log (log::error, "session", "Attempt to get references to "
-				   "class <%S> which does not exist" %format (refclass));
-		return &res;
-	}
-	
-	value list = listobjects (parentid, refclass);
-	foreach (obj, list[refclass])
-	{
-		if (! obj.exists (reflabel))
-		{
-			CORE->log (log::warning, "session", "Reference to class "
-					   "<%S> field <%S> has no value for object "
-					   "with id <%S>" %format (refclass, reflabel, obj.id()));
-		}
-		else
-		{
-			if (obj[reflabel].sval())
-				res[obj["id"]] = obj[reflabel];
-		}
-	}
-	
 	return &res;
 }
 

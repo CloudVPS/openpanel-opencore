@@ -161,14 +161,9 @@
           <text>integer</text>
           <text>enum</text>
           <text>bool</text>
-          <text>ref</text>
           <text>password</text>
-          <text>group</text>
         </match.data>
       </and>
-      <match.id>nick</match.id>
-      <match.id>group</match.id>
-      <match.id>ref</match.id>
       <match.id>clihide</match.id>
       <match.id>cliwidth</match.id>
       <match.id>gridhide</match.id>

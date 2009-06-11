@@ -482,25 +482,6 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 				}
 			}
 			
-			foreach (memb, obj["members"])
-			{
-				if (memb.sval().strncmp ("$REF$", 5) == 0)
-				{
-					value ll = strutil::split (memb, '$');
-					string refclass = ll[2];
-					string reflabel = ll[3];
-					string refid = ll[4];
-					
-					string uuid =
-						db.findobject ("", refclass, "", refid);
-						
-					DEBUG.storefile ("moduledb", "magicref",
-									 uuid, "handlenewmodule");
-						
-					memb = uuid;
-				}
-			}
-			
 			// Hammer the dbmanager.
 			uuid = db.createobject (parentid, obj["members"],
 									oclass, metaid, false, true);

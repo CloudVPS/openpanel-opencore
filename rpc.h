@@ -81,7 +81,6 @@ public:
 	value			*classinfo (const value &v, coresession &cs);
 	value			*classxml (const value &v, coresession &cs);
 	value			*callmethod (const value &v, coresession &cs);
-	value			*getreferences (const value &v, coresession &cs);
 	value			*getrecord (const value &v, coresession &cs);
 	value			*getrecords (const value &v, coresession &cs);
 	value			*getparent (const value &v, coresession &cs);
