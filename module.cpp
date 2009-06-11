@@ -288,6 +288,14 @@ value *coreclass::flattenparam (void)
 		{
 			p["textwidth"] = pobj("textwidth").ival();
 		}
+		if (pobj.attribexists ("sameline"))
+		{
+			p["sameline"] = pobj("sameline").bval();
+		}
+		if (pobj.attribexists ("rows"))
+		{
+			p["rows"] = pobj("rows").ival();
+		}
 
 		#define CPBOOLATTR(zz) pobj.attribexists (zz) ? pobj(zz).bval() : false
 
