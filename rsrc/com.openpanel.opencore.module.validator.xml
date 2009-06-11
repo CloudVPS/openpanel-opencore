@@ -162,6 +162,7 @@
           <text>enum</text>
           <text>bool</text>
           <text>password</text>
+          <text>textarea</text>
         </match.data>
       </and>
       <match.id>clihide</match.id>
