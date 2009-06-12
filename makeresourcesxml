@@ -8,7 +8,7 @@ cat << __EOF
 __EOF
 
 perl -ne '
-if (m!^#define (ERR_[^ ]+)\s+(0x\d+)\s*//\s*(.*)!)
+if (m!^#define (ERR_[^ ]+)\s+(0x[0-9a-f]+)\s*//\s*(.*)!)
 {
 	print "	  <string id=\"$2\">$3</string>\n";
 }' < error.h
