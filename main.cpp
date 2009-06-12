@@ -453,7 +453,7 @@ int opencoreApp::cmdShowVersion (const value &cmdata)
 				 version::hostname.str());
 				 
 	fout.printf ("Available under the GNU General Public License\n");
-	fout.printf ("Copyright (C) 2007 PanelSix\n");
+	fout.printf ("Copyright (C) 2009 PanelSix\n");
 	return 0;
 }
 
