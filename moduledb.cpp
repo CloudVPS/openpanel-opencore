@@ -205,7 +205,7 @@ void moduledb::loadmodule (const string &mname, value &cache, dbmanager &db)
 	registerclasses (mname, cache, db, m);
 	makestagingdir (mname);
 	
-	handlegetconfig (mname, cache, db, m);
+	if (firsttime) handlegetconfig (mname, cache, db, m);
 }
 
 // ==========================================================================
