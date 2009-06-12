@@ -567,6 +567,15 @@ string *coresession::createobject (const statstring &parentid,
 			return NULL;
 		}
 		
+		if (pmid.strstr ("$prototype$") >= 0)
+		{
+			CORE->log (log::error, "session", "Blocking attempt to "
+					   "create new prototype records under"
+					   " id=%S" %format (pmid));
+			seterror (ERR_SESSION_CREATEPROTO);
+			return NULL;
+		}
+		
 		if (cl.parentrealm == "domainsuffix")
 		{
 			if (! withid) withid = pmid;
