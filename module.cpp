@@ -528,10 +528,10 @@ coremodule::coremodule (const string &mpath, const string &mname,
 	validator modvalid ("schema:com.openpanel.opencore.module.validator.xml");
 	
 	if (! meta.loadxml (metapath, modschema, xmlerr))
-		CRIT_FAILURE ("Error in <%s>: %s" %format (metapath, xmlerr));
+		CRIT_FAILURE ("Error in '%s': %s" %format (metapath, xmlerr));
 	
 	if (! modvalid.check (meta, xmlerr))
-		CRIT_FAILURE ("Error in <%s>: %s" %format (metapath, xmlerr));
+		CRIT_FAILURE ("Error in '%s': %s" %format (metapath, xmlerr));
 	
 	DEBUG.storefile ("coremodule","loaded-meta", meta);
 	
@@ -592,7 +592,7 @@ bool coremodule::verify (void)
 			errstr = tmpb;
 		}
 		errstr = strutil::regexp (errstr, "s/\n$//;s/\n/ -- /g");
-		CORE->log (log::error, "module", "Verify failed for <%s>: %s",
+		CORE->log (log::error, "module", "Verify failed for '%s': %s",
 				   path.str(), errstr.str());
 		return false;
 	}

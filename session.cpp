@@ -664,7 +664,7 @@ string *coresession::createobject (const statstring &parentid,
 	if (! db.fetchobject (parm, uuid, true /* formodule */))
 	{
 		CORE->log (log::critical, "session", "Database failure getting object-"
-				   "related data for <%S>: %S" %format (uuid,
+				   "related data for '%S': %S" %format (uuid,
 				   db.getlasterror()));
 				   
 		ALERT->alert ("Session error on object-related data\n"
@@ -1060,7 +1060,7 @@ bool coresession::deleteobject (const statstring &parentid,
 	
 	if (! uuidt)
 	{
-		CORE->log (log::error, "session", "Error deleting object <%S>: not "
+		CORE->log (log::error, "session", "Error deleting object '%S': not "
 				   "found: %s", uuidt.str(), db.getlasterror().str());
 				   
 		seterror (db.getlasterrorcode(), db.getlasterror());
@@ -1069,7 +1069,7 @@ bool coresession::deleteobject (const statstring &parentid,
 
 	if (!db.candelete (uuidt))
 	{
-		CORE->log (log::error, "session", "Error deleting object <%S>: "
+		CORE->log (log::error, "session", "Error deleting object '%S': "
 				   "%s" %format (uuidt, db.getlasterror()));
 		seterror (db.getlasterrorcode(), db.getlasterror());
 		return false;
@@ -1079,7 +1079,7 @@ bool coresession::deleteobject (const statstring &parentid,
 	
 	if (!db.listrecursively(uuidlist, uuidt))
 	{
-		CORE->log (log::error, "session", "Error deleting object <%S>:"
+		CORE->log (log::error, "session", "Error deleting object '%S':"
 					"recursive listing failed: %s" %format (uuidt,
 					db.getlasterror()));
 				   
@@ -1096,7 +1096,7 @@ bool coresession::deleteobject (const statstring &parentid,
 		bool deletesucceeded = db.deleteobject (uuid, immediate, true);
 		if (! deletesucceeded) // FIXME: get rid of bool var?
 		{
-			CORE->log (log::error, "session", "Error deleting object <%S>: %s",
+			CORE->log (log::error, "session", "Error deleting object '%S': %s",
 					   uuid.str(), db.getlasterror().str());
 			
 			seterror (db.getlasterrorcode(), db.getlasterror());
@@ -1681,7 +1681,7 @@ value *coresession::getobject (const statstring &parentid,
 	if (! db.fetchobject (res, uuid, false /* formodule */))
 	{
 		CORE->log (log::critical, "session", "Database failure getting object-"
-				   "related data for <%s>: %S" %format (uuid,
+				   "related data for '%s': %S" %format (uuid,
 				   db.getlasterror()));
 				   
 		ALERT->alert ("Session error on object-related data\n"

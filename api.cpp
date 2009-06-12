@@ -28,7 +28,7 @@ int api::execute (const string &mname, const statstring &apitype,
 	
 	if (! fs.exists (fullcmd))
 	{
-		CORE->log (log::error, "api", "Error executing <%S>: not found"
+		CORE->log (log::error, "api", "Error executing '%S': not found"
 				   %format (fullcmd));
 		return status_failed;
 	}

@@ -126,7 +126,7 @@ void moduledb::init (const value &reloadmods)
 				catch (exception e)
 				{
 					CORE->log (log::error, "moduledb", "Error loading "
-							   "<%s>: %s" %format (mname, e.description));
+							   "'%s': %s" %format (mname, e.description));
 					
 					// Re-throw on user.module, without that one
 					// there's little use starting up at all.
@@ -671,7 +671,7 @@ corestatus_t moduledb::callmethod (const statstring &parentid,
 	
 	if (! byclass.exists (ofclass))
 	{
-		CORE->log (log::error, "moduledb", "Callmethod <%S:%S>: class "
+		CORE->log (log::error, "moduledb", "Callmethod '%S.%S': class "
 				   "not found", ofclass.str(), method.str());
 		
 		return status_failed;
@@ -681,7 +681,7 @@ corestatus_t moduledb::callmethod (const statstring &parentid,
 	if (! m)
 	{
 		CORE->log (log::critical, "moduledb", "Unexpected error trying to "
-				   "resolve class <%S>", ofclass.str());
+				   "resolve class '%S'", ofclass.str());
 		ALERT->alert ("Unexpected error trying to resolve class <%S> in "
 					 "moduledb" %format (ofclass));
 		return status_failed;
