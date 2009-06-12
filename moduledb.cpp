@@ -822,6 +822,7 @@ bool moduledb::isdynamic (const statstring &forclass)
 // METHOD moduledb::listdynamicobjects
 // ==========================================================================
 value *moduledb::listdynamicobjects (const statstring &parentid,
+									 const statstring &mparentid,
 									 const statstring &ofclass,
 									 string &err, int count, int offset)
 {
@@ -835,6 +836,7 @@ value *moduledb::listdynamicobjects (const statstring &parentid,
 	value outp = $("OpenCORE:Command", "listobjects") ->
 				 $("OpenCORE:Session",
 				 		$("parentid", parentid) ->
+				 		$("parentmetaid", mparentid) ->
 				 		$("classid", ofclass) ->
 				 		$("count", count) ->
 				 		$("offset", offset)

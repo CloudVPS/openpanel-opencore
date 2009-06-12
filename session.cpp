@@ -1397,8 +1397,16 @@ bool coresession::syncdynamicobjects (const statstring &parentid,
 	value curdb;
 	value olddb;
 	string err;
+	statstring rparentid;
 	
-	curdb = mdb.listdynamicobjects (parentid, ofclass, err, count, offset);
+	value parentobj;
+	if (db.fetchobject (parentobj, parentid, /* formodule */ false))
+	{
+		rparentid = parentobj[0]["metaid"];
+	}
+	else rparentid = parentid;
+	
+	curdb = mdb.listdynamicobjects (parentid, rparentid, ofclass, err, count, offset);
 	if (err.strlen())
 	{
 		seterror (ERR_MDB_ACTION_FAILED, err);
@@ -1468,6 +1476,7 @@ bool coresession::syncdynamicobjects (const statstring &parentid,
 			if (changed)
 			{
 				value repnode = curdb[0][oldnode.id()];
+				
 				repnode.rmval ("uuid");
 				repnode.rmval ("id");
 				repnode.rmval ("metaid");

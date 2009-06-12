@@ -302,6 +302,7 @@ public:
 						 /// \return Data in this format:
 						 /// \verbinclude db_listobjects.format
 	value				*listdynamicobjects (const statstring &parentid,
+											 const statstring &mparentid,
 											 const statstring &ofclass,
 											 string &err,
 										 	 int count=-1, int offset=0);
