@@ -77,6 +77,7 @@ coreclass::coreclass (const value &imeta, coremodule *p)
 	DESERIALIZE (magicdelimiter);
 	DESERIALIZE (prototype);
 	DESERIALIZE (enums);
+	DEFDESERIALIZE (hasprototype,false);
 	
 	foreach (p, param)
 	{

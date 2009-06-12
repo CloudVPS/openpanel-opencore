@@ -52,6 +52,7 @@ public:
 	string			 requires; ///< If set, what parent class is required.
 	int				 version; ///< The class version.
 	statstring		 uuid; ///< The class uuid (should not change over generations).
+	bool			 hasprototype; ///< True if the class supports prototypes.
 	
 					 /// The 'magic prefix' for nodes that should be hidden.
 	string			 magicdelimiter; 

@@ -102,6 +102,7 @@
       <match.id>childrendep</match.id>
       <match.id>dynamic</match.id>
       <match.id>worldreadable</match.id>
+      <match.id>hasprototype</match.id>
       <match.id>menuclass</match.id>
       <and><match.id>methods</match.id><match.rule>methods</match.rule></and>
       <and><match.id>uuid</match.id><match.rule>uuid</match.rule></and>

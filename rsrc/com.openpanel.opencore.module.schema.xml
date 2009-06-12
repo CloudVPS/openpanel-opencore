@@ -66,6 +66,7 @@
       <xml.member class="uniqueclass"		id="uniqueclass"/>
       <xml.member class="childrendep"		id="childrendep"/>
       <xml.member class="worldreadable"		id="worldreadable"/>
+      <xml.member class="hasprototype"		id="hasprototype"/>
       <xml.member class="menuclass"			id="menuclass"/>
       <xml.member class="magicdelimiter"	id="magicdelimiter"/>
       <xml.member class="prototype"			id="prototype"/>
@@ -91,6 +92,7 @@
   <xml.class name="uniqueclass"><xml.type>string</xml.type></xml.class>
   <xml.class name="childrendep"><xml.type>string</xml.type></xml.class>
   <xml.class name="worldreadable"><xml.type>bool</xml.type></xml.class>
+  <xml.class name="hasprototype"><xml.type>bool</xml.type></xml.class>
   <xml.class name="dynamic"><xml.type>bool</xml.type></xml.class>
   <xml.class name="menuclass"><xml.type>string</xml.type></xml.class>
   <xml.class name="magicdelimiter"><xml.type>string</xml.type></xml.class>
