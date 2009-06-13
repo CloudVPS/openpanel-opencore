@@ -293,6 +293,10 @@ value *coreclass::flattenparam (void)
 		{
 			p["sameline"] = pobj("sameline").bval();
 		}
+		if (pobj.attribexists ("paddingtop"))
+		{
+			p["paddingtop"] = pobj("paddingtop").ival();
+		}
 		if (pobj.attribexists ("rows"))
 		{
 			p["rows"] = pobj("rows").ival();
