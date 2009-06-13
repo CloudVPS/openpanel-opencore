@@ -191,6 +191,9 @@
   	  <xml.attribute label="labelwidth">
   	    <xml.type>integer</xml.type>
   	  </xml.attribute>
+  	  <xml.attribute label="hidelabel">
+  	    <xml.type>bool</xml.type>
+  	  </xml.attribute>
   	  <xml.attribute label="enabled">
   	    <xml.type>void</xml.type>
   	  </xml.attribute>
