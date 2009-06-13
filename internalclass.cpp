@@ -283,7 +283,7 @@ bool quotaclass::updateobject (coresession *s,
 		parentid = getparentid (withid);
 		
 		statstring parentmeta = getmetaid (parentid);
-		if (parentmeta == c->meta["user"])
+		if (parentmeta == s->meta["user"])
 		{
 			seterror ("Cannot change own quota");
 			return false;
