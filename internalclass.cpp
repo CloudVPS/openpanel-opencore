@@ -282,17 +282,18 @@ bool quotaclass::updateobject (coresession *s,
 		mid = getmetaid (withid);
 		parentid = getparentid (withid);
 		
-		statstring parentmeta = getmetaid (parentid);
-		if (parentmeta == s->meta["user"])
-		{
-			seterror ("Cannot change own quota");
-			return false;
-		}
 	}
 	else
 	{
         mid = withid;
     }
+
+	statstring parentmeta = getmetaid (parentid);
+	if (parentmeta == s->meta["user"])
+	{
+		seterror ("Cannot change own quota");
+		return false;
+	}
     
     CORE->log (log::debug, "quotaclass", "Updateobject id=<%s> metaid=<%s> "
     		   "parentid=<%s> param=%J" %format (withid, mid, parentid, withparam));
