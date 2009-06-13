@@ -297,6 +297,10 @@ value *coreclass::flattenparam (void)
 		{
 			p["paddingtop"] = pobj("paddingtop").ival();
 		}
+		if (pobj.attribexists ("labelwidth"))
+		{
+			p["labelwidth"] = pobj("labelwidth").ival();
+		}
 		if (pobj.attribexists ("rows"))
 		{
 			p["rows"] = pobj("rows").ival();

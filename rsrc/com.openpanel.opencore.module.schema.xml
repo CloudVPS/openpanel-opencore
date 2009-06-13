@@ -188,6 +188,9 @@
   	  <xml.attribute label="paddingtop">
   	    <xml.type>integer</xml.type>
   	  </xml.attribute>
+  	  <xml.attribute label="labelwidth">
+  	    <xml.type>integer</xml.type>
+  	  </xml.attribute>
   	  <xml.attribute label="enabled">
   	    <xml.type>void</xml.type>
   	  </xml.attribute>
