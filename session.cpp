@@ -1910,3 +1910,19 @@ void coresession::handlecascade (const statstring &parentid,
 		}
 	}
 }
+
+// ==========================================================================
+// METHOD coresession::uuidtometa
+// ==========================================================================
+statstring *coresession::uuidtometa (const statstring &uuid)
+{
+	returnclass (statstring) res retain;
+	value v;
+	
+	if (db.fetchobject (v, uuid, /* formodule */ false))
+	{
+		res = v[0]["metaid"];
+	}
+	
+	return &res;
+}

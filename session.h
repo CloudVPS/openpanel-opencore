@@ -436,6 +436,9 @@ public:
 										const statstring &ofclass,
 										const string &withid);
 
+						 /// Resolve an object uuid to its metaid.
+	statstring			*uuidtometa (const statstring &uuid);
+
 	statstring			 id; ///< The session-id
 	value				 meta; ///< Meta data from sessiondb::create.
 
