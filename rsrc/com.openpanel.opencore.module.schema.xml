@@ -185,6 +185,9 @@
   	  <xml.attribute label="sameline">
   	    <xml.type>bool</xml.type>
   	  </xml.attribute>
+  	  <xml.attribute label="paddingtop">
+  	    <xml.type>integer</xml.type>
+  	  </xml.attribute>
   	  <xml.attribute label="enabled">
   	    <xml.type>void</xml.type>
   	  </xml.attribute>

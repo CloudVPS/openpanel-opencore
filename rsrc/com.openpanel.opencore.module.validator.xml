@@ -172,6 +172,7 @@
       <match.id>gridwidth</match.id>
       <match.id>textwidth</match.id>
       <match.id>sameline</match.id>
+      <match.id>paddingtop</match.id>
       <match.id>rows</match.id>
       <match.id>description</match.id>
       <match.id>enabled</match.id>
