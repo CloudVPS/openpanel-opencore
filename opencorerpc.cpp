@@ -198,23 +198,23 @@ int imagepreloader::run (string &uri, string &postbody, value &inhdr,
 						 tcpsocket &s)
 {
 	out = "function preloadImages () {\n"
-		  "this.preloadedImages = new Array();\n";
+		  "preloadedGUIImages = new Array();\n";
 	value dir = fs.dir ("/var/openpanel/http/images/gui");
 	foreach (img, dir)
 	{
-		out += "this.preloadedImages[\"%{0}s\"] = new Image(32,32);\n"
-			   "this.preloadedImages[\"%{0}s\"].src = \"/images/gui/%{0}s\";\n"
+		out += "preloadedGUIImages[\"%{0}s\"] = new Image(32,32);\n"
+			   "preloadedGUIImages[\"%{0}s\"].src = \"/images/gui/%{0}s\";\n"
 			   %format (img.id());
 	}
 	
 	value emblemclasses = app->mdb->listclasses ();
 	foreach (c, emblemclasses)
 	{
-		out += "this.preloadedImages[\"%{0}s\"] = new Image(32,32);\n"
-			   "this.preloadedImages[\"%{0}s\"].src = \"/images/icons/%{0}s\";\n"
+		out += "preloadedGUIImages[\"%{0}s\"] = new Image(32,32);\n"
+			   "preloadedGUIImages[\"%{0}s\"].src = \"/images/icons/%{0}s\";\n"
 			   %format (c["uuid"]);
-		out += "this.preloadedImages[\"%{0}s\"] = new Image(32,32);\n"
-			   "this.preloadedImages[\"%{0}s\"].src = \"/images/emblems/%{0}s\";\n"
+		out += "preloadedGUIImages[\"%{0}s\"] = new Image(32,32);\n"
+			   "preloadedGUIImages[\"%{0}s\"].src = \"/images/emblems/%{0}s\";\n"
 			   %format (c["uuid"]);
 	}
 	
