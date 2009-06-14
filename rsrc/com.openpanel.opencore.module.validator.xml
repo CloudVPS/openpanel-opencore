@@ -13,6 +13,9 @@
     <match.child>
       <match.id>version</match.id>
       <match.id>opencoreversion</match.id>
+      <match.id>license</match.id>
+      <match.id>author</match.id>
+      <match.id>url</match.id>
       <and><match.id>enums</match.id><match.rule>enums</match.rule></and>
       <and><match.id>uuid</match.id><match.rule>uuid</match.rule></and>
       <and><match.id>name</match.id><match.rule>modulename</match.rule></and>

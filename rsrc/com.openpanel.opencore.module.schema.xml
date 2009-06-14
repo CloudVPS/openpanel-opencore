@@ -14,6 +14,9 @@
       <xml.member class="uuid" 				id="uuid"/>
       <xml.member class="version" 			id="version"/>
       <xml.member class="languages"			id="languages"/>
+      <xml.member class="license"			id="license" type="string"/>
+      <xml.member class="author"			id="author" type="string"/>
+      <xml.member class="url"				id="url" type="string"/>
       <xml.member class="classes" 			id="classes"/>
       <xml.member class="quotas"			id="quotas"/>
       <xml.member class="enums" 			id="enums"/>
