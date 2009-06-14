@@ -1114,7 +1114,6 @@ bool coresession::deleteobject (const statstring &parentid,
 		
 		if (firstobject)
 		{
-			firstobject = false;
 			if (parm[0]["metaid"].sval().strstr("$prototype$") >= 0)
 			{
 				CORE->log (log::error, "session", "Denied delete of "
@@ -1143,6 +1142,12 @@ bool coresession::deleteobject (const statstring &parentid,
 		switch (res)
 		{
 			case status_failed:
+				if (firstobject)
+				{
+					db.reportfailure (uuid);
+					seterror (ERR_MDB_ACTION_FAILED);
+					return false;
+				}
     			ALERT->alert ("Module failed to delete %s in recursive delete: %s"
 							%format (uuid, moderr));
 				// fall through
@@ -1166,6 +1171,8 @@ bool coresession::deleteobject (const statstring &parentid,
 			case status_postponed:
 				break;
 		}
+		
+		if (firstobject) firstobject = false;
 	}
 	
 	if (ofclass && mdb.getclass (ofclass).cascades)
