@@ -22,11 +22,13 @@
 class imagepreloader : public httpdobject
 {
 public:
-				 imagepreloader (httpd &x);
+				 imagepreloader (class opencoreApp *papp, httpd &x);
 				~imagepreloader (void);
 				
 	int			 run (string &uri, string &postbody, value &inhdr,
 					  string &out, value &outhdr, value &env, tcpsocket &s);
+					  
+	class opencoreApp *app;
 };
 
 //  -------------------------------------------------------------------------

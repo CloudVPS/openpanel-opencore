@@ -135,7 +135,7 @@ bool opencorerpc::_confcreate (const value &conf, int update)
 			new httpdlogger (httpdTcp, "/var/opencore/log/opencore.access.log");
 			new iconrequesthandler (app, httpdTcp);
 			new emblemrequesthandler (app, httpdTcp);
-			new imagepreloader (httpdTcp);
+			new imagepreloader (app, httpdTcp);
 			new httpdfileshare (httpdTcp, "*", "/var/openpanel/http");
 		}
 		
@@ -183,8 +183,10 @@ bool opencorerpc::confupdate (const value &conf)
 	return true;
 }
 
-imagepreloader::imagepreloader (httpd &x) : httpdobject (x, "*/preloader.js")
+imagepreloader::imagepreloader (opencoreApp *papp, httpd &x)
+	: httpdobject (x, "*/preloader.js")
 {
+	app = papp;
 }
 
 imagepreloader::~imagepreloader (void)
@@ -204,6 +206,18 @@ int imagepreloader::run (string &uri, string &postbody, value &inhdr,
 			   "this.preloadedImages[\"%{0}s\"].src = \"/images/gui/%{0}s\";\n"
 			   %format (img.id());
 	}
+	
+	value emblemclasses = app->mdb->listclasses ();
+	foreach (c, emblemclasses)
+	{
+		out += "this.preloadedImages[\"%{0}s\"] = new Image(32,32);\n"
+			   "this.preloadedImages[\"%{0}s\"].src = \"/images/icons/%{0}s\";\n"
+			   %format (c["uuid"]);
+		out += "this.preloadedImages[\"%{0}s\"] = new Image(32,32);\n"
+			   "this.preloadedImages[\"%{0}s\"].src = \"/images/emblems/%{0}s\";\n"
+			   %format (c["uuid"]);
+	}
+	
 	out += "}\n";
 	
 	outhdr["Content-type"] = "text/javascript";
