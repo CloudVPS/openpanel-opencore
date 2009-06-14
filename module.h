@@ -276,11 +276,14 @@ public:
 	classdict		 classes; ///< Dictionary of the module's coreclass objects.
 	classdict		 classesuuid; ///< Coreclass objects indexed by uuid.
 	value			 languages; ///< Index of supported languages.
+	statstring		 apitype; ///< API type (from meta)
+	string			 license; ///< License (from meta)
+	string			 author; ///< Author (from meta)
+	string			 url; ///< URL (from meta)
 	class moduledb	&mdb;
 	
 protected:
     lock<int>        serlock; ///< Module access serialization lock.
-	statstring		 apitype; ///< API type (from meta)
 };
 
 #endif

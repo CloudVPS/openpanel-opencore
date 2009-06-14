@@ -490,6 +490,15 @@ value *classlistclass::listobjects (coresession *s, const statstring &pid)
 	{
 		n["id"] = n["metaid"] = n.id();
 		n["class"] = "OpenCORE:ClassList";
+		
+		coremodule *m = s->mdb.getmoduleforclass (n["metaid"].sval());
+		if (m)
+		{
+			n["apitype"] = m->apitype;
+			n["license"] = m->license;
+			n["author"] = m->author;
+			n["url"] = m->url;
+		}
 	}
 	
 	return &res;

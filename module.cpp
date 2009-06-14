@@ -573,6 +573,10 @@ coremodule::coremodule (const string &mpath, const string &mname,
 		languages = meta["languages"].attributes();
 	}
 	
+	if (meta.exists ("license")) license = meta["license"];
+	if (meta.exists ("author")) author = meta["author"];
+	if (meta.exists ("url")) url = meta["url"];
+	
 	#undef CRIT_FAILURE
 }
 
