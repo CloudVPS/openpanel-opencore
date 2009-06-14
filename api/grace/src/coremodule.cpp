@@ -89,7 +89,7 @@ int CoreModule::main (void)
 			break;
 		
 		incaseof ("getconfig") :
-			if (! getconfig (env)) return 1;
+			if (! getConfig (env)) return 1;
 			break;
 			
 		defaultcase :
@@ -115,9 +115,9 @@ bool CoreModule::getConfig (const value &env)
 }
 
 // ==========================================================================
-// METHOD CoreModule::addclass
+// METHOD CoreModule::addClass
 // ==========================================================================
-void CoreModule::addclass (const statstring &id, CoreClass *who)
+void CoreModule::addClass (const statstring &id, CoreClass *who)
 {
 	classes.set (id, (CoreClass &) *who);
 }
@@ -151,7 +151,7 @@ CoreClass::CoreClass (void)
 CoreClass::CoreClass (const string &className)
 {
 	name = className;
-	MOD->addclass (name, this);
+	MOD->addClass (name, this);
 	_code = 0;
 	_error = "OK";
 }
@@ -168,7 +168,7 @@ CoreClass::~CoreClass (void)
 // ==========================================================================
 void CoreClass::alias (const statstring &aliasClass)
 {
-	MOD->addclass (aliasClass, this);
+	MOD->addClass (aliasClass, this);
 }
 
 // ==========================================================================
