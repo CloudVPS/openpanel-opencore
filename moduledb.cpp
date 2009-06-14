@@ -466,19 +466,24 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 			// this node has one.
 			if (obj.exists ("parent"))
 			{
+				statstring parent = obj["parent"];
 				// In that case we already created the parent
 				// and stored its resulting uuid in the
 				// uuids[] array.
-				if (uuids.exists (obj["parent"].sval()))
+				if (uuids.exists (parent))
 				{
 					// so now we have the parent as a uuid
-					parentid = uuids[obj["parent"].sval()];
+					parentid = uuids[parent];
 				}
-				
-				if (skipparents.exists (obj["parent"]))
+				else if (skipparents.exists (parent))
 				{
 					skipparents[localid] = true;
 					continue;
+				}
+				else if (obj.exists ("parentclass"))
+				{
+					statstring parentclass = obj["parentclass"];
+					parentid  = db.findobject (nokey, parentclass, nokey, parent);
 				}
 			}
 			
@@ -542,6 +547,11 @@ void moduledb::parsetree (const value &tree, value &into, int parent)
 			$("id", pos);
 
 		if (parent>=0) into[pos]["parent"] = parent;
+		else if (instance.attribexists ("parent"))
+		{
+			into[pos]["parent"] = instance("parent");
+			into[pos]["parentclass"] = instance("parentclass");
+		}
 
 		if (instance.id())
 			into[pos]["metaid"] = instance.id().sval();
