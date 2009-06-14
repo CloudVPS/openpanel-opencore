@@ -200,8 +200,8 @@ int imagepreloader::run (string &uri, string &postbody, value &inhdr,
 	value dir = fs.dir ("/var/openpanel/http/images/gui");
 	foreach (img, dir)
 	{
-		out += "preloadedImages[\"%{0}s\"] = new Image(32,32);\n"
-			   "preloadedImages[\"%{0}s\"].src = \"/images/gui/%{0}s\";\n"
+		out += "this.preloadedImages[\"%{0}s\"] = new Image(32,32);\n"
+			   "this.preloadedImages[\"%{0}s\"].src = \"/images/gui/%{0}s\";\n"
 			   %format (img.id());
 	}
 	out += "}\n";
