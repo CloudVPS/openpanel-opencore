@@ -21,6 +21,8 @@
 // Http handler object's
 #include "rpcrequesthandler.h"
 
+#include <grace/filesystem.h>
+
 //	=========================================================================
 ///	Constructor
 //	=========================================================================
@@ -191,9 +193,9 @@ imagepreloader::~imagepreloader (void)
 
 int imagepreloader::run (string &uri, string &postbody, value &inhdr,
 						 string &out, value &outhdr, value &env,
-						 tcpsocket s)
+						 tcpsocket &s)
 {
-	out = "var preloadedImages = new Array();\n"
+	out = "var preloadedImages = new Array();\n";
 	value dir = fs.dir ("/var/openpanel/http/images/gui");
 	foreach (img, dir)
 	{
