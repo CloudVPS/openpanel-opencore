@@ -195,8 +195,8 @@ int imagepreloader::run (string &uri, string &postbody, value &inhdr,
 						 string &out, value &outhdr, value &env,
 						 tcpsocket &s)
 {
-	out = "function preloadImages () {\n";
-	out = "this.preloadedImages = new Array();\n";
+	out = "function preloadImages () {\n"
+		  "this.preloadedImages = new Array();\n";
 	value dir = fs.dir ("/var/openpanel/http/images/gui");
 	foreach (img, dir)
 	{
