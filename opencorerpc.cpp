@@ -133,7 +133,7 @@ bool opencorerpc::_confcreate (const value &conf, int update)
 			new httpdlogger (httpdTcp, "/var/opencore/log/opencore.access.log");
 			new iconrequesthandler (app, httpdTcp);
 			new emblemrequesthandler (app, httpdTcp);
-			new imagepreloader (_htcp);
+			new imagepreloader (httpdTcp);
 			new httpdfileshare (httpdTcp, "*", "/var/openpanel/http");
 		}
 		
