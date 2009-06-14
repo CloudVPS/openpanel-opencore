@@ -44,7 +44,7 @@ int CoreModule::main (void)
 	
 	if (! env.fromxml (buf))
 	{
-		senderror (CoreModule::E_VALIDATION, "No valid XML found");
+		sendResult (CoreModule::E_VALIDATION, "No valid XML found");
 		return 1;
 	}
 	
@@ -53,12 +53,12 @@ int CoreModule::main (void)
 	
 	if (! classes.exists (classid))
 	{
-		senderror (CoreModule::E_CLASS, "Unknown class");
+		sendResult (CoreModule::E_CLASS, "Unknown class");
 		return 1;
 	}
 	
 	CoreClass &C = classes[classid];
-	C.setparam (env[C.name]);
+	C.setParam (env[C.name]);
 	
 	syslog (LOG_INFO, "Running module cmd=<%s>", cmd.str());
 	
@@ -67,7 +67,7 @@ int CoreModule::main (void)
 		incaseof ("create") :
 			if (! C.create (env))
 			{
-				senderror (C.code, C.error);
+				sendResult (C.code(), C.error());
 				return 1;
 			}
 			break;
@@ -75,7 +75,7 @@ int CoreModule::main (void)
 		incaseof ("delete") :
 			if (! C.remove (env))
 			{
-				senderror (C.code, C.error);
+				sendResult (C.code(), C.error());
 				return 1;
 			}
 			break;
@@ -83,7 +83,7 @@ int CoreModule::main (void)
 		incaseof ("update") :
 			if (! C.update (env))
 			{
-				senderror (C.code, C.error);
+				sendResult (C.code(), C.error());
 				return 1;
 			}
 			break;
@@ -93,7 +93,7 @@ int CoreModule::main (void)
 			break;
 			
 		defaultcase :
-			senderror (CoreModule::E_NOTIMPL, "Command not implemented");
+			sendResult (CoreModule::E_NOTIMPL, "Command not implemented");
 			return 1;
 	}
 	
@@ -101,16 +101,16 @@ int CoreModule::main (void)
 	authd.quit ();
 	
 	syslog (LOG_INFO, "Returning OK");
-	senderror (CoreModule::E_OK, "OK");
+	sendResult (CoreModule::E_OK, "OK");
 	return 0;
 }
 
 // ==========================================================================
 // METHOD CoreModule::getconfig
 // ==========================================================================
-bool CoreModule::getconfig (const value &env)
+bool CoreModule::getConfig (const value &env)
 {
-	senderror (CoreModule::E_NOTIMPL, "Method not implemented");
+	sendResult (CoreModule::E_NOTIMPL, "Method not implemented");
 	return false;
 }
 
@@ -123,9 +123,9 @@ void CoreModule::addclass (const statstring &id, CoreClass *who)
 }
 
 // ==========================================================================
-// METHOD CoreModule::senderror
+// METHOD CoreModule::sendResult
 // ==========================================================================
-void CoreModule::senderror (int code, const string &err)
+void CoreModule::sendResult (int code, const string &err)
 {
 	value out;
 	out.type ("opencore.module.%s" %format (creator.copyuntil (".module")));
@@ -152,8 +152,8 @@ CoreClass::CoreClass (const string &className)
 {
 	name = className;
 	MOD->addclass (name, this);
-	code = 0;
-	error = "OK";
+	_code = 0;
+	_error = "OK";
 }
 
 // ==========================================================================
@@ -174,7 +174,7 @@ void CoreClass::alias (const statstring &aliasClass)
 // ==========================================================================
 // METHOD CoreClass::Setparam
 // ==========================================================================
-void CoreClass::setparam (const value &p)
+void CoreClass::setParam (const value &p)
 {
 	param = p;
 	id = param["id"];
@@ -185,8 +185,7 @@ void CoreClass::setparam (const value &p)
 // ==========================================================================
 bool CoreClass::create (const value &env)
 {
-	code = CoreModule::E_NOTIMPL;
-	error = "Method not implemented";
+	error (CoreModule::E_NOTIMPL, "Method not implemented");
 	return false;
 }
 
@@ -195,8 +194,7 @@ bool CoreClass::create (const value &env)
 // ==========================================================================
 bool CoreClass::remove (const value &env)
 {
-	code = CoreModule::E_NOTIMPL;
-	error = "Method not implemented";
+	error (CoreModule::E_NOTIMPL, "Method not implemented");
 	return false;
 }
 
@@ -205,15 +203,14 @@ bool CoreClass::remove (const value &env)
 // ==========================================================================
 bool CoreClass::update (const value &env)
 {
-	code = CoreModule::E_NOTIMPL;
-	error = "Method not implemented";
+	error (CoreModule::E_NOTIMPL, "Method not implemented");
 	return false;
 }
 
 // ==========================================================================
-// METHOD CoreClass::listaliases
+// METHOD CoreClass::listAliases
 // ==========================================================================
-value *CoreClass::listaliases (const value &env)
+value *CoreClass::listAliases (const value &env)
 {
 	returnclass (value) res retain;
 	string realdomain = env["Domain"]["id"];
@@ -236,10 +233,10 @@ value *CoreClass::listaliases (const value &env)
 // ==========================================================================
 // METHOD CoreClass::seterror
 // ==========================================================================
-void CoreClass::seterror (int c, const string &e)
+void CoreClass::error (int c, const string &e)
 {
-	code = c;
-	error = e;
+	_code = c;
+	_error = e;
 }
 
 // ==========================================================================
@@ -260,25 +257,25 @@ AuthDaemon::~AuthDaemon (void)
 }
 
 // ==========================================================================
-// METHOD AuthDaemon::installfile
+// METHOD AuthDaemon::installFile
 // ==========================================================================
-bool AuthDaemon::installfile (const string &fname, const string &path)
+bool AuthDaemon::installFile (const string &fname, const string &path)
 {
 	return call ("installfile", fname, path);
 }
 
 // ==========================================================================
-// METHOD AuthDaemon::deletefile
+// METHOD AuthDaemon::deleteFile
 // ==========================================================================
-bool AuthDaemon::deletefile (const string &fname)
+bool AuthDaemon::deleteFile (const string &fname)
 {
 	return call ("deletefile", fname);
 }
 
 // ==========================================================================
-// METHOD AuthDaemon::adduser
+// METHOD AuthDaemon::addUser
 // ==========================================================================
-bool AuthDaemon::adduser (const string &uname, const string &sh, const string &pw)
+bool AuthDaemon::addUser (const string &uname, const string &sh, const string &pw)
 {
 	return call ("adduser", uname, sh, pw);
 }
@@ -286,31 +283,31 @@ bool AuthDaemon::adduser (const string &uname, const string &sh, const string &p
 // ==========================================================================
 // METHOD AuthDaemon::deleteuser
 // ==========================================================================
-bool AuthDaemon::deleteuser (const string &username)
+bool AuthDaemon::deleteUser (const string &username)
 {
-	return call ("deleteuser", username);
+	return call ("deleteUser", username);
 }
 
 // ==========================================================================
-// METHOD AuthDaemon::setusershell
+// METHOD AuthDaemon::setUserShell
 // ==========================================================================
-bool AuthDaemon::setusershell (const string &uname, const string &sh)
+bool AuthDaemon::setUserShell (const string &uname, const string &sh)
 {
 	return call ("setusershell", uname, sh);
 }
 
 // ==========================================================================
-// METHOD AuthDaemon::setuserpass
+// METHOD AuthDaemon::setUserPass
 // ==========================================================================
-bool AuthDaemon::setuserpass (const string &uname, const string &pass)
+bool AuthDaemon::setUserPass (const string &uname, const string &pass)
 {
 	return call ("setuserpass", uname, pass);
 }
 
 // ==========================================================================
-// METHOD AuthDaemon::setquota
+// METHOD AuthDaemon::setQuota
 // ==========================================================================
-bool AuthDaemon::setquota (const string &uname, unsigned int soft, unsigned int hard)
+bool AuthDaemon::setQuota (const string &uname, unsigned int soft, unsigned int hard)
 {
 	string cmd = "setquota \"%S\" %u %u" %format (uname, soft, hard);
 	return call (cmd);
@@ -319,7 +316,7 @@ bool AuthDaemon::setquota (const string &uname, unsigned int soft, unsigned int 
 // ==========================================================================
 // METHOD AuthDaemon::startservice
 // ==========================================================================
-bool AuthDaemon::startservice (const string &svc)
+bool AuthDaemon::startService (const string &svc)
 {
 	return call ("startservice", svc);
 }
@@ -327,7 +324,7 @@ bool AuthDaemon::startservice (const string &svc)
 // ==========================================================================
 // METHOD AuthDaemon::stopservice
 // ==========================================================================
-bool AuthDaemon::stopservice (const string &svc)
+bool AuthDaemon::stopService (const string &svc)
 {
 	return call ("stopservice", svc);
 }
@@ -335,7 +332,7 @@ bool AuthDaemon::stopservice (const string &svc)
 // ==========================================================================
 // METHOD AuthDaemon::reloadservice
 // ==========================================================================
-bool AuthDaemon::reloadservice (const string &svc)
+bool AuthDaemon::reloadService (const string &svc)
 {
 	return call ("reloadservice", svc);
 }
@@ -343,7 +340,7 @@ bool AuthDaemon::reloadservice (const string &svc)
 // ==========================================================================
 // METHOD AuthDaemon::setonboot
 // ==========================================================================
-bool AuthDaemon::setonboot (const string &svc, bool enabled)
+bool AuthDaemon::setOnBoot (const string &svc, bool enabled)
 {
 	string cmd = "setonboot \"%S\" %i" %format (svc, enabled?1:0);
 	return call (cmd);
@@ -352,7 +349,7 @@ bool AuthDaemon::setonboot (const string &svc, bool enabled)
 // ==========================================================================
 // METHOD AuthDaemon::runscript
 // ==========================================================================
-bool AuthDaemon::runscript (const string &scriptname, const value &param)
+bool AuthDaemon::runScript (const string &scriptname, const value &param)
 {
 	string cmd = "runscript \"%S\"" %format (scriptname);
 	
@@ -367,7 +364,7 @@ bool AuthDaemon::runscript (const string &scriptname, const value &param)
 // ==========================================================================
 // METHOD AuthDaemon::runuserscript
 // ==========================================================================
-bool AuthDaemon::runuserscript (const string &scriptname, const value &params,
+bool AuthDaemon::runUserScript (const string &scriptname, const value &params,
 								const string &username)
 {
 	string cmd = "runuserscript \"%S\" \"%S\"" %format (scriptname, username);
@@ -382,7 +379,7 @@ bool AuthDaemon::runuserscript (const string &scriptname, const value &params,
 // ==========================================================================
 // METHOD AuthDaemon::getobject
 // ==========================================================================
-string *AuthDaemon::getobject (const string &filename)
+string *AuthDaemon::getObject (const string &filename)
 {
 	returnclass (string) res retain;
 	
@@ -399,7 +396,7 @@ string *AuthDaemon::getobject (const string &filename)
 // ==========================================================================
 // METHOD AuthDaemon::osupdate
 // ==========================================================================
-bool AuthDaemon::osupdate (void)
+bool AuthDaemon::osUpdate (void)
 {
 	return call ("osupdate");
 }
@@ -407,7 +404,7 @@ bool AuthDaemon::osupdate (void)
 // ==========================================================================
 // METHOD AuthDaemon::makedir
 // ==========================================================================
-bool AuthDaemon::makedir (const string &dirname)
+bool AuthDaemon::makeDir (const string &dirname)
 {
 	return call ("makedir", dirname);
 }
@@ -415,7 +412,7 @@ bool AuthDaemon::makedir (const string &dirname)
 // ==========================================================================
 // METHOD AuthDaemon::deletedir
 // ==========================================================================
-bool AuthDaemon::deletedir (const string &dirname)
+bool AuthDaemon::deleteDir (const string &dirname)
 {
 	return call ("deletedir", dirname);
 }
@@ -423,7 +420,7 @@ bool AuthDaemon::deletedir (const string &dirname)
 // ==========================================================================
 // METHOD AuthDaemon::makeuserdir
 // ==========================================================================
-bool AuthDaemon::makeuserdir (const string &usr, const string &mod,
+bool AuthDaemon::makeUserDir (const string &usr, const string &mod,
 							  const string &dirname)
 {
 	return call ("makeuserdir", usr, mod, dirname);
@@ -432,7 +429,7 @@ bool AuthDaemon::makeuserdir (const string &usr, const string &mod,
 // ==========================================================================
 // METHOD AuthDaemon::deleteuserdir
 // ==========================================================================
-bool AuthDaemon::deleteuserdir (const string &user, const string &dirname)
+bool AuthDaemon::deleteUserDir (const string &user, const string &dirname)
 {
 	return call ("deleteuserdir", user, dirname);
 }

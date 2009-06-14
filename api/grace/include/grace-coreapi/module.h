@@ -11,10 +11,10 @@ public:
 					~CoreModule (void);
 	
 	int				 main (void);
-	virtual bool	 getconfig (const value &env);
+	virtual bool	 getConfig (const value &env);
 	
-	void			 addclass (const statstring &id, class CoreClass *who);
-	void			 senderror (int code, const string &err);
+	void			 addClass (const statstring &id, class CoreClass *who);
+	void			 sendResult (int code, const string &err);
 	
 	enum			 errorcode {
 						E_OK = 0,
@@ -45,22 +45,25 @@ public:
 					 CoreClass (const string &className);
 					~CoreClass (void);
 	
-	void			 setparam (const value &p);
+	void			 setParam (const value &p);
 	virtual bool	 create (const value &env);
 	virtual bool	 update (const value &env);
 	virtual bool	 remove (const value &env);
 	
-	int				 code;
-	string			 error;
+	const string	&error (void) { return _error; }
+	int				 code (void) { return _code; }
+	
 	statstring		 name;
 	
 protected:
-	value			*listaliases (const value &env);
+	int				 _code;
+	string			 _error;
 	value			 param;
 	string			 id;
 	
+	value			*listAliases (const value &env);
 	void			 alias (const statstring &aliasClass);
-	void			 seterror (int c, const string &e);
+	void			 error (int c, const string &e);
 };
 
 class AuthDaemon
@@ -69,34 +72,34 @@ public:
 					 AuthDaemon (void);
 					~AuthDaemon (void);
 					
-	bool			 installfile (const string &fname, const string &path);
-	bool			 deletefile (const string &fqpath);
+	bool			 installFile (const string &fname, const string &path);
+	bool			 deleteFile (const string &fqpath);
 
-	bool			 adduser (const string &username, const string &shell,
+	bool			 addUser (const string &username, const string &shell,
 							  const string &pwhash);
-	bool			 deleteuser (const string &username);
-	bool			 setusershell (const string &username, const string &shell);
-	bool			 setuserpass (const string &username, const string &pwhash);
-	bool			 setquota (const string &username, unsigned int soft,
+	bool			 deleteUser (const string &username);
+	bool			 setUserShell (const string &username, const string &shell);
+	bool			 setUserPass (const string &username, const string &pwhash);
+	bool			 setQuota (const string &username, unsigned int soft,
 							   unsigned int hard);
 
-	bool			 startservice (const string &svcname);
-	bool			 stopservice (const string &svcname);
-	bool			 reloadservice (const string &svcname);
-	bool			 setonboot (const string &svc, bool enabled);
+	bool			 startService (const string &svcname);
+	bool			 stopService (const string &svcname);
+	bool			 reloadService (const string &svcname);
+	bool			 setOnBoot (const string &svc, bool enabled);
 	
-	bool			 runscript (const string &sname, const value &param);
-	bool			 runuserscript (const string &sname, const value &param,
+	bool			 runScript (const string &sname, const value &param);
+	bool			 runUserScript (const string &sname, const value &param,
 									const string &usr);
 
-	bool			 makedir (const string &dirname);
-	bool			 deletedir (const string &dirname);
-	bool			 makeuserdir (const string &user, const string &mode,
+	bool			 makeDir (const string &dirname);
+	bool			 deleteDir (const string &dirname);
+	bool			 makeUserDir (const string &user, const string &mode,
 								  const string &dirname);
-	bool			 deleteuserdir (const string &user, const string &dirname);
+	bool			 deleteUserDir (const string &user, const string &dirname);
 
-	bool			 osupdate (void);
-	string			*getobject (const string &filename);
+	bool			 osUpdate (void);
+	string			*getObject (const string &filename);
 
 	bool			 rollback (void);
 	void			 quit (void);
