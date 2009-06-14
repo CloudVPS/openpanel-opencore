@@ -484,6 +484,8 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 				{
 					statstring parentclass = obj["parentclass"];
 					parentid  = db.findobject (nokey, parentclass, nokey, parent);
+					CORE->log (log::info, "moduledb", "Resolved %s/%s to "
+							   "<%s>" %format (parentclass,parent,parentid));
 				}
 			}
 			
