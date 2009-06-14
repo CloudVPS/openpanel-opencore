@@ -133,6 +133,7 @@ bool opencorerpc::_confcreate (const value &conf, int update)
 			new httpdlogger (httpdTcp, "/var/opencore/log/opencore.access.log");
 			new iconrequesthandler (app, httpdTcp);
 			new emblemrequesthandler (app, httpdTcp);
+			new imagepreloader (_htcp);
 			new httpdfileshare (httpdTcp, "*", "/var/openpanel/http");
 		}
 		
@@ -180,3 +181,27 @@ bool opencorerpc::confupdate (const value &conf)
 	return true;
 }
 
+imagepreloader::imagepreloader (httpd &x) : httpdobject (x, "*/preloader.js")
+{
+}
+
+imagepreloader::~imagepreloader (void)
+{
+}
+
+int imagepreloader::run (string &uri, string &postbody, value &inhdr,
+						 string &out, value &outhdr, value &env,
+						 tcpsocket s)
+{
+	out = "var preloadedImages = new Array();\n"
+	value dir = fs.dir ("/var/openpanel/http/images/gui");
+	foreach (img, dir)
+	{
+		out += "preloadedImages[\"%{0}s\"] = new Image(32,32);\n"
+			   "preloadedImages[\"%{0}s\"].src = \"/images/gui/%{0}s\";\n"
+			   %format (img.id());
+	}
+	
+	outhdr["Content-type"] = "text/javascript";
+	return 200;
+}

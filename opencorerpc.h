@@ -19,6 +19,16 @@
 #include <grace/value.h>
 #include <grace/filesystem.h>
 
+class imagepreloader : public httpdobject
+{
+public:
+				 imagepreloader (httpd &x);
+				~imagepreloader (void);
+				
+	int			 run (string &uri, string &postbody, value &inhdr,
+					  string &out, value &outhdr, value &env, tcpsocket &s);
+};
+
 //  -------------------------------------------------------------------------
 /// This class provides basic handling for all
 /// listening sockets
