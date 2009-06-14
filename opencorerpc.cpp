@@ -211,10 +211,10 @@ int imagepreloader::run (string &uri, string &postbody, value &inhdr,
 	foreach (c, emblemclasses)
 	{
 		out += "preloadedGUIImages[\"%{0}s\"] = new Image(32,32);\n"
-			   "preloadedGUIImages[\"%{0}s\"].src = \"/images/icons/%{0}s\";\n"
+			   "preloadedGUIImages[\"%{0}s\"].src = \"/images/icons/%{0}s.png\";\n"
 			   %format (c["uuid"]);
 		out += "preloadedGUIImages[\"%{0}s\"] = new Image(32,32);\n"
-			   "preloadedGUIImages[\"%{0}s\"].src = \"/images/emblems/%{0}s\";\n"
+			   "preloadedGUIImages[\"%{0}s\"].src = \"/images/emblems/%{0}s.png\";\n"
 			   %format (c["uuid"]);
 	}
 	
