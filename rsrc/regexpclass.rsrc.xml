@@ -13,6 +13,7 @@
 	<string id="_cn">[a-zA-Z0-9]</string>
 	<string id="_email">[^%@ ]+@([A-Za-z0-9\-]+\.)+([A-Za-z]{2,})</string>
 	<string id="_hostname">^((([a-zA-Z0-9]){1}([a-zA-Z0-9-]+)?\.)+)?([a-zA-Z0-9]){1}([a-zA-Z0-9-]{0,}([a-zA-Z0-9]){1})\.([a-zA-Z]){2,4}$$</string>
+	<string id="_urlvalid">[-0-9a-zA-Z!#%?=&.,/+_~;]*</string>
 	
 	<string id="ipv4">^$_ipv4$\.$_ipv4$\.$_ipv4$\.$_ipv4$$$</string>	
 	<string id="ipv6">^($_ipv6_1$)$$|^($_ipv6_2$)$$|^($_ipv6_3$)$$|^($_ipv6_4$)$$|^($_ipv6_5$)$$|^($_ipv6_6$)$$|^($_ipv6_7$)$$</string>						  		
@@ -22,7 +23,7 @@
 	<string id="numbers">^([+]?)([0-9]+)$$</string>
 	<string id="company">^[a-zA-Z0-9 .\-]+$$</string>
 	<string id="email">^$_email$$</string>
-	<string id="url">^(http://)?(www\.)?$domain$\.([a-zA-Z]){2,4}$_dompages$$$</string>
+	<string id="url">^(http://){0,1}$domain$\.([a-zA-Z]){2,4}/$_urlvalid$$$</string>
 	<string id="domain">^([a-z0-9][a-z0-9-]*)(\.[a-z0-9][a-z0-9-]*)+$$</string>
 	<string id="hostname">^(localhost)$$|^($_domain$\.([a-zA-Z]){2,5})$$|\$$prototype\$$|^($_domain$\.\$$prototype\$$)$$</string>
 	<string id="host">^(localhost|($_ipv4$\.$_ipv4$\.$_ipv4$\.$_ipv4$)|^($_domain$\.([a-zA-Z]){2,4}))$$</string>
