@@ -66,7 +66,7 @@ coreclass::coreclass (const value &imeta, coremodule *p)
 	DESERIALIZE (capabilities);
 	DESERIALIZE (methods);
 	DEFDESERIALIZE (sortindex,50);
-	DEFDESERIALIZE (girdheight,100);
+	DEFDESERIALIZE (gridheight,100);
 	DEFDESERIALIZE (worldreadable,false);
 	DEFDESERIALIZE (dynamic,false);
 	DEFDESERIALIZE (allchildren, false);
