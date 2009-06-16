@@ -66,6 +66,7 @@ coreclass::coreclass (const value &imeta, coremodule *p)
 	DESERIALIZE (capabilities);
 	DESERIALIZE (methods);
 	DEFDESERIALIZE (sortindex,50);
+	DEFDESERIALIZE (girdheight,100);
 	DEFDESERIALIZE (worldreadable,false);
 	DEFDESERIALIZE (dynamic,false);
 	DEFDESERIALIZE (allchildren, false);
@@ -432,6 +433,7 @@ value *coreclass::makeclassinfo (void)
 				$("description", description) ->
 				$("explanation", explanation) ->
 				$("sortindex", sortindex) ->
+				$("gridheight", gridheight) ->
 				$("version", version) ->
 				$("magicdelimiter", magicdelimiter) ->
 				$("parentrealm", parentrealm) ->

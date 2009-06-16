@@ -97,6 +97,7 @@
       <match.id>description</match.id>
       <match.id>explanation</match.id>
       <match.id>sortindex</match.id>
+      <match.id>gridheight</match.id>
       <match.id>capabilities</match.id>
       <match.id>maxinstances</match.id>
       <match.id>singleton</match.id>

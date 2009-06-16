@@ -48,6 +48,7 @@ public:
 	string			 title; /// The title name (for the GUI).
 	string			 description; ///< The class description.
 	int				 sortindex; ///< The sorting index.
+	int				 gridheight; ///< Height of the display grid (if applicable).
 	string			 menuclass; ///< To wich guiclass does this class belong
 	string			 requires; ///< If set, what parent class is required.
 	int				 version; ///< The class version.
