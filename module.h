@@ -47,6 +47,7 @@ public:
 	string			 shortname; ///< The short name (for the CLI).
 	string			 title; /// The title name (for the GUI).
 	string			 description; ///< The class description.
+	string			 emptytext; ///< Text to show when there are no objects.
 	int				 sortindex; ///< The sorting index.
 	int				 gridheight; ///< Height of the display grid (if applicable).
 	string			 menuclass; ///< To wich guiclass does this class belong

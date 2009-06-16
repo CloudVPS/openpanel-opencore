@@ -67,6 +67,7 @@ coreclass::coreclass (const value &imeta, coremodule *p)
 	DESERIALIZE (methods);
 	DEFDESERIALIZE (sortindex,50);
 	DEFDESERIALIZE (gridheight,100);
+	DEFDESERIALIZE (emptytext,"No objects found");
 	DEFDESERIALIZE (worldreadable,false);
 	DEFDESERIALIZE (dynamic,false);
 	DEFDESERIALIZE (allchildren, false);
@@ -432,6 +433,7 @@ value *coreclass::makeclassinfo (void)
 				$("menuclass", menuclass) ->
 				$("description", description) ->
 				$("explanation", explanation) ->
+				$("emptytext", emptytext) ->
 				$("sortindex", sortindex) ->
 				$("gridheight", gridheight) ->
 				$("version", version) ->
