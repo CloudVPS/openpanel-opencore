@@ -108,6 +108,7 @@ int iconrequesthandler::run (string &uri, string &postbody, value &inhdr,
 							 string &out, value &outhdr, value &env,
 							 tcpsocket &s)
 {
+	bool isdown = (uri.strstr ("/down/") >= 0);
 	string uuid = uri.copyafterlast ("/");
 	uuid.cropat ('.');
 	
@@ -115,7 +116,16 @@ int iconrequesthandler::run (string &uri, string &postbody, value &inhdr,
 	
 	if (! app->mdb->classuuidexists (uuid))
 	{
-		string orgpath = "/var/openpanel/http/images/icons/%s.png" %format (uuid);
+		string orgpath;
+		
+		if (isdown)
+		{
+			orgpath = "/var/openpanel/http/images/icons/down_%s.png" %format (uuid);
+		}
+		else
+		{
+			orgpath = "/var/openpanel/http/images/icons/%s.png" %format (uuid);
+		}
 		if (fs.exists (orgpath))
 		{
 			out = fs.load (orgpath);
@@ -125,7 +135,15 @@ int iconrequesthandler::run (string &uri, string &postbody, value &inhdr,
 		return 404;
 	}
 	coreclass &c = app->mdb->getclassuuid (uuid);
-	string path = "%s/%s" %format (c.module.path, c.icon);
+	string path;
+	if (isdown)
+	{
+		path = "%s/down_%s" %format (c.module.path, c.icon);
+	}
+	else
+	{
+		path = "%s/%s" %format (c.module.path, c.icon);
+	}
 	
 	app->log (log::debug, "httpicon", "Loading %s" %format (path));
 	
