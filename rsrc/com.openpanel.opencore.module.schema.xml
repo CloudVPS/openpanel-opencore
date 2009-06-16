@@ -85,7 +85,7 @@
   <xml.class name="requires"><xml.type>string</xml.type></xml.class>
   <xml.class name="shortname"><xml.type>string</xml.type></xml.class>
   <xml.class name="title"><xml.type>string</xml.type></xml.class>
-  <xml.class name="emptytext"><xml.type>string</xml.type></xm.class>
+  <xml.class name="emptytext"><xml.type>string</xml.type></xml.class>
   <xml.class name="description"><xml.type>string</xml.type></xml.class>
   <xml.class name="explanation"><xml.type>string</xml.type></xml.class>
   <xml.class name="sortindex"><xml.type>integer</xml.type></xml.class>
