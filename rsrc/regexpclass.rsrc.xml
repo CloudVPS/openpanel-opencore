@@ -13,7 +13,7 @@
 	<string id="_cn">[a-zA-Z0-9]</string>
 	<string id="_email">[^%@ ]+@([A-Za-z0-9\-]+\.)+([A-Za-z]{2,})</string>
 	<string id="_hostname">^((([a-zA-Z0-9]){1}([a-zA-Z0-9-]+)?\.)+)?([a-zA-Z0-9]){1}([a-zA-Z0-9-]{0,}([a-zA-Z0-9]){1})\.([a-zA-Z]){2,4}$$</string>
-	<string id="_urlvalid">[-0-9a-zA-Z!#%?=&.,/+_~;]*</string>
+	<string id="_urlvalid">[-0-9a-zA-Z!#%?=\&.,/+_~;]*</string>
 	
 	<string id="ipv4">^$_ipv4$\.$_ipv4$\.$_ipv4$\.$_ipv4$$$</string>	
 	<string id="ipv6">^($_ipv6_1$)$$|^($_ipv6_2$)$$|^($_ipv6_3$)$$|^($_ipv6_4$)$$|^($_ipv6_5$)$$|^($_ipv6_6$)$$|^($_ipv6_7$)$$</string>						  		

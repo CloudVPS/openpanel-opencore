@@ -1529,7 +1529,7 @@ value *coresession::listmeta (const statstring &parentid,
 	returnclass (value) res retain;
 	
 	coreclass &metaclass = mdb.getclass (ofclass);
-	CORE->log (log::info, "session", "Getrecords metabase(%S)" %format (ofclass));
+	CORE->log (log::debug, "session", "Getrecords metabase(%S)" %format (ofclass));
 	try
 	{
 		res[ofclass].type ("class");
@@ -1594,7 +1594,7 @@ value *coresession::listobjects (const statstring &parentid,
 	// Catch internal classes.
 	if (mdb.isinternalclass (ofclass))
 	{
-		CORE->log (log::info, "session", "Listobjects for internal class");
+		CORE->log (log::debug, "session", "Listobjects for internal class");
 		internalclass &cl = mdb.geticlass (ofclass);
 		res = cl.listobjects (this, parentid);
 		if (! res.count()) seterror (ERR_ICLASS, cl.error());
