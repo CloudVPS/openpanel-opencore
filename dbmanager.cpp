@@ -163,6 +163,7 @@ int dbmanager::findobjectdeletedversion (int uc, const statstring &withmetaid)
 	{
 		lasterror = "An object with this id already exists";
 		errorcode = ERR_DBMANAGER_EXISTS;
+		DEBUG.storefile("dbmgr","errorcontext", v, "findobjectdeletedversion");
 		return -1;
 	}
 
