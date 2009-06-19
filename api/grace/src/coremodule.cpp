@@ -66,48 +66,27 @@ int CoreModule::main (void)
 	caseselector (cmd)
 	{
 		incaseof ("create") :
-			if (! C.create (env))
+			if (! C.create())
 			{
-				if (C.code() == CoreModule::E_OK)
-				{
-					sendResult(CoreModule::E_CLASS, "Unreported module error");
-				}
-				else
-				{
-					sendResult (C.code(), C.error());
-				}
+				sendError (C.code(), C.error());
 				authd.rollback();
 				return 1;
 			}
 			break;
 		
 		incaseof ("delete") :
-			if (! C.remove (env))
+			if (! C.remove ())
 			{
-				if (C.code() == CoreModule::E_OK)
-				{
-					sendResult(CoreModule::E_CLASS, "Unreported module error");
-				}
-				else
-				{
-					sendResult (C.code(), C.error());
-				}
+				sendError (C.code(), C.error());
 				authd.rollback();
 				return 1;
 			}
 			break;
 		
 		incaseof ("update") :
-			if (! C.update (env))
+			if (! C.update ())
 			{
-				if (C.code() == CoreModule::E_OK)
-				{
-					sendResult(CoreModule::E_CLASS, "Unreported module error");
-				}
-				else
-				{
-					sendResult (C.code(), C.error());
-				}
+				sendError (C.code(), C.error());
 				authd.rollback();
 				return 1;
 			}
@@ -118,7 +97,7 @@ int CoreModule::main (void)
 			break;
 			
 		defaultcase :
-			sendResult (CoreModule::E_NOTIMPL, "Command not implemented");
+			sendError (CoreModule::E_NOTIMPL, "Command not implemented");
 			return 1;
 	}
 	
@@ -126,7 +105,7 @@ int CoreModule::main (void)
 	authd.quit ();
 	
 	syslog (LOG_INFO, "Returning OK");
-	sendResult (CoreModule::E_OK, "OK");
+	sendOk();
 	return 0;
 }
 
@@ -233,7 +212,7 @@ void CoreClass::setEnv (const value &e)
 // ==========================================================================
 // METHOD CoreClass::create
 // ==========================================================================
-bool CoreClass::create (const value &env)
+bool CoreClass::create (void)
 {
 	error (CoreModule::E_NOTIMPL, "Method not implemented");
 	return false;
@@ -242,7 +221,7 @@ bool CoreClass::create (const value &env)
 // ==========================================================================
 // METHOD CoreClass::remove
 // ==========================================================================
-bool CoreClass::remove (const value &env)
+bool CoreClass::remove (void)
 {
 	error (CoreModule::E_NOTIMPL, "Method not implemented");
 	return false;
@@ -251,7 +230,7 @@ bool CoreClass::remove (const value &env)
 // ==========================================================================
 // METHOD CoreClass::update
 // ==========================================================================
-bool CoreClass::update (const value &env)
+bool CoreClass::update (void)
 {
 	error (CoreModule::E_NOTIMPL, "Method not implemented");
 	return false;

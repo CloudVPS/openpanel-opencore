@@ -49,9 +49,9 @@ public:
 	
 	void			 setParam (const value &p);
 	void			 setEnv (const value &e);
-	virtual bool	 create (const value &env);
-	virtual bool	 update (const value &env);
-	virtual bool	 remove (const value &env);
+	virtual bool	 create (void);
+	virtual bool	 update (void);
+	virtual bool	 remove (void);
 	
 	const string	&error (void) { return _error; }
 	int				 code (void) { return _code; }
