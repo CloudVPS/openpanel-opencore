@@ -59,6 +59,7 @@ int CoreModule::main (void)
 	
 	CoreClass &C = classes[classid];
 	C.setParam (env[C.name]);
+	C.setEnv (env);
 	
 	syslog (LOG_INFO, "Running module cmd=<%s>", cmd.str());
 	
@@ -67,7 +68,15 @@ int CoreModule::main (void)
 		incaseof ("create") :
 			if (! C.create (env))
 			{
-				sendResult (C.code(), C.error());
+				if (C.code() == CoreModule::E_OK)
+				{
+					sendResult(CoreModule::E_CLASS, "Unreported module error");
+				}
+				else
+				{
+					sendResult (C.code(), C.error());
+				}
+				authd.rollback();
 				return 1;
 			}
 			break;
@@ -75,7 +84,15 @@ int CoreModule::main (void)
 		incaseof ("delete") :
 			if (! C.remove (env))
 			{
-				sendResult (C.code(), C.error());
+				if (C.code() == CoreModule::E_OK)
+				{
+					sendResult(CoreModule::E_CLASS, "Unreported module error");
+				}
+				else
+				{
+					sendResult (C.code(), C.error());
+				}
+				authd.rollback();
 				return 1;
 			}
 			break;
@@ -83,7 +100,15 @@ int CoreModule::main (void)
 		incaseof ("update") :
 			if (! C.update (env))
 			{
-				sendResult (C.code(), C.error());
+				if (C.code() == CoreModule::E_OK)
+				{
+					sendResult(CoreModule::E_CLASS, "Unreported module error");
+				}
+				else
+				{
+					sendResult (C.code(), C.error());
+				}
+				authd.rollback();
 				return 1;
 			}
 			break;
@@ -138,6 +163,21 @@ void CoreModule::sendResult (int code, const string &err)
 }
 
 // ==========================================================================
+// METHOD CoreModule::sendError
+// ==========================================================================
+void CoreModule::sendError (int code, const string &err)
+{
+	if (code)
+	{
+		sendResult (code,err);
+	}
+	else
+	{
+		sendResult (E_OTHER, "Undocumented error in module");
+	}
+}
+
+// ==========================================================================
 // DEFAULT CONSTRUCTOR CoreClass
 // ==========================================================================
 CoreClass::CoreClass (void)
@@ -177,7 +217,17 @@ void CoreClass::alias (const statstring &aliasClass)
 void CoreClass::setParam (const value &p)
 {
 	param = p;
+	owner = p("owner");
 	id = param["id"];
+}
+
+// ==========================================================================
+// METHOD CoreClass::setEnv
+// ==========================================================================
+void CoreClass::setEnv (const value &e)
+{
+	env = e;
+	requestedClass = env["OpenCORE:Session"]["classid"];
 }
 
 // ==========================================================================
@@ -228,6 +278,14 @@ value *CoreClass::listAliases (const value &env)
 	}
 	
 	return &res;
+}
+
+// ==========================================================================
+// METHOD CoreClass::listChildren
+// ==========================================================================
+const value &CoreClass::listChildren (const statstring &ofclass)
+{
+	return param[ofclass];
 }
 
 // ==========================================================================

@@ -15,6 +15,8 @@ public:
 	
 	void			 addClass (const statstring &id, class CoreClass *who);
 	void			 sendResult (int code, const string &err);
+	void			 sendError (int code, const string &err);
+	void			 sendOk (void) { sendResult (E_OK, "OK"); }
 	
 	enum			 errorcode {
 						E_OK = 0,
@@ -46,6 +48,7 @@ public:
 					~CoreClass (void);
 	
 	void			 setParam (const value &p);
+	void			 setEnv (const value &e);
 	virtual bool	 create (const value &env);
 	virtual bool	 update (const value &env);
 	virtual bool	 remove (const value &env);
@@ -59,9 +62,13 @@ protected:
 	int				 _code;
 	string			 _error;
 	value			 param;
+	value			 env;
+	string			 requestedClass;
+	string			 owner;
 	string			 id;
 	
 	value			*listAliases (const value &env);
+	const value		&listChildren (const statstring &ofclass);
 	void			 alias (const statstring &aliasClass);
 	void			 error (int c, const string &e);
 };
