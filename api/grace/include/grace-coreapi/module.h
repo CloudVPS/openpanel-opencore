@@ -71,7 +71,9 @@ class AuthDaemon
 public:
 					 AuthDaemon (void);
 					~AuthDaemon (void);
-					
+	
+	bool			 installUserFile (const string &fname, const string &path,
+									  const string &user);
 	bool			 installFile (const string &fname, const string &path);
 	bool			 deleteFile (const string &fqpath);
 

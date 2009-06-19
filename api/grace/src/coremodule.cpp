@@ -265,6 +265,15 @@ bool AuthDaemon::installFile (const string &fname, const string &path)
 }
 
 // ==========================================================================
+// METHOD AuthDaemon::installUserFile
+// ==========================================================================
+bool AuthDaemon::installUserFile (const string &fname, const string &path,
+								  const string &user)
+{
+	return call ("installuserfile", fname, path, user);
+}
+
+// ==========================================================================
 // METHOD AuthDaemon::deleteFile
 // ==========================================================================
 bool AuthDaemon::deleteFile (const string &fname)
