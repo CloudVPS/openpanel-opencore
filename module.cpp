@@ -287,6 +287,10 @@ value *coreclass::flattenparam (void)
 		{
 			p["gridwidth"] = pobj("gridwidth").ival();
 		}
+		if (pobj.attribexists ("gridlabel"))
+		{
+			p["gridlabel"] = pobj("gridlabel");
+		}
 		if (pobj.attribexists ("textwidth"))
 		{
 			p["textwidth"] = pobj("textwidth").ival();
