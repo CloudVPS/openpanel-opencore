@@ -175,6 +175,7 @@
       <match.id>cliwidth</match.id>
       <match.id>gridhide</match.id>
       <match.id>gridwidth</match.id>
+      <match.id>gridlabel</match.id>
       <match.id>textwidth</match.id>
       <match.id>sameline</match.id>
       <match.id>paddingtop</match.id>

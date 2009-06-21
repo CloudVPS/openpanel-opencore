@@ -186,6 +186,9 @@
   	  <xml.attribute label="gridwidth">
   	    <xml.type>integer</xml.type>
   	  </xml.attribute>
+  	  <xml.attribute label="gridlabel">
+  	    <xml.type>string</xml.type>
+  	  </xml.attribute>
   	  <xml.attribute label="textwidth">
   	    <xml.type>integer</xml.type>
   	  </xml.attribute>
