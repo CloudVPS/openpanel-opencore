@@ -617,7 +617,7 @@ string *coresession::createobject (const statstring &parentid,
 	if (! cl.normalize (withparam, err))
 	{
 		CORE->log (log::error, "session", "Input data validation "
-				   "error: %S " %format (err));
+				   "error: %s " %format (err));
 		seterror (ERR_SESSION_VALIDATION, err);
 		return NULL;
 	}
@@ -664,11 +664,11 @@ string *coresession::createobject (const statstring &parentid,
 	if (! db.fetchobject (parm, uuid, true /* formodule */))
 	{
 		CORE->log (log::critical, "session", "Database failure getting object-"
-				   "related data for '%S': %S" %format (uuid,
+				   "related data for '%S': %s" %format (uuid,
 				   db.getlasterror()));
 				   
 		ALERT->alert ("Session error on object-related data\n"
-					  "uuid=<%S> error=<%S>" %format (uuid,
+					  "uuid=<%S> error=<%s>" %format (uuid,
 					  db.getlasterror()));
 		return NULL;
 	}
