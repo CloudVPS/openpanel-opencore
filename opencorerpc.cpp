@@ -75,7 +75,7 @@ bool opencorerpc::confcheck  (const value &conf)
 	// Check if the base path to the given socket exists
 	if (! fs.exists (fBase))
 	{
-		 error.printf ("Path to socket does not exists %s", fBase.cval());
+		 error = "Path to socket does not exists %s" %format (fBase);
 		 return 0;
 	}
 	

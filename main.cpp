@@ -57,22 +57,22 @@ int opencoreApp::main (void)
 	
 	if (argv.exists ("--emit-dancing-bears"))
 	{
-		ferr.printf ("    _--_     _--_    _--_     _--_     _--_     _--_     _--_     _--_\n");
-		ferr.printf ("   (    )~~~(    )  (    )~~~(    )   (    )~~~(    )   (    )~~~(    )\n");
-		ferr.printf ("    \\           /    \\           /     \\           /     \\           /\n");
-		ferr.printf ("     (  ' _ `  )      (  ' _ `  )       (  ' _ `  )       (  ' _ `  )\n");
-		ferr.printf ("      \\       /        \\       /         \\       /         \\       /\n");
-		ferr.printf ("    .__( `-' )          ( `-' )           ( `-' )        .__( `-' )  ___\n");
-		ferr.printf ("   / !  `---' \\      _--'`---_          .--`---'\\       /   /`---'`-'   \\\n");
-		ferr.printf ("  /  \\         !    /         \\___     /        _>\\    /   /          ._/   __\n");
-		ferr.printf (" !   /\\        )   /   /       !  \\   /  /-___-'   ) /'   /.-----\\___/     /  )\n");
-		ferr.printf (" !   !_\\       ). (   <        !__/ /'  (        _/  \\___//          `----'   !\n");
-		ferr.printf ("  \\    \\       ! \\ \\   \\      /\\    \\___/`------' )       \\            ______/\n");
-		ferr.printf ("   \\___/   )  /__/  \\--/   \\ /  \\  ._    \\      `<         `--_____----'\n");
-		ferr.printf ("     \\    /   !       `.    )-   \\/  ) ___>-_     \\   /-\\    \\    /\n");
-		ferr.printf ("     /   !   /         !   !  `.    / /      `-_   `-/  /    !   !\n");
-		ferr.printf ("    !   /__ /___       /  /__   \\__/ (  \\---__/ `-_    /     /  /__\n");
-		ferr.printf ("    (______)____)     (______)        \\__)         `-_/     (______)\n");
+		ferr.writeln ("    _--_     _--_    _--_     _--_     _--_     _--_     _--_     _--_");
+		ferr.writeln ("   (    )~~~(    )  (    )~~~(    )   (    )~~~(    )   (    )~~~(    )");
+		ferr.writeln ("    \\           /    \\           /     \\           /     \\           /");
+		ferr.writeln ("     (  ' _ `  )      (  ' _ `  )       (  ' _ `  )       (  ' _ `  )");
+		ferr.writeln ("      \\       /        \\       /         \\       /         \\       /");
+		ferr.writeln ("    .__( `-' )          ( `-' )           ( `-' )        .__( `-' )  ___");
+		ferr.writeln ("   / !  `---' \\      _--'`---_          .--`---'\\       /   /`---'`-'   \\");
+		ferr.writeln ("  /  \\         !    /         \\___     /        _>\\    /   /          ._/   __");
+		ferr.writeln (" !   /\\        )   /   /       !  \\   /  /-___-'   ) /'   /.-----\\___/     /  )");
+		ferr.writeln (" !   !_\\       ). (   <        !__/ /'  (        _/  \\___//          `----'   !");
+		ferr.writeln ("  \\    \\       ! \\ \\   \\      /\\    \\___/`------' )       \\            ______/");
+		ferr.writeln ("   \\___/   )  /__/  \\--/   \\ /  \\  ._    \\      `<         `--_____----'");
+		ferr.writeln ("     \\    /   !       `.    )-   \\/  ) ___>-_     \\   /-\\    \\    /");
+		ferr.writeln ("     /   !   /         !   !  `.    / /      `-_   `-/  /    !   !");
+		ferr.writeln ("    !   /__ /___       /  /__   \\__/ (  \\---__/ `-_    /     /  /__");
+		ferr.writeln ("    (______)____)     (______)        \\__)         `-_/     (______)");
 	}
 	
 	string conferr; // Error return from configuration class.
@@ -111,7 +111,7 @@ int opencoreApp::main (void)
 	pw = kernel.userdb.getpwnam ("opencore");
 	if (! pw)
 	{
-		ferr.printf ("Could not find opencore user\n");
+		ferr.writeln ("Could not find opencore user");
 		return false;
 	}
 	uid_opencore = pw["uid"].uval();
@@ -121,7 +121,7 @@ int opencoreApp::main (void)
 	gw = kernel.userdb.getgrnam ("authd");
 	if (! gw)
 	{
-		ferr.printf ("Could not find authd group\n");
+		ferr.writeln ("Could not find authd group");
 		return false;
 	}
 	gid_authd = gw["gid"].uval();
@@ -146,7 +146,7 @@ int opencoreApp::main (void)
 	// Load will fail if watchers did not valiate.
 	if (! conf.load ("com.openpanel.svc.opencore", conferr))
 	{
-		ferr.printf ("%% Error loading configuration: %s\n", conferr.str());
+		ferr.writeln ("%% Error loading configuration: %s" %format(conferr));
 		return 1;
 	}
 
@@ -210,7 +210,7 @@ bool opencoreApp::checkAuthDaemon (void)
 	
 	if (! sauth.uconnect ("/var/opencore/sockets/authd/authd.sock"))
 	{
-		ferr.printf ("%% Error connecting to authd socket\n");
+		ferr.writeln ("% Error connecting to authd socket");
 		return false;
 	}
 	
@@ -221,12 +221,12 @@ bool opencoreApp::checkAuthDaemon (void)
 		line = sauth.gets();
 		if (! line.strlen())
 		{
-			ferr.printf ("%% Error getting reply from authd socket\n");
+			ferr.writeln ("% Error getting reply from authd socket");
 			return false;
 		}
 		if (line[0] != '+')
 		{
-			ferr.printf ("%% Error from authd: %s\n", line.str());
+			ferr.writeln ("%% Error from authd: %s\n" %format (line));
 			return false;
 		}
 		sauth.writeln ("quit");
@@ -256,8 +256,7 @@ bool opencoreApp::confSystem (config::action act, keypath &kp,
 			if (! tstr.strlen()) return true;
 			if (! fs.exists (tstr))
 			{
-				ferr.printf ("%% Event log path %s does not exist\n",
-							 tstr.str());
+				ferr.writeln ("%% Event log path %s does not exist" %format(tstr));
 				return false;
 			}
 			if (! nval.exists ("debuglog")) return true;
@@ -265,8 +264,7 @@ bool opencoreApp::confSystem (config::action act, keypath &kp,
 			if (! tstr.strlen()) return true;
 			if (! fs.exists (tstr))
 			{
-				ferr.printf ("%% Debug log path %s does not exist\n",
-							 tstr.str());
+				ferr.writeln ("%% Debug log path %s does not exist" %format(tstr));
 				return false;
 			}
 			return true;
@@ -371,7 +369,7 @@ int opencoreApp::cmdShowSession (const value &cmdata)
 {
 	if (cmdata.count() != 3)
 	{
-		ferr.printf ("%% Wuh?\n");
+		ferr.writeln ("% Wuh");
 		return 0;
 	}
 	
@@ -383,7 +381,7 @@ int opencoreApp::cmdShowSession (const value &cmdata)
 	s = sdb->get (sid);
 	if (! s)
 	{
-		ferr.printf ("%% Unknown session\n");
+		ferr.writeln ("% Unknown session");
 		return 0;
 	}
 	
@@ -434,9 +432,9 @@ int opencoreApp::cmdShowSessions (const value &cmdata)
 		str.crop (74 - org.strlen());
 		str.pad (74 - org.strlen(), ' ');
 		fout.puts (str);
-		fout.printf ("\033[0m[%s]\n", org.str());
+		fout.writeln ("\033[0m[%s]" %format (org));
 		
-		fout.printf ("   %s\n", row.id().str());
+		fout.writeln ("   %s" %format (row.id()));
 	}
 	return 0;
 }
@@ -446,14 +444,12 @@ int opencoreApp::cmdShowSessions (const value &cmdata)
 // ==========================================================================
 int opencoreApp::cmdShowVersion (const value &cmdata)
 {
-	fout.printf ("OpenCORE version %s - %s (%s@%s)\n",
-				 version::release.str(),
-				 version::date.str(),
-				 version::user.str(),
-				 version::hostname.str());
+	fout.writeln ("OpenCORE version %s - %s (%s@%s)"
+				 %format (version::release, version::date,
+				 		  version::user, version::hostname));
 				 
-	fout.printf ("Available under the GNU General Public License\n");
-	fout.printf ("Copyright (C) 2009 PanelSix\n");
+	fout.writeln ("Available under the GNU General Public License");
+	fout.writeln ("Copyright (C) 2009 PanelSix");
 	return 0;
 }
 

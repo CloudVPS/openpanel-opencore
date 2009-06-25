@@ -60,7 +60,7 @@ void moduledb::init (const value &reloadmods)
 	dbmanager db;
 	if (! db.init ())
 	{
-		CORE->log (log::critical, "moduledb", "Could not init database");
+		log::write (log::critical, "moduledb", "Could not init database");
 		return;
 	}
 	
@@ -77,7 +77,7 @@ void moduledb::init (const value &reloadmods)
 	// an empty cache.
 	if (! fs.exists (cachepath))
 	{
-		CORE->log (log::info, "moduledb", "No module cache found, assuming "
+		log::write (log::info, "moduledb", "No module cache found, assuming "
 				   "new install");
 				   
 		cache["modules"]; // Initialize cache's tree structure.
@@ -85,8 +85,8 @@ void moduledb::init (const value &reloadmods)
 		// If we can't write, consider that a dealbreaker.
 		if (! cache.saveshox (cachepath))
 		{
-			CORE->log (log::critical, "moduledb", "Can not write to module "
-					   "cache at <%s>, bailing.", cachepath.str());
+			log::write (log::critical, "moduledb", "Can not write to module "
+					   "cache at <%s>, bailing." %format (cachepath));
 			CORE->delayedexiterror ("Error saving module.cache");
 			sleep (2);
 			exit (1);
@@ -97,7 +97,7 @@ void moduledb::init (const value &reloadmods)
 		cache.loadshox (cachepath);
 		if (! cache.count())
 		{
-			CORE->log (log::warning, "moduledb", "Loaded module cache "
+			log::write (log::warning, "moduledb", "Loaded module cache "
 					   "seems to be empty");
 		}
 	}
@@ -125,7 +125,7 @@ void moduledb::init (const value &reloadmods)
 				}
 				catch (exception e)
 				{
-					CORE->log (log::error, "moduledb", "Error loading "
+					log::write (log::error, "moduledb", "Error loading "
 							   "'%s': %s" %format (mname, e.description));
 					
 					// Re-throw on user.module, without that one
@@ -158,15 +158,14 @@ void moduledb::loadmodule (const string &mname, value &cache, dbmanager &db)
 	history[mname] = true;
 	
 	string path = PATH_MODULES "/%s" %format (mname);
-	CORE->log (log::info, "moduledb", "Loading <%s>" %format (path));
+	log::write (log::info, "moduledb", "Loading <%s>" %format (path));
 	
 	// Make sure the module exists at all.
 	if (! fs.exists (path))
 	{
-		CORE->log (log::critical, "moduledb", "Unable to load <%s>",
-				   path.str());
+		log::write (log::critical, "moduledb", "Couldn't load <%s>" %format(path));
 		
-		cache["modules"].rmval (mname.str());
+		cache["modules"].rmval (mname);
 		throw (moduleInitException("Module does not exist"));
 	}
 	
@@ -177,7 +176,7 @@ void moduledb::loadmodule (const string &mname, value &cache, dbmanager &db)
 	// verify failed.
 	if (! m->verify ())
 	{
-		delete m;	
+		delete m;
 		throw (moduleInitException ("Verify failed"));
 	}
 	
@@ -223,7 +222,7 @@ bool moduledb::checkcache (const string &mname, value &cache,
 		
 		if (cachedver > newver)
 		{
-			CORE->log (log::critical, "moduledb", "Version downgrade "
+			log::write (log::critical, "moduledb", "Version downgrade "
 					   "detected on module <%s> current version = %i, "
 					   "old version = %i" %format (mname,newver,cachedver));
 					   
@@ -231,12 +230,12 @@ bool moduledb::checkcache (const string &mname, value &cache,
 		}
 		else if (cachedver < newver)
 		{
-			CORE->log (log::info, "moduledb", "New version of module "
-					   "<%s> detected", mname.str());
+			log::write (log::info, "moduledb", "New version of module "
+					   "<%s> detected" %format (mname));
 		
 			if (! m->updateok (cachedver))
 			{
-				CORE->log (log::critical, "moduledb", "Module <%s> "
+				log::write (log::critical, "moduledb", "Module <%s> "
 						   "cannot deal with objects created by"
 						   "version %i" %format (mname, cachedver));
 				
@@ -245,7 +244,7 @@ bool moduledb::checkcache (const string &mname, value &cache,
 		}
 		else
 		{
-			CORE->log (log::info, "moduledb", "Using cached version");
+			log::write (log::info, "moduledb", "Using cached version");
 		}
 		
 		cache["modules"][mname] = m->meta["version"];
@@ -257,8 +256,8 @@ bool moduledb::checkcache (const string &mname, value &cache,
 	cache["modules"][mname] = m->meta["version"];
 	byname[mname] = m;
 	
-	CORE->log (log::info, "moduledb", "No cache entry for "
-			   "module <%s>", mname.str());
+	log::write (log::info, "moduledb", "No cache entry for "
+			   "module <%s>" %format (mname));
 			   
 	DEBUG.storefile ("moduledb", "miss", cache["modules"], "checkcache");
 	return true;
@@ -274,8 +273,8 @@ void moduledb::loaddependencies (const string &mname, value &cache,
 	if (m->meta.exists ("requires"))
 	{
 		// Yes, recurse.
-		CORE->log (log::info, "moduledb", "Loading required module <%S>",
-				   m->meta["requires"].cval());
+		log::write (log::info, "moduledb", "Loading required module <%S>"
+				    %format (m->meta["requires"]));
 		
 		try
 		{
@@ -283,7 +282,7 @@ void moduledb::loaddependencies (const string &mname, value &cache,
 		}
 		catch (exception e)
 		{
-			CORE->log (log::error, "moduledb", "Error loading required "
+			log::write (log::error, "moduledb", "Error loading required "
 					   "module <%S>, disabling depending module <%S>"
 					   %format (m->meta["requires"], mname));
 			
@@ -345,15 +344,16 @@ void moduledb::registerclasses (const string &mname, value &cache,
 	{
 		if (byclass.exists (classobj.name))
 		{
-			CORE->log (log::critical, "moduledb", "Class <%S> "
-					   "already exists in module <%S>",
-					   classobj.name.str(), mname.str());
-			cache["modules"].rmval (mname.str());
+			log::write (log::critical, "moduledb", "Class <%S> "
+					   "already exists in module <%S>"
+					   %format (classobj.name, mname));
+
+			cache["modules"].rmval (mname);
 			throw (moduleInitException());
 		}
 		if (byclassuuid.exists (classobj.uuid))
 		{
-			CORE->log (log::critical, "moduledb", "Class with "
+			log::write (log::critical, "moduledb", "Class with "
 					   "uuid <%S> already registered."
 					   %format (classobj.uuid));
 		}
@@ -364,17 +364,16 @@ void moduledb::registerclasses (const string &mname, value &cache,
 		// Does this class require another class?
 		if (classobj.requires)
 		{
-			CORE->log (log::info, "moduledb", "Registered class <%s> "
-					   "requires <%s>", classobj.name.str(),
-					   classobj.requires.str());
+			log::write (log::info, "moduledb", "Registered class <%s> "
+					   "requires <%s>" %format (classobj.name, classobj.requires));
 		
 			// Yes, add this class to the byparent list.
 			byparent[classobj.requires].newval() = classobj.name;
 		}
 		else
 		{
-			CORE->log (log::info, "moduledb", "Registered class <%S> "
-					   "at root", classobj.name.str());
+			log::write (log::info, "moduledb", "Registered class <%S> "
+					   "at root" %format (classobj.name));
 			
 			// No requirements, parent this class to the virtual
 			// parent class 'ROOT'.
@@ -396,11 +395,12 @@ void moduledb::registerclasses (const string &mname, value &cache,
 		if (! db.registerclass (regdata))
 		{
 			// Failed, croak.
-			CORE->log (log::critical, "moduledb", "Could not register "
-					   "class <%S> with dbmanager: %s",
-					   classobj.name.str(), db.getlasterror().cval());
+			log::write (log::critical, "moduledb", "Could not register "
+					   "class <%S> with dbmanager: %s"
+					   %format (classobj.name, db.getlasterror()));
+
 			sleep (2);
-			cache["modules"].rmval (mname.str());
+			cache["modules"].rmval (mname);
 			throw (moduleInitException());
 		}
 	}
@@ -412,8 +412,8 @@ void moduledb::registerclasses (const string &mname, value &cache,
 	{
 		if (classexists (cdep.sval()))
 		{
-			CORE->log (log::info, "moduledb", "Setting cascade for "
-					   "class <%S>", cdep.cval());
+			log::write (log::info, "moduledb", "Setting cascade for "
+					   "class <%S>" %format (cdep));
 			getclass (cdep.sval()).cascades = true;
 		}
 	}
@@ -430,7 +430,7 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 	value uuids; //< Local-to-global id mapping for flattening.
 	value skipparents; // parent-uuids that already existed
 	
-	CORE->log (log::info, "moduledb", "Getconfig for <%s>" %format (mname));
+	log::write (log::info, "moduledb", "Getconfig for <%s>" %format (mname));
 	
 	// First let's get the currentconfig tree from the module.
 	if (m->meta["implementation"]["getconfig"].bval())
@@ -484,7 +484,7 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 				{
 					statstring parentclass = obj["parentclass"];
 					parentid  = db.findobject (nokey, parentclass, nokey, parent);
-					CORE->log (log::info, "moduledb", "Resolved %s/%s to "
+					log::write (log::info, "moduledb", "Resolved %s/%s to "
 							   "<%s>" %format (parentclass,parent,parentid));
 				}
 			}
@@ -495,11 +495,11 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 			
 			if ((! uuid) && (db.getlasterrorcode() != ERR_DBMANAGER_EXISTS))
 			{
-				CORE->log (log::critical, "moduledb", "Could not "
+				log::write (log::critical, "moduledb", "Could not "
 						   "commit initial <%S> object in database: "
 						   "%s" %format (oclass, db.getlasterror()));
 						   
-				cache["modules"].rmval (mname.str());
+				cache["modules"].rmval (mname);
 				throw (moduleInitException());
 			}
 			else if (! uuid)
@@ -518,10 +518,10 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 			// Henny penny the sky is falling!
 			if (! uuid)
 			{
-				CORE->log (log::error, "moduledb",
+				log::write (log::error, "moduledb",
 						  "Error importing external data for "
-						  "class <%S> with metaid <%S>",
-						  oclass.str(), metaid.str());
+						  "class <%S> with metaid <%S>"
+						  %format (oclass, metaid));
 				break;
 			}
 			else // AOK
@@ -596,8 +596,8 @@ corestatus_t moduledb::createobject (const statstring &ofclass,
 	if (! m)
 	{
 		err = "Module for class not found";
-		CORE->log (log::critical, "moduledb", "Unexpected error trying to "
-				   "resolve class <%S>", ofclass.str());
+		log::write (log::critical, "moduledb", "Unexpected error trying to "
+				   "resolve class <%S>" %format (ofclass));
 		ALERT->alert ("Error resolving <%S> in moduledb" %format (ofclass));
 		return status_failed;
 	}
@@ -625,8 +625,7 @@ corestatus_t moduledb::createobject (const statstring &ofclass,
 	
 	if (res != status_ok)
 	{
-		err.printf ("%i:%s", returnp["OpenCORE:Result"]["error"].ival(),
-					returnp["OpenCORE:Result"]["message"].cval());
+		err = "%[error]i:%[message]s" %format (returnp["OpenCORE:Result"]); 
 	}
 	
 	return res;
@@ -647,8 +646,8 @@ corestatus_t moduledb::makecrypt (const statstring &ofclass,
 	m = byclass[ofclass];
 	if (! m)
 	{
-		CORE->log (log::critical, "moduledb", "Unexpected error trying to "
-				   "resolve class <%S>", ofclass.str());
+		log::write (log::critical, "moduledb", "Unexpected error trying to "
+				   "resolve class <%S>" %format (ofclass));
 		ALERT->alert ("Unexpected error trying to resolve class <%S> in "
 					 "moduledb" %format (ofclass));
 		return status_failed;
@@ -683,8 +682,8 @@ corestatus_t moduledb::callmethod (const statstring &parentid,
 	
 	if (! byclass.exists (ofclass))
 	{
-		CORE->log (log::error, "moduledb", "Callmethod '%S.%S': class "
-				   "not found", ofclass.str(), method.str());
+		log::write (log::error, "moduledb", "Callmethod '%S.%S': class "
+				   "not found" %format (ofclass, method));
 		
 		return status_failed;
 	}
@@ -692,8 +691,8 @@ corestatus_t moduledb::callmethod (const statstring &parentid,
 	m = byclass[ofclass];
 	if (! m)
 	{
-		CORE->log (log::critical, "moduledb", "Unexpected error trying to "
-				   "resolve class '%S'", ofclass.str());
+		log::write (log::critical, "moduledb", "Unexpected error trying to "
+				   "resolve class '%S'" %format (ofclass));
 		ALERT->alert ("Unexpected error trying to resolve class <%S> in "
 					 "moduledb" %format (ofclass));
 		return status_failed;
@@ -714,8 +713,7 @@ corestatus_t moduledb::callmethod (const statstring &parentid,
 
 	if (res != status_ok)
 	{
-		err.printf ("%i:%s", returnp["OpenCORE:Result"]["error"].ival(),
-					returnp["OpenCORE:Result"]["message"].cval());
+		err = "%[error]i:%[message]s" %format (returnp["OpenCORE:Result"]); 
 	}
 	
 	return res;
@@ -746,8 +744,9 @@ corestatus_t moduledb::setspecialphysicalquota
 	m = byclass[ofclass];
 	if (! m)
 	{
-		CORE->log (log::critical, "moduledb", "Unexpected error trying to "
-				   "resolve class <%S>, specialquota tag <%S>", ofclass.str(), tag.str());
+		log::write (log::critical, "moduledb", "Unexpected error trying to "
+				   "resolve class <%S>, specialquota tag <%S>"
+				   %format (ofclass, tag));
 		ALERT->alert ("Unexpected error trying to resolve class <%S>, specialquota tag <%S> in "
 					 "moduledb" %format (ofclass, tag));
 		return status_failed;
@@ -792,8 +791,8 @@ corestatus_t moduledb::updateobject (const statstring &ofclass,
 	m = byclass[ofclass];
 	if (! m)
 	{
-		CORE->log (log::critical, "moduledb", "Unexpected error trying to "
-				   "resolve class <%S>", ofclass.str());
+		log::write (log::critical, "moduledb", "Unexpected error trying to "
+				   "resolve class <%S>" %format (ofclass));
 		ALERT->alert ("Unexpected error trying to resolve class <%S> in "
 					 "moduledb" %format (ofclass));
 		return status_failed;
@@ -859,8 +858,8 @@ value *moduledb::listdynamicobjects (const statstring &parentid,
 	
 	if (rez != status_ok)
 	{
-		CORE->log (log::error, "moduledb", "Error listing dynamic objects "
-				   "for class <%S>", ofclass.str());
+		log::write (log::error, "moduledb", "Error listing dynamic objects "
+				   "for class <%S>" %format (ofclass));
 				   
 		err = "%[error]i:%[message]s" %format (returnp["OpenCORE:Result"]);
 		return NULL;
@@ -883,7 +882,7 @@ value *moduledb::listparamsformethod (const statstring &parentid,
 	// Complain if it's an unknown class.
 	if (! classexists (ofclass))
 	{
-		CORE->log (log::error, "moduledb", "Listparamsformethod called "
+		log::write (log::error, "moduledb", "Listparamsformethod called "
 				   "for class=<%S>, class not found" %format (ofclass));
 		
 		return NULL;
@@ -893,7 +892,7 @@ value *moduledb::listparamsformethod (const statstring &parentid,
 	coreclass &cl = getclass (ofclass);
 	if (! cl.methods.exists (methodname))
 	{
-		CORE->log (log::error, "moduledb", "Listparamsformethod called "
+		log::write (log::error, "moduledb", "Listparamsformethod called "
 				   "for class=<%S> methodname=<%S>, method not found"
 				   %format (ofclass, methodname));
 		
@@ -919,7 +918,7 @@ value *moduledb::listparamsformethod (const statstring &parentid,
 		
 		if (rez != status_ok)
 		{
-			CORE->log (log::error, "moduledb", "Error getting list of "
+			log::write (log::error, "moduledb", "Error getting list of "
 					   "parameters for a call to class=<%S> method=<%S> "
 					   "parentid=<%S> objectid=<%S>" %format (ofclass,
 					   methodname, parentid, withid));
@@ -934,7 +933,7 @@ value *moduledb::listparamsformethod (const statstring &parentid,
 		return &res;
 	}
 
-	CORE->log (log::error, "moduledb", "Listparamsformethod called "
+	log::write (log::error, "moduledb", "Listparamsformethod called "
 			   "for class=<%S> method=<%S>, not dynamic" %format (ofclass,
 			   methodname));
 	return NULL;
@@ -948,7 +947,7 @@ unsigned int moduledb::synchronizeclass (const statstring &ofclass,
 {
 	if (! classexists (ofclass))
 	{
-		CORE->log (log::error, "moduledb", "Got synchronization request "
+		log::write (log::error, "moduledb", "Got synchronization request "
 				   "for class <%S> which does not exist" %format (ofclass));
 		return withserial;
 	}
@@ -967,7 +966,7 @@ unsigned int moduledb::synchronizeclass (const statstring &ofclass,
 	
 	if (rez != status_ok)
 	{
-		CORE->log (log::error, "moduledb", "Error syncing class "
+		log::write (log::error, "moduledb", "Error syncing class "
 				  "<%S>" %format (ofclass));
 		return withserial;
 	}
@@ -1005,7 +1004,7 @@ corestatus_t moduledb::deleteobject (const statstring &ofclass,
 	m = byclass[ofclass];
 	if (! m)
 	{
-		CORE->log (log::critical, "moduledb", "Unexpected error trying to "
+		log::write (log::critical, "moduledb", "Unexpected error trying to "
 				   "resolve class <%S>" %format (ofclass));
 		ALERT->alert ("Unexpected error trying to resolve class <%S> in "
 					 "moduledb" %format (ofclass));
@@ -1105,7 +1104,7 @@ value *moduledb::getclassinfo (const statstring &classname, bool foradmin)
 		res = m->classes[classname].makeclassinfo ();
 		if (! res)
 		{
-			CORE->log (log::warning, "moduledb", "Empty result data "
+			log::write (log::warning, "moduledb", "Empty result data "
 					   "on asking for classinfo on <%S>" %format (classname));
 					   
 			return &res;
@@ -1135,7 +1134,7 @@ value *moduledb::getclassinfo (const statstring &classname, bool foradmin)
 			}
 			else if (pclass != "ROOT")
 			{
-				CORE->log (log::error, "moduledb", "Error resolving module "
+				log::write (log::error, "moduledb", "Error resolving module "
 						   "for class <%S>" %format (pclass));
 			}
 		}
@@ -1159,7 +1158,7 @@ value *moduledb::getclassinfo (const statstring &classname, bool foradmin)
 		}
 		else if (cclass != "ROOT") // This shouldn't happen.
 		{
-			CORE->log (log::error, "moduledb", "Error resolving module for "
+			log::write (log::error, "moduledb", "Error resolving module for "
 					   "class <%S>" %format (cclass));
 		}
 	}
