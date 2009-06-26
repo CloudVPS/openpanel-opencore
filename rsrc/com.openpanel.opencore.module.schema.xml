@@ -58,6 +58,7 @@
       <xml.member class="explanation"		id="explanation"/>
       <xml.member class="sortindex"			id="sortindex"/>
       <xml.member class="gridheight"		id="gridheight"/>
+      <xml.member class="hidegrid"			id="hidegrid"/>
       <xml.member class="icon"				id="icon"/>
       <xml.member class="allchildren"		id="allchildren"/>
       <xml.member class="parentrealm"		id="parentrealm"/>
@@ -90,6 +91,7 @@
   <xml.class name="explanation"><xml.type>string</xml.type></xml.class>
   <xml.class name="sortindex"><xml.type>integer</xml.type></xml.class>
   <xml.class name="gridheight"><xml.type>integer</xml.type></xml.class>
+  <xml.class name="hidegrid"><xml.type>bool</xml.type></xml.class>
   <xml.class name="icon"><xml.type>string</xml.type></xml.class>
   <xml.class name="allchildren"><xml.type>bool</xml.type></xml.class>
   <xml.class name="parentrealm"><xml.type>string</xml.type></xml.class>

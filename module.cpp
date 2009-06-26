@@ -66,6 +66,7 @@ coreclass::coreclass (const value &imeta, coremodule *p)
 	DESERIALIZE (capabilities);
 	DESERIALIZE (methods);
 	DEFDESERIALIZE (sortindex,50);
+	DEFDESERIALIZE (hidegrid,false);
 	DEFDESERIALIZE (gridheight,100);
 	DEFDESERIALIZE (emptytext,"No objects found");
 	DEFDESERIALIZE (worldreadable,false);
@@ -440,6 +441,7 @@ value *coreclass::makeclassinfo (void)
 				$("emptytext", emptytext) ->
 				$("sortindex", sortindex) ->
 				$("gridheight", gridheight) ->
+				$("hidegrid", hidegrid) ->
 				$("version", version) ->
 				$("magicdelimiter", magicdelimiter) ->
 				$("parentrealm", parentrealm) ->

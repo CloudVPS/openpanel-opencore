@@ -50,6 +50,7 @@ public:
 	string			 emptytext; ///< Text to show when there are no objects.
 	int				 sortindex; ///< The sorting index.
 	int				 gridheight; ///< Height of the display grid (if applicable).
+	bool			 hidegrid; ///< True if grid should be hidden if it contains 1 item.
 	string			 menuclass; ///< To wich guiclass does this class belong
 	string			 requires; ///< If set, what parent class is required.
 	int				 version; ///< The class version.
