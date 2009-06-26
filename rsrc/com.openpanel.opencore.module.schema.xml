@@ -92,6 +92,7 @@
   <xml.class name="sortindex"><xml.type>integer</xml.type></xml.class>
   <xml.class name="gridheight"><xml.type>integer</xml.type></xml.class>
   <xml.class name="hidegrid"><xml.type>bool</xml.type></xml.class>
+  <xml.class name="formmargin"><xml.type>integer</xml.type></xml.class>
   <xml.class name="icon"><xml.type>string</xml.type></xml.class>
   <xml.class name="allchildren"><xml.type>bool</xml.type></xml.class>
   <xml.class name="parentrealm"><xml.type>string</xml.type></xml.class>
