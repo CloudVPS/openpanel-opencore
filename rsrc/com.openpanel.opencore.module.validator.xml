@@ -101,6 +101,7 @@
       <match.id>gridheight</match.id>
       <match.id>hidegrid</match.id>
       <match.id>formmargin</match.id>
+      <match.id>gridmargin</match.id>
       <match.id>capabilities</match.id>
       <match.id>maxinstances</match.id>
       <match.id>singleton</match.id>

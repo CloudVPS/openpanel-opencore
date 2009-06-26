@@ -52,6 +52,7 @@ public:
 	int				 gridheight; ///< Height of the display grid (if applicable).
 	bool			 hidegrid; ///< True if grid should be hidden if it contains 1 item.
 	int				 formmargin; ///< Top margin of the class form in GUI.
+	int				 gridmargin; ///< Top margin of the grid in GUI.
 	string			 menuclass; ///< To wich guiclass does this class belong
 	string			 requires; ///< If set, what parent class is required.
 	int				 version; ///< The class version.
