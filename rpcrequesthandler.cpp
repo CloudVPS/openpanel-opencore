@@ -154,6 +154,46 @@ int iconrequesthandler::run (string &uri, string &postbody, value &inhdr,
 	return 200;
 }
 
+itemiconrequesthandler::itemiconrequesthandler (class opencoreApp *papp, httpd &serv)
+	: httpdobject (serv, "/images/itemicons/*"), app (papp)
+{
+}
+
+int itemiconrequesthandler::run (string &uri, string &postbody, value &inhdr,
+							 string &out, value &outhdr, value &env,
+							 tcpsocket &s)
+{
+	string uuid = uri.copyafterlast ("/");
+	uuid.cropat ('.');
+	
+	app->log (log::debug, "httpicon", "Request for <%s>" %format (uuid));
+	
+	if (! app->mdb->classuuidexists (uuid))
+	{
+		string orgpath;
+		
+		orgpath = "/var/openpanel/http/images/icons/%s_item.png" %format (uuid);
+
+		if (fs.exists (orgpath))
+		{
+			out = fs.load (orgpath);
+			outhdr["Content-type"] = "image/png";
+			return 200;
+		}
+		return 404;
+	}
+	
+	coreclass &c = app->mdb->getclassuuid (uuid);
+	string path = "%s/item_%s" %format (c.module.path, c.icon);
+	app->log (log::debug, "itemicon", "Loading %s" %format (path));
+	
+	if (! fs.exists (path)) return 404;
+	
+	outhdr["Content-type"] = "image/png";
+	out = fs.load (path);
+	return 200;
+}
+
 emblemrequesthandler::emblemrequesthandler (class opencoreApp *papp, httpd &serv)
 	: httpdobject (serv, "/images/emblems/*"), app (papp)
 {

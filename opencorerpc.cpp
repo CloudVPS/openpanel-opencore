@@ -134,6 +134,7 @@ bool opencorerpc::_confcreate (const value &conf, int update)
 			httpdTcp.systempath ("/var/openpanel");
 			new httpdlogger (httpdTcp, "/var/opencore/log/opencore.access.log");
 			new iconrequesthandler (app, httpdTcp);
+			new itemiconrequesthandler (app, httpdTcp);
 			new emblemrequesthandler (app, httpdTcp);
 			new imagepreloader (app, httpdTcp);
 			new httpdfileshare (httpdTcp, "*", "/var/openpanel/http");

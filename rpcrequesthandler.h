@@ -79,6 +79,25 @@ private:
 };
 
 //  -------------------------------------------------------------------------
+/// Handler for http requests in the /itemicon/ directory. Loads an
+/// icon from outside the module directory by class uuid.
+//  -------------------------------------------------------------------------
+class itemiconrequesthandler : public httpdobject
+{
+public:
+			 itemiconrequesthandler (class opencoreApp *papp,
+									 httpd &server);
+			~itemiconrequesthandler (void) {}
+	int      run (string &uri, string &postbody, value &inhdr,
+				  string &out, value &outhdr, value &env,
+				  tcpsocket &s);
+				  
+private:                      
+	class opencoreApp	*app; ///< Link back to application object.
+};
+			
+
+//  -------------------------------------------------------------------------
 /// Like iconrequesthandler, but for the 128x128 'emblem' version of
 /// the icons.
 //  -------------------------------------------------------------------------
