@@ -16,7 +16,7 @@
 	<string id="_urlvalid">[-0-9a-zA-Z!#%?=\&.,/+_~;]*</string>
 	
 	<string id="ipv4">^$_ipv4$\.$_ipv4$\.$_ipv4$\.$_ipv4$$$</string>	
-	<string id="ipv6">^($_ipv6_1$)$$|^($_ipv6_2$)$$|^($_ipv6_3$)$$|^($_ipv6_4$)$$|^($_ipv6_5$)$$|^($_ipv6_6$)$$|^($_ipv6_7$)$$</string>						  		
+	<string id="ipv6">^$_ipv6_1$$$|^$_ipv6_2$$$|^$_ipv6_3$$$|^$_ipv6_4$$$|^$_ipv6_5$$$|^$_ipv6_6$$$|^$_ipv6_7$$$</string>						  		
 	<string id="ipv6orempty">^$$|$ipv6$</string>
 	<string id="address">^[a-zA-Z0-9.\-' ]+$$</string>
 	<string id="names">^[a-zA-Z _\-.]+$$</string>
