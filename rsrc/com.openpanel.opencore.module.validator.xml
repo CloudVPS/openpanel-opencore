@@ -181,6 +181,7 @@
       <match.id>gridlabel</match.id>
       <match.id>textwidth</match.id>
       <match.id>sameline</match.id>
+      <match.id>breakcolumn</match.id>
       <match.id>paddingtop</match.id>
       <match.id>labelwidth</match.id>
       <match.id>hidelabel</match.id>
