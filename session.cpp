@@ -54,7 +54,7 @@ coresession *sessiondb::get (const statstring &id)
 		if (res) res->inuse++;
 	}
 	
-	if (res) CORE->log (log::debug, "session", "SDB Open <%S>" %format (id));
+	if (res) log::write (log::debug, "session", "SDB Open <%S>" %format (id));
 	return res;
 }
 
@@ -76,11 +76,11 @@ coresession *sessiondb::create (const value &meta)
 		}
 		catch (...)
 		{
-			CORE->log (log::error, "session", "Software bug in session "
-					   "database, exception caught");
+			log::write (log::error, "session", "Software bug in session "
+					    "database, exception caught");
 		}
 	}
-	CORE->log (log::debug, "session", "SDB Create <%S>" %format (id));
+	log::write (log::debug, "session", "SDB Create <%S>" %format (id));
 	
 	return s;
 }
@@ -95,8 +95,8 @@ void sessiondb::release (coresession *s)
 		lck = 0;
 		s->heartbeat = kernel.time.now();
 		if (s->inuse > 0) s->inuse--;
-		CORE->log (log::debug, "session", "SDB Release <%S> "
-				   "inuse <%i>" %format (s->id, s->inuse));
+		log::write (log::debug, "session", "SDB Release <%S> "
+				    "inuse <%i>" %format (s->id, s->inuse));
 	}
 }
 
@@ -115,7 +115,7 @@ void sessiondb::remove (coresession *s)
 			coresession *crsr = first;
 			coresession *parent = NULL;
 			
-			CORE->log (log::debug, "session", "SDB Remove <%S>" %format (s->id));
+			log::write (log::debug, "session", "SDB Remove <%S>" %format (s->id));
 						
 			while (crsr)
 			{
@@ -178,8 +178,8 @@ void sessiondb::remove (coresession *s)
 		}
 		catch (...)
 		{
-			CORE->log (log::error, "session", "Software bug in session "
-					   "database, exception caught.");
+			log::write (log::error, "session", "Software bug in session "
+					    "database, exception caught.");
 		}
 	}
 }
@@ -191,13 +191,13 @@ coresession *sessiondb::find (const statstring &key, bool noreport)
 {
 	if (! first)
 	{
-		CORE->log (log::debug, "session", "Find on empty list");
+		log::write (log::debug, "session", "Find on empty list");
 		return NULL;
 	}
 	
 	if (! key)
 	{
-		CORE->log (log::warning, "session", "Find on empty key");
+		log::write (log::warning, "session", "Find on empty key");
 	}
 	
 	coresession *crsr = first;
@@ -213,8 +213,8 @@ coresession *sessiondb::find (const statstring &key, bool noreport)
 	
 	if (! noreport)
 	{
-		CORE->log (log::warning, "session", "Session <%S> not "
-				   "found" %format (key));
+		log::write (log::warning, "session", "Session <%S> not "
+				    "found" %format (key));
 	}
 	return NULL;
 }
@@ -353,8 +353,8 @@ int sessiondb::expire (void)
 				}
 				else
 				{
-					CORE->log (log::debug, "expire", "Passing <%S> inuse=<%i> "
-							   "heartbeat=%i cutoff=%i" %format (s->id,
+					log::write (log::debug, "expire", "Passing <%S> inuse=<%i> "
+							    "heartbeat=%i cutoff=%i" %format (s->id,
 							   		s->inuse,
 							   		(int) s->heartbeat,
 							   		(int) cutoff));
@@ -365,8 +365,8 @@ int sessiondb::expire (void)
 		}
 		catch (...)
 		{
-			CORE->log (log::error, "session", "Software bug in session "
-					   "database expiration, exception caught.");
+			log::write (log::error, "session", "Software bug in session "
+					    "database expiration, exception caught.");
 		}
 	}
 	
@@ -384,8 +384,8 @@ coresession::coresession (const statstring &myid, class moduledb &pmdb)
 	inuse = 0;
 	if (! db.init ())
 	{
-		CORE->log (log::error, "session", "Error initializing the sqlite3 "
-				   "database");
+		log::write (log::error, "session", "Error initializing the sqlite3 "
+				    "database");
 		throw (sqliteInitException());
 	}
 }
@@ -408,8 +408,8 @@ bool coresession::login (const string &user, const string &pass, bool superuser)
 	if (superuser && user[0]=='!')
 	{
         db.iamgod();
-        CORE->log (log::info, "session", "Login special <%S> in godmode"
-				   %format (user, meta["origin"]));
+        log::write (log::info, "session", "Login special <%S> in godmode"
+				    %format (user, meta["origin"]));
         return true;
     }
 
@@ -419,14 +419,14 @@ bool coresession::login (const string &user, const string &pass, bool superuser)
 		if (! user) return false;
 
 		seterror (ERR_DBMANAGER_LOGINFAIL);
-		CORE->log (log::error, "session", "Failed login user "
-				   "<%S> (%S)" %format (user, db.getlasterror()));
+		log::write (log::error, "session", "Failed login user "
+				    "<%S> (%S)" %format (user, db.getlasterror()));
 		
 	}
 	else
 	{
-		CORE->log (log::info, "session", "Login user=<%S> origin=<%S>"
-				   %format (user, meta["origin"]));
+		log::write (log::info, "session", "Login user=<%S> origin=<%S>"
+				    %format (user, meta["origin"]));
 		
 		meta["user"] = user;
 	}
@@ -460,13 +460,13 @@ bool coresession::userlogin (const string &user)
 	res = db.userlogin (user);
 	if (! res)
 	{
-		CORE->log (log::error, "session", "Failed login "
-				   "user <%S> (%S)" %format (user, db.getlasterror()));
+		log::write (log::error, "session", "Failed login "
+				    "user <%S> (%S)" %format (user, db.getlasterror()));
 	}
 	else
 	{
-		CORE->log (log::info, "session", "Login user=<%S> origin=<%S>"
-				   %format (user, meta["origin"]));
+		log::write (log::info, "session", "Login user=<%S> origin=<%S>"
+				    %format (user, meta["origin"]));
 				   
 		meta["user"] = user;
 	}
@@ -516,8 +516,8 @@ string *coresession::createobject (const statstring &parentid,
 	// Check for the class.
 	if (! mdb.classexists (ofclass))
 	{
-		CORE->log (log::error, "session", "Create request for class <%S> "
-				   "which does not exist" %format (ofclass));
+		log::write (log::error, "session", "Create request for class <%S> "
+				    "which does not exist" %format (ofclass));
 		seterror (ERR_SESSION_CLASS_UNKNOWN);
 		return NULL;
 	}
@@ -531,16 +531,16 @@ string *coresession::createobject (const statstring &parentid,
 	// Make sure the indexing makes sense.
 	if ( (! cl.manualindex) && (withid) )
 	{
-		CORE->log (log::error, "session", "Create request with manual id "
-				   "on class <%S> with autoindex" %format (ofclass));
+		log::write (log::error, "session", "Create request with manual id "
+				    "on class <%S> with autoindex" %format (ofclass));
 		seterror (ERR_SESSION_INDEX);
 		return NULL;
 	}
 	
 	if (cl.manualindex && (! withid))
 	{
-		CORE->log (log::error, "session", "Create request with no required "
-				   "manual id on class <%S>" %format (ofclass));
+		log::write (log::error, "session", "Create request with no required "
+				    "manual id on class <%S>" %format (ofclass));
 		seterror (ERR_SESSION_NOINDEX);
 		return NULL;
 	}
@@ -552,8 +552,8 @@ string *coresession::createobject (const statstring &parentid,
 		
 		if (! db.fetchobject (vparent, parentid, /* formodule */ false))
 		{
-			CORE->log (log::error, "session", "Lookup failed for "
-					   "fetchobject on parentid=<%S>" %format (parentid));
+			log::write (log::error, "session", "Lookup failed for "
+					    "fetchobject on parentid=<%S>" %format (parentid));
 			seterror (ERR_SESSION_PARENTREALM);
 			return NULL;
 		}
@@ -561,17 +561,17 @@ string *coresession::createobject (const statstring &parentid,
 		pmid = vparent[0]["metaid"];
 		if (! pmid)
 		{
-			CORE->log (log::error, "session", "Error getting metaid "
-					   "from resolved parent object: %J" %format (vparent));
+			log::write (log::error, "session", "Error getting metaid "
+					    "from resolved parent object: %J" %format (vparent));
 			seterror (ERR_SESSION_PARENTREALM, "Error finding metaid");
 			return NULL;
 		}
 		
 		if ((! cl.hasprototype) && (pmid.strstr ("$prototype$") >= 0))
 		{
-			CORE->log (log::error, "session", "Blocking attempt to "
-					   "create new prototype records under"
-					   " id=%S" %format (pmid));
+			log::write (log::error, "session", "Blocking attempt to "
+					    "create new prototype records under"
+					    " id=%S" %format (pmid));
 			seterror (ERR_SESSION_CREATEPROTO);
 			return NULL;
 		}
@@ -616,8 +616,8 @@ string *coresession::createobject (const statstring &parentid,
 	
 	if (! cl.normalize (withparam, err))
 	{
-		CORE->log (log::error, "session", "Input data validation "
-				   "error: %s " %format (err));
+		log::write (log::error, "session", "Input data validation "
+				    "error: %s " %format (err));
 		seterror (ERR_SESSION_VALIDATION, err);
 		return NULL;
 	}
@@ -627,7 +627,7 @@ string *coresession::createobject (const statstring &parentid,
 	// Handle any module-bound crypting voodoo on the fields.
 	if (! handlecrypts (parentid, ofclass, withid, withparam))
 	{
-		CORE->log (log::error, "session", "Create failed due to crypt error");
+		log::write (log::error, "session", "Create failed due to crypt error");
 		// handlecrypts already sets the error
 		return NULL;
 	}
@@ -636,8 +636,8 @@ string *coresession::createobject (const statstring &parentid,
 	uuid = db.createobject(parentid, withparam, ofclass, withid, false, immediate);
 	if (! uuid)
 	{
-		CORE->log (log::error, "session", "Database error: %s"
-				   %format (db.getlasterror()));
+		log::write (log::error, "session", "Database error: %s"
+				    %format (db.getlasterror()));
 		seterror (db.getlasterrorcode(), db.getlasterror());
 		return NULL;
 	}
@@ -663,9 +663,9 @@ string *coresession::createobject (const statstring &parentid,
 	// Get the parameters for the module action.
 	if (! db.fetchobject (parm, uuid, true /* formodule */))
 	{
-		CORE->log (log::critical, "session", "Database failure getting object-"
+		log::write (log::critical, "session", "Database failure getting object-"
 				   "related data for '%S': %s" %format (uuid,
-				   db.getlasterror()));
+				    db.getlasterror()));
 				   
 		ALERT->alert ("Session error on object-related data\n"
 					  "uuid=<%S> error=<%s>" %format (uuid,
@@ -697,8 +697,8 @@ string *coresession::createobject (const statstring &parentid,
 			{
 				// Failed. Not sure if this is what we want.
 				seterror (db.getlasterrorcode(), db.getlasterror());
-				CORE->log (log::error, "session ", "Database failure on marking "
-						   "record: %s" %format (db.getlasterror()));
+				log::write (log::error, "session ", "Database failure on marking "
+						    "record: %s" %format (db.getlasterror()));
 				
 				(void) mdb.deleteobject (ofclass, uuid, parm, moderr);
 				return NULL;
@@ -711,8 +711,8 @@ string *coresession::createobject (const statstring &parentid,
 			if (! db.reportfailure (uuid))
 			{
 				string err = db.getlasterror();
-				CORE->log (log::error, "session ", "Database failure on "
-						   "marking delete %s" %format (err));
+				log::write (log::error, "session ", "Database failure on "
+						    "marking delete %s" %format (err));
 			}
 			return NULL;
 			
@@ -739,8 +739,8 @@ bool coresession::handlecrypts (const statstring &parentid,
 	// Make sure we have a class.
 	if (! mdb.classexists (ofclass))
 	{
-		CORE->log (log::critical, "session", "Request for crypt of class "
-				   "<%S> which doesn't seem to exist" %format (ofclass));
+		log::write (log::critical, "session", "Request for crypt of class "
+				    "<%S> which doesn't seem to exist" %format (ofclass));
 		ALERT->alert ("Session error on crypt for nonexistant class "
 					  "name=<%S>" %format (ofclass));
 		return false;
@@ -749,8 +749,7 @@ bool coresession::handlecrypts (const statstring &parentid,
 	// Get a reference to the coreclass object.
 	coreclass &C = mdb.getclass (ofclass);
 	
-	CORE->log (log::debug, "session", "Handlecrypt class=<%S>"
-			   %format (ofclass));
+log::write (log::debug, "session", "Handlecrypt class=<%S>" %format (ofclass));
 	
 	foreach (opt, C.param)
 	{
@@ -760,9 +759,9 @@ bool coresession::handlecrypts (const statstring &parentid,
 		{
 			if (opt("type") != "password")
 			{
-				CORE->log (log::warning, "session", "%S::%S has a "
-						   "crypt-attribute but is not marked as a "
-						   "password field" %format (ofclass, opt.id()));
+				log::write (log::warning, "session", "%S::%S has a "
+						    "crypt-attribute but is not marked as a "
+						    "password field" %format (ofclass, opt.id()));
 			}
 			// Is it currently filled in?
 			if (param[opt.id()].sval().strlen() != 0)
@@ -786,8 +785,8 @@ bool coresession::handlecrypts (const statstring &parentid,
 						if (mdb.makecrypt (ofclass, opt.id(),
 								param[opt.id()].sval(), crypted) != status_ok)
 						{
-							CORE->log (log::error, "session", "Could not "
-									   "get crypt-result from module");
+							log::write (log::error, "session", "Could not "
+									    "get crypt-result from module");
 							seterror (ERR_SESSION_CRYPT);
 							return false;
 						}
@@ -803,8 +802,8 @@ bool coresession::handlecrypts (const statstring &parentid,
 						break;
 					
 					defaultcase:
-						CORE->log (log::error, "session", "Unknown crypt-"
-								   "type: %S"
+						log::write (log::error, "session", "Unknown crypt-"
+								    "type: %S"
 								   %format (C.param[opt.id()]("crypt")));
 						return false;
 				}
@@ -825,11 +824,11 @@ bool coresession::handlecrypts (const statstring &parentid,
 				{
 					// Completely failed to find it, something fishy's
 					// going on.
-					CORE->log (log::error, "session", "Object submitted "
-							   "with externally crypted field, no data "
-							   "for the field and no pre-existing "
-							   "object, member=<%S::%S>"
-							   %format (ofclass, opt.id()));
+					log::write (log::error, "session", "Object submitted "
+							    "with externally crypted field, no data "
+							    "for the field and no pre-existing "
+							    "object, member=<%S::%S>"
+							    %format (ofclass, opt.id()));
 							   
 					seterror (ERR_SESSION_CRYPT_ORIG);
 					return false;
@@ -875,8 +874,8 @@ bool coresession::updateobject (const statstring &parentid,
 	// Complain if the class does not exist.
 	if (! mdb.classexists (ofclass))
 	{
-		CORE->log (log::error, "session", "Could not update object, class "
-				   "<%S> does not exist" %format (ofclass));
+		log::write (log::error, "session", "Could not update object, class "
+				    "<%S> does not exist" %format (ofclass));
 		seterror (ERR_SESSION_CLASS_UNKNOWN);
 		return false;
 	}
@@ -885,7 +884,7 @@ bool coresession::updateobject (const statstring &parentid,
 	if (! handlecrypts (parentid, ofclass, withid, withparam))
 	{
 		// Crypting failed. Bummer.
-		CORE->log (log::error, "session", "Update failed due to crypt error");
+		log::write (log::error, "session", "Update failed due to crypt error");
 		seterror (ERR_SESSION_CRYPT);
 		return false;
 	}
@@ -898,9 +897,9 @@ bool coresession::updateobject (const statstring &parentid,
 	if (! uuid)
 	{
 		// Report the problem.
-		CORE->log (log::error, "session", "Update of object with id/metaid <%S> "
-				   "which could not be found in the database: %s"
-				   %format (withid, db.getlasterror()));
+		log::write (log::error, "session", "Update of object with id/metaid <%S> "
+				    "which could not be found in the database: %s"
+				    %format (withid, db.getlasterror()));
 				   
 		seterror (ERR_SESSION_OBJECT_NOT_FOUND);
 		return false;
@@ -911,8 +910,8 @@ bool coresession::updateobject (const statstring &parentid,
 	
 	if (! db.fetchobject (oldobject, uuid, false))
 	{
-		CORE->log (log::error, "session", "Object disappeared while trying "
-				   "to update class=<%S> uuid=<%S>" %format (ofclass, uuid));
+		log::write (log::error, "session", "Object disappeared while trying "
+				    "to update class=<%S> uuid=<%S>" %format (ofclass, uuid));
 		
 		seterror (ERR_SESSION_OBJECT_NOT_FOUND);
 		return false;
@@ -934,8 +933,8 @@ bool coresession::updateobject (const statstring &parentid,
 	
 	if (! cl.normalize (withparam, err))
 	{
-		CORE->log (log::error, "session", "Input data validation error: "
-				   "%S" %format (err));
+		log::write (log::error, "session", "Input data validation error: "
+				    "%S" %format (err));
 		seterror (ERR_SESSION_VALIDATION, err);
 		return false;
 	}
@@ -946,8 +945,8 @@ bool coresession::updateobject (const statstring &parentid,
 	if (! updatesucceeded) // FIXME: get rid of bool var?
 	{
 		seterror (db.getlasterrorcode(), db.getlasterror());
-		CORE->log (log::error, "session ", "Database failure on updating "
-				   "object: %s" %format (db.getlasterror()));
+		log::write (log::error, "session ", "Database failure on updating "
+				    "object: %s" %format (db.getlasterror()));
 		return false;
 	}
 	
@@ -964,8 +963,8 @@ bool coresession::updateobject (const statstring &parentid,
 	// Get the parameters for the module action.
 	if (! db.fetchobject (parm, nuuid, true /* formodule */))
 	{
-		CORE->log (log::critical, "session", "Database failure getting object-"
-				   "related data: %s" %format (db.getlasterror()));
+		log::write (log::critical, "session", "Database failure getting object-"
+				    "related data: %s" %format (db.getlasterror()));
 		ALERT->alert ("Session error on object-related data\n"
 					  "uuid=<%S> error=<%S>" %format (nuuid,
 					  db.getlasterror()));
@@ -993,14 +992,14 @@ bool coresession::updateobject (const statstring &parentid,
 			if (! db.reportsuccess (nuuid))
 			{
 				seterror (db.getlasterrorcode(), db.getlasterror());
-				CORE->log (log::error, "session ", "Database failure on marking "
-						   "record: %s", db.getlasterror().cval());
+				log::write (log::error, "session ", "Database failure on marking "
+						    "record: %s" %format (db.getlasterror()));
 				
 				if (! db.fetchobject (parm, uuid, true))
 				{
-					CORE->log (log::critical, "session", "Database failure "
+					log::write (log::critical, "session", "Database failure "
 							   "getting object-related data, cannot roll "
-							   "back to previous: %s", db.getlasterror().str());
+							   "back to previous: %s" %format(db.getlasterror()));
 					
 					ALERT->alert ("Session error, database failure "
 								 "getting object-related data\n"
@@ -1019,9 +1018,9 @@ bool coresession::updateobject (const statstring &parentid,
 			seterror (ERR_MDB_ACTION_FAILED, moderr);
 			if (! db.reportfailure (uuid))
 			{
-				CORE->log (log::error, "session ", "Database failure on "
-						   "rolling back reality objects: %s",
-						   db.getlasterror().cval());
+				log::write (log::error, "session ", "Database failure on "
+						    "rolling back reality objects: %s"
+						    %format (db.getlasterror()));
 			}
 			return false;
 			
@@ -1060,8 +1059,8 @@ bool coresession::deleteobject (const statstring &parentid,
 	
 	if (! uuidt)
 	{
-		CORE->log (log::error, "session", "Error deleting object '%S': not "
-				   "found: %s", uuidt.str(), db.getlasterror().str());
+		log::write (log::error, "session", "Error deleting object '%S': not "
+				    "found: %s" %format (uuidt, db.getlasterror()));
 				   
 		seterror (db.getlasterrorcode(), db.getlasterror());
 		return false;
@@ -1069,8 +1068,8 @@ bool coresession::deleteobject (const statstring &parentid,
 
 	if (!db.candelete (uuidt))
 	{
-		CORE->log (log::error, "session", "Error deleting object '%S': "
-				   "%s" %format (uuidt, db.getlasterror()));
+		log::write (log::error, "session", "Error deleting object '%S': "
+				    "%s" %format (uuidt, db.getlasterror()));
 		seterror (db.getlasterrorcode(), db.getlasterror());
 		return false;
 	}
@@ -1079,7 +1078,7 @@ bool coresession::deleteobject (const statstring &parentid,
 	
 	if (!db.listrecursively(uuidlist, uuidt))
 	{
-		CORE->log (log::error, "session", "Error deleting object '%S':"
+		log::write (log::error, "session", "Error deleting object '%S':"
 					"recursive listing failed: %s" %format (uuidt,
 					db.getlasterror()));
 				   
@@ -1096,8 +1095,8 @@ bool coresession::deleteobject (const statstring &parentid,
 		bool deletesucceeded = db.deleteobject (uuid, immediate, true);
 		if (! deletesucceeded) // FIXME: get rid of bool var?
 		{
-			CORE->log (log::error, "session", "Error deleting object '%S': %s",
-					   uuid.str(), db.getlasterror().str());
+			log::write (log::error, "session", "Error deleting object '%S': %s"
+					    %format (uuid, db.getlasterror()));
 			
 			seterror (db.getlasterrorcode(), db.getlasterror());
 			return false;
@@ -1116,8 +1115,8 @@ bool coresession::deleteobject (const statstring &parentid,
 		{
 			if (parm[0]["metaid"].sval().strstr("$prototype$") >= 0)
 			{
-				CORE->log (log::error, "session", "Denied delete of "
-						   "prototype object");
+				log::write (log::error, "session", "Denied delete of "
+						    "prototype object");
 				seterror (ERR_SESSION_NOTALLOWED);
 				return false;
 			}
@@ -1157,8 +1156,8 @@ bool coresession::deleteobject (const statstring &parentid,
 				{
 					seterror (db.getlasterrorcode(), db.getlasterror());
 					
-					CORE->log (log::error, "session ", "Database failure "
-							   "on marking record: %s"
+					log::write (log::error, "session ", "Database failure "
+							    "on marking record: %s"
 							   		%format (db.getlasterror()));
 			
 					db.fetchobject (parm, uuid, true);
@@ -1188,14 +1187,14 @@ bool coresession::deleteobject (const statstring &parentid,
 // ==========================================================================
 value *coresession::getclassinfo (const string &forclass)
 {
-	CORE->log (log::debug, "session", "getclassinfo <%S>", forclass.str());
+	log::write (log::debug, "session", "getclassinfo <%S>" %format(forclass));
 	
 	// The class named "ROOT" is a virtual concept within moduledb to keep
 	// track of classes that don't have parent objects.
 	if ( (forclass != "ROOT") && (! mdb.classexists (forclass)) )
 	{
-		CORE->log (log::error, "session", "Info for class <%S> requested "
-				   "where no such class exists", forclass.str());
+		log::write (log::error, "session", "Info for class <%S> requested "
+				    "where no such class exists" %format (forclass));
 		
 		seterror (ERR_SESSION_CLASS_UNKNOWN);
 		return NULL;
@@ -1216,7 +1215,7 @@ value *coresession::getuserquota (const statstring &useruuid)
 {
 	returnclass (value) res retain;
 	
-	CORE->log (log::debug, "session", "getuserquota <%S>" %format (useruuid));
+	log::write (log::debug, "session", "getuserquota <%S>" %format (useruuid));
 	
 	value cl = mdb.listclasses ();
 	foreach (c, cl)
@@ -1249,8 +1248,8 @@ bool coresession::setuserquota (const statstring &ofclass,
 								 int count,
 							     const statstring &useruuid)
 {
-	CORE->log (log::debug, "session", "setuserquota <%S,%S,%i>"
-			   %format (ofclass, useruuid, count));
+	log::write (log::debug, "session", "setuserquota <%S,%S,%i>"
+			    %format (ofclass, useruuid, count));
 			   
 	if (db.setuserquota (ofclass, count, useruuid)) return true;
 	seterror (db.getlasterrorcode(), db.getlasterror());
@@ -1263,8 +1262,8 @@ bool coresession::setuserquota (const statstring &ofclass,
 bool coresession::chown(const statstring &ofobject,
 						const statstring &user)
 {
-	CORE->log (log::debug, "session", "chown <%S,%S>"
-			   %format (ofobject, user));
+	log::write (log::debug, "session", "chown <%S,%S>"
+			    %format (ofobject, user));
 
 	statstring uuid;
 	uuid = db.findobject (nokey, "User", nokey, user);
@@ -1301,8 +1300,8 @@ value *coresession::callmethod (const statstring &parentid,
 		// The id was not a valid metaid/uuid, let's moan and exit.
 		if (! uuid)
 		{
-			CORE->log (log::error, "session", "Callmethod: object not found "
-					   "class=<%S> id=<%S>" %format (ofclass, withid));
+			log::write (log::error, "session", "Callmethod: object not found "
+					    "class=<%S> id=<%S>" %format (ofclass, withid));
 			seterror (ERR_SESSION_OBJECT_NOT_FOUND);
 			return &res;
 		}
@@ -1320,8 +1319,8 @@ value *coresession::callmethod (const statstring &parentid,
 	if (st != status_ok)
 	{
 		seterror (ERR_MDB_ACTION_FAILED, moderr);
-		CORE->log (log::error, "session", "Callmethod: Error from moduledb "
-				   "<%S::%S> id=<%S>" %format (ofclass, method, withid));
+		log::write (log::error, "session", "Callmethod: Error from moduledb "
+				    "<%S::%S> id=<%S>" %format (ofclass, method, withid));
 	}
 	
 	return &res;
@@ -1422,8 +1421,8 @@ bool coresession::syncdynamicobjects (const statstring &parentid,
 
 	if (! db.listobjects (olddb, parentid, $(ofclass), false, count, offset))
 	{
-		CORE->log (log::error, "session", "Error listing cached "
-				   "dynamic objects: %s" %format (db.getlasterror()));
+		log::write (log::error, "session", "Error listing cached "
+				    "dynamic objects: %s" %format (db.getlasterror()));
 		// FIXME: Pass db.lasterror upwards if this ever makes sense
 		olddb.clear();
 	}
@@ -1444,8 +1443,8 @@ bool coresession::syncdynamicobjects (const statstring &parentid,
 		// Is this oldie absent in the new list?
 		if (! curdb[0].exists (oldnode.id()))
 		{
-			CORE->log (log::debug, "session", "Removing cached node "
-					   "id=<%S>" %format (oldnode.id()));
+			log::write (log::debug, "session", "Removing cached node "
+					    "id=<%S>" %format (oldnode.id()));
 			// Yeah, kick its butt.
 			string uuid = oldnode["uuid"];
 			db.deleteobject (uuid);
@@ -1456,8 +1455,8 @@ bool coresession::syncdynamicobjects (const statstring &parentid,
 			// No, so let's consider this an update.
 			// We'll need a temporary object to get rid of the
 			// extra uuid/id/metaid fields.
-			CORE->log (log::debug, "session", "Updating cached node "
-					   "id=<%S>" %format (oldnode.id()));
+			log::write (log::debug, "session", "Updating cached node "
+					    "id=<%S>" %format (oldnode.id()));
 			
 			bool changed = false;
 			
@@ -1468,15 +1467,15 @@ bool coresession::syncdynamicobjects (const statstring &parentid,
 				if (oldnode[field.id()] != field)
 				{
 					changed = true;
-					CORE->log (log::debug, "session", "Cached node "
-							   "field <%S> changed" %format (field.id()));
+					log::write (log::debug, "session", "Cached node "
+							    "field <%S> changed" %format (field.id()));
 					break;
 				}
 				else
 				{
-					CORE->log (log::debug, "session", "Cached <%S> \"%S\" == "
-							   "\"%S\"" %format (field.id(),
-							   oldnode[field.id()], field));
+					log::write (log::debug, "session", "Cached <%S> \"%S\" == "
+							    "\"%S\"" %format (field.id(),
+							    oldnode[field.id()], field));
 				}
 			}
 			
@@ -1501,16 +1500,16 @@ bool coresession::syncdynamicobjects (const statstring &parentid,
 		if (! olddb[0].exists (curnode.id()))
 		{
 			// Great let's introduce him to the database then.
-			CORE->log (log::debug, "session", "Creating cached node "
-					   "id=<%S>" %format (curnode.id()));
+			log::write (log::debug, "session", "Creating cached node "
+					    "id=<%S>" %format (curnode.id()));
 					   
 			string uuid = db.createobject (parentid, curnode,
 										   ofclass, curnode.id(), false, true);
 			if (! uuid)
 			{
-				CORE->log (log::error, "session", "Error creating "
-						   "database cache of dynamic list: %s"
-						   %format (db.getlasterror()));
+				log::write (log::error, "session", "Error creating "
+						    "database cache of dynamic list: %s"
+						    %format (db.getlasterror()));
 				seterror (db.getlasterrorcode(), db.getlasterror());
 			}
 		}
@@ -1529,7 +1528,7 @@ value *coresession::listmeta (const statstring &parentid,
 	returnclass (value) res retain;
 	
 	coreclass &metaclass = mdb.getclass (ofclass);
-	CORE->log (log::debug, "session", "Getrecords metabase(%S)" %format (ofclass));
+	log::write (log::debug, "session", "Getrecords metabase(%S)" %format (ofclass));
 	try
 	{
 		res[ofclass].type ("class");
@@ -1588,13 +1587,13 @@ value *coresession::listobjects (const statstring &parentid,
 	bool wasdynamic = false;
 	string err;
 	
-	CORE->log (log::debug, "session", "Listobjects class=<%S> "
-			   "parentid=<%S>" %format (ofclass, parentid));
+	log::write (log::debug, "session", "Listobjects class=<%S> "
+			    "parentid=<%S>" %format (ofclass, parentid));
 
 	// Catch internal classes.
 	if (mdb.isinternalclass (ofclass))
 	{
-		CORE->log (log::debug, "session", "Listobjects for internal class");
+		log::write (log::debug, "session", "Listobjects for internal class");
 		internalclass &cl = mdb.geticlass (ofclass);
 		res = cl.listobjects (this, parentid);
 		if (! res.count()) seterror (ERR_ICLASS, cl.error());
@@ -1620,7 +1619,7 @@ value *coresession::listobjects (const statstring &parentid,
 	if (mdb.isdynamic (ofclass))
 	{
 		wasdynamic = true;
-		CORE->log (log::debug, "session", "Class is dynamic");
+		log::write (log::debug, "session", "Class is dynamic");
 		
 		if (! syncdynamicobjects (parentid, ofclass, offset, count))
 			return &res;
@@ -1645,7 +1644,7 @@ value *coresession::listobjects (const statstring &parentid,
 // ==========================================================================
 bool coresession::fieldwhitel (value &objs, value &whitel)
 {	
-	CORE->log (log::debug, "session", "fieldwhitel <(objs),(whitel)>");
+	log::write (log::debug, "session", "fieldwhitel <(objs),(whitel)>");
 
 	return db.fieldwhitel (objs, whitel);
 }	
@@ -1673,7 +1672,7 @@ value *coresession::getobject (const statstring &parentid,
 	// from a metaclass, ktxbai.
 	if (mdb.isdynamic (ofclass))
 	{
-		CORE->log (log::debug, "session", "Class is dynamic");
+		log::write (log::debug, "session", "Class is dynamic");
 		
 		if (! syncdynamicobjects (parentid, ofclass, 0, -1))
 			return &res;
@@ -1686,9 +1685,9 @@ value *coresession::getobject (const statstring &parentid,
 	// Not found under any method.
 	if (! uuid)
 	{
-		CORE->log (log::error, "session", "Could not resolve object at "
-				   "parentid=<%S> class=<%S> key=<%S>"
-				   %format (parentid, ofclass, withid));
+		log::write (log::error, "session", "Could not resolve object at "
+				    "parentid=<%S> class=<%S> key=<%S>"
+				    %format (parentid, ofclass, withid));
 
 		seterror (ERR_SESSION_OBJECT_NOT_FOUND);
 		return &res;
@@ -1696,9 +1695,9 @@ value *coresession::getobject (const statstring &parentid,
 	
 	if (! db.fetchobject (res, uuid, false /* formodule */))
 	{
-		CORE->log (log::critical, "session", "Database failure getting object-"
-				   "related data for '%s': %S" %format (uuid,
-				   db.getlasterror()));
+		log::write (log::critical, "session", "Database failure getting object-"
+				    "related data for '%s': %S" %format (uuid,
+				    db.getlasterror()));
 				   
 		ALERT->alert ("Session error on object-related data\n"
 					  "uuid=<%S> error=<%S>" %format (uuid,
@@ -1734,7 +1733,7 @@ statstring *coresession::getclass (const statstring &parentid)
 // ==========================================================================
 void sessionexpire::run (void)
 {
-	CORE->log (log::info, "expire", "Thread started");
+	log::write (log::info, "expire", "Thread started");
 	
 	while (true)
 	{
@@ -1745,14 +1744,14 @@ void sessionexpire::run (void)
 			// A 'die' event is a shutdown request.
 			if (ev.type() == "shutdown")
 			{
-				CORE->log (log::info, "expire", "Thread shutting down");
+				log::write (log::info, "expire", "Thread shutting down");
 				shutdownCondition.broadcast();
 				return;
 			}
 			else // Unknown event.
 			{
-				CORE->log (log::warning, "expire", "Received unrecognized "
-						   "event: %S" %format (ev.type()));
+				log::write (log::warning, "expire", "Received unrecognized "
+						    "event: %S" %format (ev.type()));
 			}
 		}
 		else // Not an event, so it was a timeout, do our thing.
@@ -1760,7 +1759,8 @@ void sessionexpire::run (void)
 			int cnt = sdb->expire ();
 			if (cnt)
 			{
-				CORE->log (log::info, "expire", "Cleaned %i sessions", cnt);
+				log::write (log::info, "expire", "Cleaned %i sessions"
+							%format(cnt));
 			}
 		}
 	}
@@ -1874,8 +1874,8 @@ void coresession::handlecascade (const statstring &parentid,
 								 const statstring &ofclass,
 								 const string &withid)
 {
-	CORE->log (log::info, "session ", "Handling cascades for <%S>"
-			   %format (ofclass));
+	log::write (log::info, "session ", "Handling cascades for <%S>"
+			    %format (ofclass));
 			   
 	coreclass &theclass = mdb.getclass (ofclass);
 	if (! theclass.requires) return;
