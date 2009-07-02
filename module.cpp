@@ -182,14 +182,15 @@ bool coreclass::checkenum (const statstring &id, const string &val)
 {
 	if (! enums.exists (id))
 	{
-		CORE->log (log::warning, "coreclass", "Got reference to "
-				   "unknown enum '%S'" %format (id));
+		log::write (log::warning, "coreclass", "Got reference to "
+				    "unknown enum '%S'" %format (id));
 		return false;
 	}
 	
 	foreach (num, enums[id])
 	{
-        CORE->log (log::debug, "module", "checkenum comparing: <%S> <%S>" %format(num.id(), val));
+        log::write (log::debug, "module", "checkenum comparing: <%S> <%S>"
+        			%format(num.id(), val));
 		if (num.id() == val) return true;
 	}
 	
@@ -626,8 +627,8 @@ bool coremodule::verify (void)
 			errstr = tmpb;
 		}
 		errstr = strutil::regexp (errstr, "s/\n$//;s/\n/ -- /g");
-		CORE->log (log::error, "module", "Verify failed for '%s': %s",
-				   path.str(), errstr.str());
+		log::write (log::error, "module", "Verify failed for '%s': %s"
+				    %format (path, errstr));
 		return false;
 	}
 	return true;
@@ -643,8 +644,8 @@ corestatus_t coremodule::action (const statstring &command,
 {
 	int result;
 	value vin = param;
-	CORE->log (log::info, "module", "Action class=<%S> "
-			   			        "command=<%S>" %format (classname, command));
+	log::write (log::info, "module", "Action class=<%S> "
+			   			   "command=<%S>" %format (classname, command));
 
 	DEBUG.storefile ("module", "parm", vin, "action");
 
@@ -665,8 +666,10 @@ corestatus_t coremodule::action (const statstring &command,
         	}
         	catch (exception e)
         	{
-        		CORE->log (log::error, "rpc", "Exception caught while trying"
-                    "to create modulesession: %s" %format (e.description));
+        		log::write (log::error, "rpc", "Exception caught while trying"
+                    		"to create modulesession: %s" 
+                    		%format (e.description));
+                    		
                 breaksection return status_failed;
             }
         
@@ -751,6 +754,6 @@ bool coremodule::updateok (int currentversion)
 	
 	if (returnval != status_ok) return false;
 	if (res["OpenCORE:Result"]["code"] != 0) return false;
-	CORE->log (log::info, "module", "Update on %S ok" %format (meta["name"]));
+	log::write (log::info, "module", "Update on %S ok" %format (meta["name"]));
 	return true;
 }
