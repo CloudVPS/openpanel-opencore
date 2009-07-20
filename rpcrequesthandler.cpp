@@ -38,7 +38,7 @@ int rpcrequesthandler::run (string &uri, string &postbody, value &inhdr,
                      tcpsocket &s)
 {
 	static lock<value> peercache;
-	
+	DEBUG.storefile ("rpcrequesthandler","postbody", postbody, "run");
 	CORE->log (log::debug, "rpc", "handle: %S %!" %format (uri, inhdr));
 	value indata;
 	value res;
