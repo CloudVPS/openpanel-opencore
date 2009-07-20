@@ -203,6 +203,9 @@ int imagepreloader::run (string &uri, string &postbody, value &inhdr,
 	value dir = fs.dir ("/var/openpanel/http/images/gui");
 	foreach (img, dir)
 	{
+		string ext = img.sval().copyafterlast('.');
+		if ((ext != "png")&&(ext!="jpg")&&(ext!="gif")) continue;
+		
 		out += "preloadedGUIImages[\"%{0}s\"] = new Image(32,32);\n"
 			   "preloadedGUIImages[\"%{0}s\"].src = \"/images/gui/%{0}s\";\n"
 			   %format (img.id());
