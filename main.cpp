@@ -88,9 +88,13 @@ int opencoreApp::main (void)
 	if (argv.exists ("--debug"))
 	{
 		DISABLE_DEBUGGING = false;
-		value tval = strutil::split (argv["--debug"], ',');
-		foreach (v, tval) debugfilter[v] = true;
-		DEBUG.setfilter (debugfilter);
+		
+		if (argv["--debug"] != "all")
+		{
+			value tval = strutil::split (argv["--debug"], ',');
+			foreach (v, tval) debugfilter[v] = true;
+			DEBUG.setfilter (debugfilter);
+		}
 	}
 
 	if (! checkAuthDaemon ()) return 1;
