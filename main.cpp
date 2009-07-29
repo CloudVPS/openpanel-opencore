@@ -77,19 +77,17 @@ int opencoreApp::main (void)
 	
 	string conferr; // Error return from configuration class.
 	bool isdebugging = argv.exists ("--debugging-console");
-	bool nodebugging = false;
+	DISABLE_DEBUGGING = true;
 	
 	if (isdebugging)
 	{
+		DISABLE_DEBUGGING = false;
 		setforeground(); // No daemonizing to background for now.
-	}
-	else if (argv.exists ("--disable-debugging"))
-	{
-		DISABLE_DEBUGGING = true;
 	}
 	
 	if (argv.exists ("--debug"))
 	{
+		DISABLE_DEBUGGING = false;
 		value tval = strutil::split (argv["--debug"], ',');
 		foreach (v, tval) debugfilter[v] = true;
 		DEBUG.setfilter (debugfilter);
@@ -155,6 +153,10 @@ int opencoreApp::main (void)
 	exclusivesection (regexpdb)
 	{
 		regexpdb.loadxml ("rsrc:regexpclass.rsrc.xml");
+		if (! regexpdb.count())
+		{
+			log (log::warning, "main", "regexpclass.rsrc.xml load failed");
+		}
 	}
 
 	// Set up alert and session expire threads.

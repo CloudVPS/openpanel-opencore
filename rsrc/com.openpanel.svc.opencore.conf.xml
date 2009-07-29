@@ -15,13 +15,13 @@
   </alert>
   <rpc>
     <unixsocket>
-      <minthreads>4</minthreads>
-      <maxthreads>16</maxthreads>
+      <minthreads>2</minthreads>
+      <maxthreads>8</maxthreads>
     </unixsocket>
     <httpsocket>
       <listenport>3300</listenport>
-      <minthreads>4</minthreads>
-      <maxthreads>16</maxthreads>    
+      <minthreads>6</minthreads>
+      <maxthreads>32</maxthreads>    
     </httpsocket>
   </rpc>
 </com.openpanel.svc.opencore.conf>
