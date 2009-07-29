@@ -44,6 +44,9 @@ public:
 						 /// it jumps into the shell).
 	int					 main (void);
 	
+						 /// Emit dancing bears.
+	void				 dancingBears (void);
+	
 	cli<opencoreApp>	 shell; ///< Command line shell interpreter.
 
 						 /// Log an error, als keeps a carbon copy

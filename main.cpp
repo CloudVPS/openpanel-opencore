@@ -49,6 +49,26 @@ opencoreApp::~opencoreApp (void)
 // Import from debug.cpp
 extern bool DISABLE_DEBUGGING;
 
+void opencoreApp::dancingBears (void)
+{
+	ferr.writeln ("    _--_     _--_    _--_     _--_     _--_     _--_     _--_     _--_");
+	ferr.writeln ("   (    )~~~(    )  (    )~~~(    )   (    )~~~(    )   (    )~~~(    )");
+	ferr.writeln ("    \\           /    \\           /     \\           /     \\           /");
+	ferr.writeln ("     (  ' _ `  )      (  ' _ `  )       (  ' _ `  )       (  ' _ `  )");
+	ferr.writeln ("      \\       /        \\       /         \\       /         \\       /");
+	ferr.writeln ("    .__( `-' )          ( `-' )           ( `-' )        .__( `-' )  ___");
+	ferr.writeln ("   / !  `---' \\      _--'`---_          .--`---'\\       /   /`---'`-'   \\");
+	ferr.writeln ("  /  \\         !    /         \\___     /        _>\\    /   /          ._/   __");
+	ferr.writeln (" !   /\\        )   /   /       !  \\   /  /-___-'   ) /'   /.-----\\___/     /  )");
+	ferr.writeln (" !   !_\\       ). (   <        !__/ /'  (        _/  \\___//          `----'   !");
+	ferr.writeln ("  \\    \\       ! \\ \\   \\      /\\    \\___/`------' )       \\            ______/");
+	ferr.writeln ("   \\___/   )  /__/  \\--/   \\ /  \\  ._    \\      `<         `--_____----'");
+	ferr.writeln ("     \\    /   !       `.    )-   \\/  ) ___>-_     \\   /-\\    \\    /");
+	ferr.writeln ("     /   !   /         !   !  `.    / /      `-_   `-/  /    !   !");
+	ferr.writeln ("    !   /__ /___       /  /__   \\__/ (  \\---__/ `-_    /     /  /__");
+	ferr.writeln ("    (______)____)     (______)        \\__)         `-_/     (______)");
+}
+
 // ==========================================================================
 // METHOD opencoreApp::main
 // ==========================================================================
@@ -57,29 +77,13 @@ int opencoreApp::main (void)
 	
 	if (argv.exists ("--emit-dancing-bears"))
 	{
-		ferr.writeln ("    _--_     _--_    _--_     _--_     _--_     _--_     _--_     _--_");
-		ferr.writeln ("   (    )~~~(    )  (    )~~~(    )   (    )~~~(    )   (    )~~~(    )");
-		ferr.writeln ("    \\           /    \\           /     \\           /     \\           /");
-		ferr.writeln ("     (  ' _ `  )      (  ' _ `  )       (  ' _ `  )       (  ' _ `  )");
-		ferr.writeln ("      \\       /        \\       /         \\       /         \\       /");
-		ferr.writeln ("    .__( `-' )          ( `-' )           ( `-' )        .__( `-' )  ___");
-		ferr.writeln ("   / !  `---' \\      _--'`---_          .--`---'\\       /   /`---'`-'   \\");
-		ferr.writeln ("  /  \\         !    /         \\___     /        _>\\    /   /          ._/   __");
-		ferr.writeln (" !   /\\        )   /   /       !  \\   /  /-___-'   ) /'   /.-----\\___/     /  )");
-		ferr.writeln (" !   !_\\       ). (   <        !__/ /'  (        _/  \\___//          `----'   !");
-		ferr.writeln ("  \\    \\       ! \\ \\   \\      /\\    \\___/`------' )       \\            ______/");
-		ferr.writeln ("   \\___/   )  /__/  \\--/   \\ /  \\  ._    \\      `<         `--_____----'");
-		ferr.writeln ("     \\    /   !       `.    )-   \\/  ) ___>-_     \\   /-\\    \\    /");
-		ferr.writeln ("     /   !   /         !   !  `.    / /      `-_   `-/  /    !   !");
-		ferr.writeln ("    !   /__ /___       /  /__   \\__/ (  \\---__/ `-_    /     /  /__");
-		ferr.writeln ("    (______)____)     (______)        \\__)         `-_/     (______)");
+		dancingBears ();
 	}
 	
 	string conferr; // Error return from configuration class.
-	bool isdebugging = argv.exists ("--debugging-console");
 	DISABLE_DEBUGGING = true;
 	
-	if (isdebugging)
+	if (argv.exists ("--debugging-console"))
 	{
 		DISABLE_DEBUGGING = false;
 		setforeground(); // No daemonizing to background for now.
@@ -524,10 +528,10 @@ void opencoreApp::log (log::priority p, const string &who, const string &_what)
 	
 	if (p == log::debug)
 	{
+		if (DISABLE_DEBUGGING) return;
+
 		if (debugfilter.count() && (! debugfilter.exists (who)))
 			return;
-		
-		if (DISABLE_DEBUGGING) return;
 	}
 	
 	string what = "%s (%s)" %format (_what, DEBUG.uuid());
