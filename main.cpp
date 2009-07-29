@@ -82,10 +82,12 @@ int opencoreApp::main (void)
 	
 	string conferr; // Error return from configuration class.
 	DISABLE_DEBUGGING = true;
+	bool dconsole = false;
 	
 	if (argv.exists ("--debugging-console"))
 	{
 		DISABLE_DEBUGGING = false;
+		dconsole = true;
 		setforeground(); // No daemonizing to background for now.
 	}
 	
@@ -182,19 +184,17 @@ int opencoreApp::main (void)
 	// Load modules.
 	mdb->init (initlist);
 	
-	if (! isdebugging)
-	{
-		log (log::debug, "main", "Detaching parent");
-		delayedexitok ();
-	}
-	log (log::info, "main", "All subsystems initialized");
-	
-	if (argv.exists ("--debugging-console"))
+	if (dconsole)
 	{
 		commandline (); // This will go :)
 	}
 	else
 	{
+		// Detach if we're not using the debugging console.
+		log (log::debug, "main", "Detaching parent");
+		delayedexitok ();
+		log (log::info, "main", "All subsystems initialized");
+
 		APP_SHOULDRUN = true;
 		while (APP_SHOULDRUN)
 		{
@@ -311,30 +311,26 @@ bool opencoreApp::confRpc (config::action act, keypath &kp,
 		case config::isvalid:
 			if (! rpc->confcheck (nval))
 			{
-				log (log::error, "openrpc ", "RPC config error: %s",
-					 rpc->error.cval());
+				log (log::error, "openrpc ", "RPC config error: %s"
+					 %format (rpc->error));
 				return false;
 			}
 			return true;
 
-			
-		// Configure instances, called at startup
 		case config::create:
 			if (! rpc->confcreate (nval))
 			{
-				log (log::critical, "openrpc ", "RPC setup failed: %s",
-					 rpc->error.cval());
+				log (log::critical, "openrpc ", "RPC setup failed: %s"
+					 %format (rpc->error));
 				return false;
 			}
 			return true;
 
-			
-		// Update configuration, alled at runtime
 		case config::change:
 			if (! rpc->confupdate (nval))
 			{
-				log (log::error, "openrpc ", "RPC reconfig failed: %s",
-					 rpc->error.cval());
+				log (log::error, "openrpc ", "RPC reconfig failed: %s"
+					 %format (rpc->error));
 				return false;
 			}
 			return true;
@@ -396,9 +392,7 @@ int opencoreApp::cmdShowSession (const value &cmdata)
 	}
 	
 	string out;
-	value dat;
-	
-	dat["OpenCORE:Session"]["id"] = sid.sval();
+	value dat = $("OpenCORE:Session",$("id",sid));
 	
 	out = dat.encode();
 	fout.puts (out);

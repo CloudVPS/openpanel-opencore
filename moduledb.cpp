@@ -737,7 +737,8 @@ corestatus_t moduledb::setspecialphysicalquota
     
 	if (! byclass.exists (ofclass))
 	{
-		// FIXME: inadequate error reporting
+		log::write (log::error, "moduledb", "Cannot resolve class for "
+					"quota tag %S" %format (tag));
 		return status_failed;
 	}
 	
