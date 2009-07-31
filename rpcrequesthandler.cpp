@@ -17,6 +17,7 @@
 #include "session.h"
 #include "debug.h"
 #include "rpc.h"
+#include <zlib.h>
 
 //	=========================================================================
 /// Constructor
@@ -94,6 +95,28 @@ int rpcrequesthandler::run (string &uri, string &postbody, value &inhdr,
 
 	res = hdl.handle (indata, s.peer_uid, origin);	
 	out = res.tojson ();
+	
+	if (inhdr.exists ("Accept-Encoding"))
+	{
+		string ae = inhdr["Accept-Encoding"];
+		if (ae.strstr ("deflate") >= 0)
+		{
+			unsigned long reslen = (out.strlen() * 1.05) + 12;
+			char buf[reslen];
+			
+			if (compress2 ((Bytef*) buf, &reslen,
+						   (const Bytef*) out.str(), out.strlen(), 4) == Z_OK)
+			{
+				outhdr["Content-Encoding"] = "deflate";
+				out.strcpy (buf+2, reslen-2);
+			}
+			else
+			{
+				log::write (log::warning, "rpc", "Compress error");
+			}
+		}
+	}
+	
 	outhdr["Content-type"] = "application/json";
 	return HTTP_OK;
 }

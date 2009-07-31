@@ -20,7 +20,7 @@ rsrc/resources.xml: error.h
 	./makeresourcesxml
 
 opencore.exe: $(OBJ) rsrc/resources.xml
-	$(LD) $(LDFLAGS) -o opencore.exe $(OBJ) $(LIBS)
+	$(LD) $(LDFLAGS) -o opencore.exe $(OBJ) $(LIBS) -lz
 
 techsupport.exe: $(TSOBJ) rsrc/resources.xml
 	$(LD) $(LDFLAGS) -o techsupport.exe $(TSOBJ) $(LIBS)

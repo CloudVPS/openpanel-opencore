@@ -653,7 +653,9 @@ corestatus_t coremodule::action (const statstring &command,
 	mName = mName.cutat (".module");
 
     exclusivesection (serlock)
-    {    
+    {
+    	// Modules with the wantsrpc attribute set to true want a
+    	// sessionid to have their own little talk with opencore.
     	if (meta["implementation"]["wantsrpc"])
     	{
             value creds;

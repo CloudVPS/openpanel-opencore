@@ -29,7 +29,7 @@ public:
 	threaduuid *next, *prev;
 	///}
 	
-	/// Thrad identifier.
+	/// Thread identifier.
 	pthread_t thr;
 	
 	/// Session uuid.
