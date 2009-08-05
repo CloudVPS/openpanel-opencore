@@ -482,16 +482,6 @@ value *coreclass::getregistration (void)
 		{
 			res[p.id()]("type") = p("type");
 			res[-1]("description") = p.sval();
-			if (p.attribexists ("ref"))
-			{
-				string ltmp, rtmp;
-				rtmp = p("ref").sval();
-				ltmp = rtmp.cutat ('/');
-				res[-1]("refclass") = ltmp;
-				res[-1]("reflabel") = rtmp;
-			}
-			if (p.attribexists ("nick"))
-				res[-1]("nick") = p("nick");
 		}
 	}
 	
