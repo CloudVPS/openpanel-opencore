@@ -36,7 +36,7 @@
 // considering core
 #define ERR_UNKNOWN						0x0001 // Unknown error
 
-// moduledb subsystem = 0x10..
+// ModuleDB subsystem = 0x10..
 #define ERR_MDB_UNKNOWN_CLASS 			0x1001 // Unknown class
 #define ERR_MDB_ACTION_FAILED 			0x1002 // Action failed in module
 #define ERR_MDB_INVALID_RETURN 			0x1003 // Invalid module return

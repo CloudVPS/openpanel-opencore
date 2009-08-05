@@ -32,13 +32,13 @@ class sessiondb
 public:
 									 /// Constructor.
 									 /// \param pmdb Reference to a
-									 ///             moduledb object
+									 ///             ModuleDB object
 									 ///             that will be used
 									 ///             by the session
 									 ///             objects.
 									 /// \param ptmdp Reference to the
 									 ///              template database.
-									 sessiondb (class moduledb &pmdb);
+									 sessiondb (class ModuleDB &pmdb);
 									 
 									 /// Destructor.
 									~sessiondb (void);
@@ -124,7 +124,7 @@ protected:
 	lock<int>						 lck; //< Lock on the dictionary.
 	class coresession				*first; ///< Linked list
 	class coresession				*last; ///< Linked list.
-	class moduledb					&mdb; ///< Reference to the global moduledb.
+	class ModuleDB					&mdb; ///< Reference to the global ModuleDB.
 };
 
 //  -------------------------------------------------------------------------
@@ -168,7 +168,7 @@ protected:
 /// system. This object is kept around to have a unique security context
 /// for an authenticated user. Actual session-like context is left entirely
 /// to the implementing layer. This class contains methods for
-/// manipulating the opencore object space. It leans on the moduledb and
+/// manipulating the opencore object space. It leans on the ModuleDB and
 /// dbmanager classes to perform the necessary tasks at the back end.
 ///
 /// Most calls to coresession need a parentid context. The parentid
@@ -185,11 +185,11 @@ public:
 						 /// Constructor. The session-id is generated
 						 /// by the sessiondb.
 						 /// \param myid The session-id (should be UUID).
-						 /// \param mdb Reference to the moduledb object
+						 /// \param mdb Reference to the ModuleDB object
 						 ///            that we'll be using as a punch bag
 						 ///            for our calls.
 						 coresession (const statstring &myid,
-						 			  class moduledb &mdb);
+						 			  class ModuleDB &mdb);
 					 	
 					 	 /// Destructor.
 						~coresession (void);
@@ -269,7 +269,7 @@ public:
 									const statstring &withkey);
 
 						 /// Get the classname for an instance or its parent
-	statstring			*getclass (const statstring &parentid);
+	statstring			*getClass (const statstring &parentid);
 	
 						 /// Remove a specific object.
 						 /// \param parentid The object parent's uuid, or
@@ -343,7 +343,7 @@ public:
 						 ///               or nokey for a class method.
 						 /// \param method The method name.
 						 /// \param withparam Optional parameters.
-	value				*callmethod (const statstring &parentid,
+	value				*callMethod (const statstring &parentid,
 									 const statstring &ofclass,
 									 const statstring &withid,
 									 const statstring &method,
@@ -351,8 +351,8 @@ public:
 	
 						 /// Gathers the classinfo for a specific
 						 /// object uuid. The argument gets resolved
-						 /// to its class and getclassinfo() is called.
-	value				*getclasses (const statstring &puuid)
+						 /// to its class and getClassInfo() is called.
+	value				*getClasses (const statstring &puuid)
 						 {
 						 	// TODO get class name from context
 						 	string uuid;
@@ -361,21 +361,21 @@ public:
 						 	value obj;
 						 	
 						 	if (db.fetchObject(obj, uuid, false))
-								return getclassinfo (obj["class"]);
+								return getClassInfo (obj["class"]);
 						 	
 						 	return NULL;
 						 }
 						 
 						 /// Get class-related metadata in a manageable
 						 /// format. A glorified proxy for the
-						 /// moduledb::getclassinfo() call.
+						 /// ModuleDB::getClassInfo() call.
 						 /// \param forclass The class involved.
-	value				*getclassinfo (const string &forclass);
+	value				*getClassInfo (const string &forclass);
 	
 						 /// Returns a dictionary of records
 						 /// for each available class indexed by its
 						 /// classname. The records are in the format
-						 /// returned by moduledb::getclassinfo().
+						 /// returned by ModuleDB::getClassInfo().
 	value				*getworld (void);
 
 						 /// Returns quota limits for a class/user
@@ -393,34 +393,34 @@ public:
 	bool				 chown(const statstring &ofobject,
 							   const statstring &user);
 
-						 /// Proxy for moduledb::listparamsformethod()
-	value				*listparamsformethod (const statstring &parentid,
+						 /// Proxy for ModuleDB::listParamsForMethod()
+	value				*listParamsForMethod (const statstring &parentid,
 											  const statstring &ofclass,
 											  const statstring &withid,
 											  const statstring &methodname);
 
-						 /// Proxy for moduledb::listmodules().
-	value				*listmodules (void);
+						 /// Proxy for ModuleDB::listModules().
+	value				*listModules (void);
 	
-						 /// Proxy for moduledb::listclasses();
-	value				*listclasses (void);
+						 /// Proxy for ModuleDB::listClasses();
+	value				*listClasses (void);
 	
-						 /// Resolve a class name to a coremodule.
+						 /// Resolve a class name to a CoreModule.
 						 /// \param cl The class name.
-	class coremodule	*getmoduleforclass (const statstring &cl);
+	class CoreModule	*getModuleForClass (const statstring &cl);
 	
-						 /// Resolve a module name to its coremodule
+						 /// Resolve a module name to its CoreModule
 						 /// objects.
 						 /// \param mname The module name.
-	class coremodule	*getmodulebyname (const statstring &mname);
+	class CoreModule	*getModuleByName (const statstring &mname);
 	
 						 /// Verify that a class is registered with
 						 /// opencore.
 						 /// \param cl The class name.
-	bool				 classexists (const statstring &cl);
+	bool				 classExists (const statstring &cl);
 	
 						 /// Get an array of languages.
-	value				*getlanguages (void);
+	value				*getLanguages (void);
 	
 						 /// Handle a cascading update for a class
 						 /// that was indicated with 'childrendeps'.
@@ -502,12 +502,12 @@ protected:
 	statstring			*getquotauuid (const statstring &userid,
 									   const statstring &metaid);
 
-	class moduledb		&mdb; ///< Link to the moduledb.
+	class ModuleDB		&mdb; ///< Link to the ModuleDB.
 	class DBManager		 db; ///< Local DBManager instance.
 	value				 errors; ///< Details of error.
 	time_t				 heartbeat; ///< Timeout tracker.
 	int					 inuse; ///< Flags status.
-	string				 locker; ///< Tag owning the moduledb write lock.
+	string				 locker; ///< Tag owning the ModuleDB write lock.
 	lock<bool>			 spinlock; ///< Serialize access to each session.
 	value				 quotamap; ///< Mapping between generated uuids and quotas.
 };

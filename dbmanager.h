@@ -198,10 +198,10 @@ protected:
 					bool haspower(int oid, int uid);
 					
 					/// checks class right for (logged-in) user
-					bool _getclassright(int classid, int uid, const statstring &right);
+					bool _getClassRight(int classid, int uid, const statstring &right);
 
 					/// finds all class right for (logged-in) user
-					bool _getclassrights(value &into, int uid);
+					bool _getClassRights(value &into, int uid);
 					
 					/// sets/unsets class right for logged-in user
 					bool _setclassright(int classid, int uid, const statstring &right, bool allowed);
@@ -216,7 +216,7 @@ protected:
 					string *classgetattrib(int classid, const statstring attrib);
 
 					/// get classdata as value; with caching
-					value *getclassdata(int classid);
+					value *getClassData(int classid);
 					
 					/// find the local id for a given uuid
 					int findlocalid(const statstring &uuid);

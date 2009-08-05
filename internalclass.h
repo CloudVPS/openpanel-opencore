@@ -45,20 +45,20 @@ public:
 								const statstring &parentid,
 								const statstring &id);
 					
-					 /// If your coreclass implements it, override
+					 /// If your CoreClass implements it, override
 					 /// this method to handle a create event.
 	virtual string	*createObject (coresession *s,
 								   const statstring &parentid,
 								   const value &withparam,
 								   const statstring &withid="");
 							   
-					 /// If your coreclass implements it, override
+					 /// If your CoreClass implements it, override
 					 /// this method to handle a delete event.
 	virtual bool	 deleteObject (coresession *s,
 								   const statstring &parentid,
 								   const statstring &withid);
 	
-					 /// If your coreclass implements it, override
+					 /// If your CoreClass implements it, override
 					 /// this method to handle an update event.
 	virtual bool	 updateObject (coresession *s,
 								   const statstring &parentid,
@@ -154,7 +154,7 @@ public:
 };
 
 //  -------------------------------------------------------------------------
-/// Implementation of the OpenCORE:ErrorLog coreclass.
+/// Implementation of the OpenCORE:ErrorLog CoreClass.
 //  -------------------------------------------------------------------------
 class ErrorLogClass : public InternalClass
 {
@@ -166,7 +166,7 @@ public:
 };
 
 //  -------------------------------------------------------------------------
-/// Implementation of the OpenCORE:ClassList coreclass.
+/// Implementation of the OpenCORE:ClassList CoreClass.
 //  -------------------------------------------------------------------------
 class ClassListClass : public InternalClass
 {

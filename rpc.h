@@ -70,7 +70,7 @@ public:
 	value			*handle (const value &v, uid_t uid, const string &origin);
 
 	value			*call (const statstring &c, const value &v, coresession &cs);
-	value			*getlanguages (const value &v);
+	value			*getLanguages (const value &v);
 	value			*bind (const value &v, uid_t uid, const string &origin);
 
 	value			*ping (const value &v, coresession &cs);
@@ -80,14 +80,14 @@ public:
 	value			*chown (const value &v, coresession &cs);
 	value			*classinfo (const value &v, coresession &cs);
 	value			*classxml (const value &v, coresession &cs);
-	value			*callmethod (const value &v, coresession &cs);
+	value			*callMethod (const value &v, coresession &cs);
 	value			*getrecord (const value &v, coresession &cs);
 	value			*getrecords (const value &v, coresession &cs);
 	value			*getparent (const value &v, coresession &cs);
 	value			*getworld (const value &v, coresession &cs);
-	value			*listparamsformethod (const value &v, coresession &cs);
-	value			*listmodules (const value &v, coresession &cs);
-	value			*listclasses (const value &v, coresession &cs);
+	value			*listParamsForMethod (const value &v, coresession &cs);
+	value			*listModules (const value &v, coresession &cs);
+	value			*listClasses (const value &v, coresession &cs);
 	value			*getmenu (const value &v, coresession &cs);
 	value			*listtemplates (const value &v, coresession &cs);
 	value			*applytemplate (const value &v, coresession &cs);

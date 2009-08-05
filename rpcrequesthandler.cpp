@@ -137,7 +137,7 @@ int iconrequesthandler::run (string &uri, string &postbody, value &inhdr,
 	
 	app->log (log::debug, "httpicon", "Request for <%s>" %format (uuid));
 	
-	if (! app->mdb->classuuidexists (uuid))
+	if (! app->mdb->classExistsUUID (uuid))
 	{
 		string orgpath;
 		
@@ -157,7 +157,7 @@ int iconrequesthandler::run (string &uri, string &postbody, value &inhdr,
 		}
 		return 404;
 	}
-	coreclass &c = app->mdb->getclassuuid (uuid);
+	CoreClass &c = app->mdb->getClassUUID (uuid);
 	string path;
 	if (isdown)
 	{
@@ -191,7 +191,7 @@ int itemiconrequesthandler::run (string &uri, string &postbody, value &inhdr,
 	
 	app->log (log::debug, "httpicon", "Request for <%s>" %format (uuid));
 	
-	if (! app->mdb->classuuidexists (uuid))
+	if (! app->mdb->classExistsUUID (uuid))
 	{
 		string orgpath;
 		
@@ -206,7 +206,7 @@ int itemiconrequesthandler::run (string &uri, string &postbody, value &inhdr,
 		return 404;
 	}
 	
-	coreclass &c = app->mdb->getclassuuid (uuid);
+	CoreClass &c = app->mdb->getClassUUID (uuid);
 	string path = "%s/item_%s" %format (c.module.path, c.icon);
 	app->log (log::debug, "itemicon", "Loading %s" %format (path));
 	
@@ -229,13 +229,13 @@ int emblemrequesthandler::run (string &uri, string &postbody, value &inhdr,
 	string uuid = uri.copyafterlast ("/");
 	uuid.cropat ('.');
 	
-	if (! app->mdb->classuuidexists (uuid))
+	if (! app->mdb->classExistsUUID (uuid))
 	{
 		out = "%s not found" %format (uuid);
 		return 404;
 	}
 	
-	coreclass &c = app->mdb->getclassuuid (uuid);
+	CoreClass &c = app->mdb->getClassUUID (uuid);
 	string path = "%s/large_%s" %format (c.module.path, c.icon);
 	if (! fs.exists (path)) return 404;
 	

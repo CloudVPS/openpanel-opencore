@@ -35,9 +35,9 @@ $exception (moduleInitException, "Error initializing module");
 // }
 
 // ==========================================================================
-// CONSTRUCTOR moduledb
+// CONSTRUCTOR ModuleDB
 // ==========================================================================
-moduledb::moduledb (void)
+ModuleDB::ModuleDB (void)
 {
 	first = last = NULL;
 	
@@ -49,18 +49,18 @@ moduledb::moduledb (void)
 }
 
 // ==========================================================================
-// METHOD moduledb::init
+// METHOD ModuleDB::init
 //
 // TODO: detect double class registration
 // ==========================================================================
-void moduledb::init (const value &reloadmods)
+void ModuleDB::init (const value &reloadmods)
 {
 	value cache;
 	
 	DBManager db;
 	if (! db.init ())
 	{
-		log::write (log::critical, "moduledb", "Could not init database");
+		log::write (log::critical, "ModuleDB", "Could not init database");
 		return;
 	}
 	
@@ -77,7 +77,7 @@ void moduledb::init (const value &reloadmods)
 	// an empty cache.
 	if (! fs.exists (cachepath))
 	{
-		log::write (log::info, "moduledb", "No module cache found, assuming "
+		log::write (log::info, "ModuleDB", "No module cache found, assuming "
 				   "new install");
 				   
 		cache["modules"]; // Initialize cache's tree structure.
@@ -85,7 +85,7 @@ void moduledb::init (const value &reloadmods)
 		// If we can't write, consider that a dealbreaker.
 		if (! cache.saveshox (cachepath))
 		{
-			log::write (log::critical, "moduledb", "Can not write to module "
+			log::write (log::critical, "ModuleDB", "Can not write to module "
 					   "cache at <%s>, bailing." %format (cachepath));
 			CORE->delayedexiterror ("Error saving module.cache");
 			sleep (2);
@@ -97,7 +97,7 @@ void moduledb::init (const value &reloadmods)
 		cache.loadshox (cachepath);
 		if (! cache.count())
 		{
-			log::write (log::warning, "moduledb", "Loaded module cache "
+			log::write (log::warning, "ModuleDB", "Loaded module cache "
 					   "seems to be empty");
 		}
 	}
@@ -121,11 +121,11 @@ void moduledb::init (const value &reloadmods)
 			{
 				try
 				{
-					loadmodule (mname, cache, db);
+					loadModule (mname, cache, db);
 				}
 				catch (exception e)
 				{
-					log::write (log::error, "moduledb", "Error loading "
+					log::write (log::error, "ModuleDB", "Error loading "
 							   "'%s': %s" %format (mname, e.description));
 					
 					// Re-throw on user.module, without that one
@@ -147,9 +147,9 @@ void moduledb::init (const value &reloadmods)
 }
 
 // ==========================================================================
-// METHOD moduledb::loadmodule
+// METHOD ModuleDB::loadModule
 // ==========================================================================
-void moduledb::loadmodule (const string &mname, value &cache, DBManager &db)
+void ModuleDB::loadModule (const string &mname, value &cache, DBManager &db)
 {
 	static value history;
 	
@@ -158,19 +158,19 @@ void moduledb::loadmodule (const string &mname, value &cache, DBManager &db)
 	history[mname] = true;
 	
 	string path = PATH_MODULES "/%s" %format (mname);
-	log::write (log::info, "moduledb", "Loading <%s>" %format (path));
+	log::write (log::info, "ModuleDB", "Loading <%s>" %format (path));
 	
 	// Make sure the module exists at all.
 	if (! fs.exists (path))
 	{
-		log::write (log::critical, "moduledb", "Couldn't load <%s>" %format(path));
+		log::write (log::critical, "ModuleDB", "Couldn't load <%s>" %format(path));
 		
 		cache["modules"].rmval (mname);
 		throw (moduleInitException("Module does not exist"));
 	}
 	
-	// Create a new coremodule object
-	coremodule *m = new coremodule (path, mname, this);
+	// Create a new CoreModule object
+	CoreModule *m = new CoreModule (path, mname, this);
 	
 	// Run the module's verify script. Refrain from loading it if the
 	// verify failed.
@@ -183,7 +183,7 @@ void moduledb::loadmodule (const string &mname, value &cache, DBManager &db)
 	// Merge languages.
 	languages << m->languages;
 	
-	loaddependencies (mname, cache, db, m);
+	loadDependencies (mname, cache, db, m);
 	
 	// Link the module to the linked list.
 	m->next = NULL;
@@ -199,19 +199,19 @@ void moduledb::loadmodule (const string &mname, value &cache, DBManager &db)
 		first = last = m;
 	}
 	
-	bool firsttime = checkcache (mname, cache, m);
-	registerquotas (m);
+	bool firsttime = checkModuleCache (mname, cache, m);
+	registerQuotas (m);
 	registerClasses (mname, cache, db, m);
-	makestagingdir (mname);
+	createStagingDirectory (mname);
 	
-	if (firsttime) handlegetconfig (mname, cache, db, m);
+	if (firsttime) handleGetConfig (mname, cache, db, m);
 }
 
 // ==========================================================================
-// METHOD moduledb::checkcache
+// METHOD ModuleDB::checkModuleCache
 // ==========================================================================
-bool moduledb::checkcache (const string &mname, value &cache,
-						   coremodule *m)
+bool ModuleDB::checkModuleCache (const string &mname, value &cache,
+						   CoreModule *m)
 {
 	if (cache["modules"].exists (mname))
 	{
@@ -222,7 +222,7 @@ bool moduledb::checkcache (const string &mname, value &cache,
 		
 		if (cachedver > newver)
 		{
-			log::write (log::critical, "moduledb", "Version downgrade "
+			log::write (log::critical, "ModuleDB", "Version downgrade "
 					   "detected on module <%s> current version = %i, "
 					   "old version = %i" %format (mname,newver,cachedver));
 					   
@@ -230,12 +230,12 @@ bool moduledb::checkcache (const string &mname, value &cache,
 		}
 		else if (cachedver < newver)
 		{
-			log::write (log::info, "moduledb", "New version of module "
+			log::write (log::info, "ModuleDB", "New version of module "
 					   "<%s> detected" %format (mname));
 		
-			if (! m->updateok (cachedver))
+			if (! m->updateOK (cachedver))
 			{
-				log::write (log::critical, "moduledb", "Module <%s> "
+				log::write (log::critical, "ModuleDB", "Module <%s> "
 						   "cannot deal with objects created by"
 						   "version %i" %format (mname, cachedver));
 				
@@ -244,7 +244,7 @@ bool moduledb::checkcache (const string &mname, value &cache,
 		}
 		else
 		{
-			log::write (log::info, "moduledb", "Using cached version");
+			log::write (log::info, "ModuleDB", "Using cached version");
 		}
 		
 		cache["modules"][mname] = m->meta["version"];
@@ -256,33 +256,33 @@ bool moduledb::checkcache (const string &mname, value &cache,
 	cache["modules"][mname] = m->meta["version"];
 	byname[mname] = m;
 	
-	log::write (log::info, "moduledb", "No cache entry for "
+	log::write (log::info, "ModuleDB", "No cache entry for "
 			   "module <%s>" %format (mname));
 			   
-	DEBUG.storeFile ("moduledb", "miss", cache["modules"], "checkcache");
+	DEBUG.storeFile ("ModuleDB", "miss", cache["modules"], "checkModuleCache");
 	return true;
 }
 
 // ==========================================================================
-// METHOD moduledb::loaddependencies
+// METHOD ModuleDB::loadDependencies
 // ==========================================================================
-void moduledb::loaddependencies (const string &mname, value &cache,
-								 DBManager &db, coremodule *m)
+void ModuleDB::loadDependencies (const string &mname, value &cache,
+								 DBManager &db, CoreModule *m)
 {
 	// Does the module require another module?
 	if (m->meta.exists ("requires"))
 	{
 		// Yes, recurse.
-		log::write (log::info, "moduledb", "Loading required module <%S>"
+		log::write (log::info, "ModuleDB", "Loading required module <%S>"
 				    %format (m->meta["requires"]));
 		
 		try
 		{
-			loadmodule (m->meta["requires"], cache, db);
+			loadModule (m->meta["requires"], cache, db);
 		}
 		catch (exception e)
 		{
-			log::write (log::error, "moduledb", "Error loading required "
+			log::write (log::error, "ModuleDB", "Error loading required "
 					   "module <%S>, disabling depending module <%S>"
 					   %format (m->meta["requires"], mname));
 			
@@ -294,9 +294,9 @@ void moduledb::loaddependencies (const string &mname, value &cache,
 }
 
 // ==========================================================================
-// METHOD moduledb::registerquotas
+// METHOD ModuleDB::registerQuotas
 // ==========================================================================
-void moduledb::registerquotas (coremodule *m)
+void ModuleDB::registerQuotas (CoreModule *m)
 {
 	// Store the current version in the cache.
 	if (m->meta.exists ("quotas"))
@@ -309,9 +309,9 @@ void moduledb::registerquotas (coremodule *m)
 }
 
 // ==========================================================================
-// METHOD moduledb::makestagingdir
+// METHOD ModuleDB::createStagingDirectory
 // ==========================================================================
-void moduledb::makestagingdir (const string &mname)
+void ModuleDB::createStagingDirectory (const string &mname)
 {
 	// Check for the staging directory
 	string tmp;
@@ -332,19 +332,19 @@ void moduledb::makestagingdir (const string &mname)
 }
 
 // ==========================================================================
-// METHOD moduledb::registerClasses
+// METHOD ModuleDB::registerClasses
 // ==========================================================================
-void moduledb::registerClasses (const string &mname, value &cache,
-								DBManager &db, coremodule *m)
+void ModuleDB::registerClasses (const string &mname, value &cache,
+								DBManager &db, CoreModule *m)
 {
 	value childrendeps;
 	
-	/// Iterate over the coreclass objects
+	/// Iterate over the CoreClass objects
 	foreach (classobj,m->classes)
 	{
 		if (byclass.exists (classobj.name))
 		{
-			log::write (log::critical, "moduledb", "Class <%S> "
+			log::write (log::critical, "ModuleDB", "Class <%S> "
 					   "already exists in module <%S>"
 					   %format (classobj.name, mname));
 
@@ -353,7 +353,7 @@ void moduledb::registerClasses (const string &mname, value &cache,
 		}
 		if (byclassuuid.exists (classobj.uuid))
 		{
-			log::write (log::critical, "moduledb", "Class with "
+			log::write (log::critical, "ModuleDB", "Class with "
 					   "uuid <%S> already registered."
 					   %format (classobj.uuid));
 		}
@@ -364,7 +364,7 @@ void moduledb::registerClasses (const string &mname, value &cache,
 		// Does this class require another class?
 		if (classobj.requires)
 		{
-			log::write (log::info, "moduledb", "Registered class <%s> "
+			log::write (log::info, "ModuleDB", "Registered class <%s> "
 					   "requires <%s>" %format (classobj.name, classobj.requires));
 		
 			// Yes, add this class to the byparent list.
@@ -372,7 +372,7 @@ void moduledb::registerClasses (const string &mname, value &cache,
 		}
 		else
 		{
-			log::write (log::info, "moduledb", "Registered class <%S> "
+			log::write (log::info, "ModuleDB", "Registered class <%S> "
 					   "at root" %format (classobj.name));
 			
 			// No requirements, parent this class to the virtual
@@ -389,13 +389,13 @@ void moduledb::registerClasses (const string &mname, value &cache,
 		value regdata = classobj.getregistration ();
 		regdata("modulename") = mname;
 		
-		DEBUG.storeFile ("moduledb", "regdata", regdata, "registerClasses");
+		DEBUG.storeFile ("ModuleDB", "regdata", regdata, "registerClasses");
 		
 		// Send it to the database manager.
 		if (! db.registerClass (regdata))
 		{
 			// Failed, croak.
-			log::write (log::critical, "moduledb", "Could not register "
+			log::write (log::critical, "ModuleDB", "Could not register "
 					   "class <%S> with DBManager: %s"
 					   %format (classobj.name, db.getLastError()));
 
@@ -410,32 +410,32 @@ void moduledb::registerClasses (const string &mname, value &cache,
 	// to cascade any updates to it.
 	foreach (cdep, childrendeps)
 	{
-		if (classexists (cdep.sval()))
+		if (classExists (cdep.sval()))
 		{
-			log::write (log::info, "moduledb", "Setting cascade for "
+			log::write (log::info, "ModuleDB", "Setting cascade for "
 					   "class <%S>" %format (cdep));
-			getclass (cdep.sval()).cascades = true;
+			getClass (cdep.sval()).cascades = true;
 		}
 	}
 }
 
 // ==========================================================================
-// METHOD moduledb::handlegetconfig
+// METHOD ModuleDB::handleGetConfig
 // ==========================================================================
-void moduledb::handlegetconfig (const string &mname, value &cache,
-							    DBManager &db, coremodule *m)
+void ModuleDB::handleGetConfig (const string &mname, value &cache,
+							    DBManager &db, CoreModule *m)
 {
 	value current; //< Return from the module call.
 	value out; //< Translated for DBManager flattening.
 	value uuids; //< Local-to-global id mapping for flattening.
 	value skipparents; // parent-uuids that already existed
 	
-	log::write (log::info, "moduledb", "Getconfig for <%s>" %format (mname));
+	log::write (log::info, "ModuleDB", "Getconfig for <%s>" %format (mname));
 	
 	// First let's get the currentconfig tree from the module.
 	if (m->meta["implementation"]["getconfig"].bval())
 	{
-		current = m->getcurrentconfig();
+		current = m->getCurrentConfig();
 		
 		// Go over the type="object" nodes inside
 		foreach (node, current)
@@ -448,7 +448,7 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 			}
 		}
 		
-		DEBUG.storeFile ("moduledb","getconfig-tree", out, "handlenewmodule");
+		DEBUG.storeFile ("ModuleDB","getconfig-tree", out, "handlenewmodule");
 		
 		// Iterate over the flattened out array
 		foreach (obj, out)
@@ -484,7 +484,7 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 				{
 					statstring parentclass = obj["parentclass"];
 					parentid  = db.findObject (nokey, parentclass, nokey, parent);
-					log::write (log::info, "moduledb", "Resolved %s/%s to "
+					log::write (log::info, "ModuleDB", "Resolved %s/%s to "
 							   "<%s>" %format (parentclass,parent,parentid));
 				}
 			}
@@ -495,7 +495,7 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 			
 			if ((! uuid) && (db.getLastErrorCode() != ERR_DBMANAGER_EXISTS))
 			{
-				log::write (log::critical, "moduledb", "Could not "
+				log::write (log::critical, "ModuleDB", "Could not "
 						   "commit initial <%S> object in database: "
 						   "%s" %format (oclass, db.getLastError()));
 						   
@@ -513,12 +513,12 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 						   $("class", oclass) ->
 						   $("metaid", metaid);
 			
-			DEBUG.storeFile ("moduledb","dbman-args", vdebug, "handlenewmodule");
+			DEBUG.storeFile ("ModuleDB","dbman-args", vdebug, "handlenewmodule");
 			
 			// Henny penny the sky is falling!
 			if (! uuid)
 			{
-				log::write (log::error, "moduledb",
+				log::write (log::error, "ModuleDB",
 						  "Error importing external data for "
 						  "class <%S> with metaid <%S>"
 						  %format (oclass, metaid));
@@ -531,16 +531,16 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 			}
 		}
 		
-		DEBUG.storeFile ("moduledb","getconfig-uuids", uuids, "handlenewmodule");
+		DEBUG.storeFile ("ModuleDB","getconfig-uuids", uuids, "handlenewmodule");
 	}
 }
 
 // ==========================================================================
-// METHOD moduledb::parsetree
+// METHOD ModuleDB::parsetree
 // ==========================================================================
-void moduledb::parsetree (const value &tree, value &into, int parent)
+void ModuleDB::parsetree (const value &tree, value &into, int parent)
 {
-	if (! into.count()) DEBUG.storeFile ("moduledb", "in", tree, "parsetree");
+	if (! into.count()) DEBUG.storeFile ("ModuleDB", "in", tree, "parsetree");
 	foreach (instance, tree)
 	{
 		int pos = into.count();
@@ -573,17 +573,17 @@ void moduledb::parsetree (const value &tree, value &into, int parent)
 }
 
 // ==========================================================================
-// METHOD moduledb::createObject
+// METHOD ModuleDB::createObject
 // ==========================================================================
-corestatus_t moduledb::createObject (const statstring &ofclass,
+corestatus_t ModuleDB::createObject (const statstring &ofclass,
 									 const statstring &withid,
 									 const value &parm,
 									 string &err)
 {
-	coremodule *m;
+	CoreModule *m;
 	corestatus_t res = status_failed;
 	
-	DEBUG.storeFile ("moduledb", "parm", parm, "createObject");
+	DEBUG.storeFile ("ModuleDB", "parm", parm, "createObject");
 	
 	if (! byclass.exists (ofclass))
 	{
@@ -596,9 +596,9 @@ corestatus_t moduledb::createObject (const statstring &ofclass,
 	if (! m)
 	{
 		err = "Module for class not found";
-		log::write (log::critical, "moduledb", "Unexpected error trying to "
+		log::write (log::critical, "ModuleDB", "Unexpected error trying to "
 				   "resolve class <%S>" %format (ofclass));
-		ALERT->alert ("Error resolving <%S> in moduledb" %format (ofclass));
+		ALERT->alert ("Error resolving <%S> in ModuleDB" %format (ofclass));
 		return status_failed;
 	}
 	
@@ -621,7 +621,7 @@ corestatus_t moduledb::createObject (const statstring &ofclass,
 	// FIXME: is it useful to keep returnp?
 	// FIXME: report errors here or upstream?
 	
-	DEBUG.storeFile ("moduledb", "returnp", returnp, "createObject");
+	DEBUG.storeFile ("ModuleDB", "returnp", returnp, "createObject");
 	
 	if (res != status_ok)
 	{
@@ -632,24 +632,24 @@ corestatus_t moduledb::createObject (const statstring &ofclass,
 }
 
 // ==========================================================================
-// METHOD moduledb::makecrypt
+// METHOD ModuleDB::makeCrypt
 // ==========================================================================
-corestatus_t moduledb::makecrypt (const statstring &ofclass,
+corestatus_t ModuleDB::makeCrypt (const statstring &ofclass,
 								  const statstring &fieldid,
 								  const string &plaintext,
 								  string &crypted)
 {
-	coremodule *m;
+	CoreModule *m;
 	corestatus_t res = status_failed;
 	
 	if (! byclass.exists (ofclass)) return status_failed;
 	m = byclass[ofclass];
 	if (! m)
 	{
-		log::write (log::critical, "moduledb", "Unexpected error trying to "
+		log::write (log::critical, "ModuleDB", "Unexpected error trying to "
 				   "resolve class <%S>" %format (ofclass));
 		ALERT->alert ("Unexpected error trying to resolve class <%S> in "
-					 "moduledb" %format (ofclass));
+					 "ModuleDB" %format (ofclass));
 		return status_failed;
 	}
 
@@ -667,9 +667,9 @@ corestatus_t moduledb::makecrypt (const statstring &ofclass,
 }
 
 // ==========================================================================
-// METHOD moduledb::callmethod
+// METHOD ModuleDB::callMethod
 // ==========================================================================
-corestatus_t moduledb::callmethod (const statstring &parentid,
+corestatus_t ModuleDB::callMethod (const statstring &parentid,
 								   const statstring &ofclass,
 								   const statstring &withid,
 								   const statstring &method,
@@ -678,11 +678,11 @@ corestatus_t moduledb::callmethod (const statstring &parentid,
 								   string &err)
 {
 	corestatus_t res;
-	coremodule *m;
+	CoreModule *m;
 	
 	if (! byclass.exists (ofclass))
 	{
-		log::write (log::error, "moduledb", "Callmethod '%S.%S': class "
+		log::write (log::error, "ModuleDB", "Callmethod '%S.%S': class "
 				   "not found" %format (ofclass, method));
 		
 		return status_failed;
@@ -691,10 +691,10 @@ corestatus_t moduledb::callmethod (const statstring &parentid,
 	m = byclass[ofclass];
 	if (! m)
 	{
-		log::write (log::critical, "moduledb", "Unexpected error trying to "
+		log::write (log::critical, "ModuleDB", "Unexpected error trying to "
 				   "resolve class '%S'" %format (ofclass));
 		ALERT->alert ("Unexpected error trying to resolve class <%S> in "
-					 "moduledb" %format (ofclass));
+					 "ModuleDB" %format (ofclass));
 		return status_failed;
 	}
 	
@@ -707,7 +707,7 @@ corestatus_t moduledb::callmethod (const statstring &parentid,
 		  	$("method", method)) ->
 		$merge(param);
 
-	DEBUG.storeFile ("moduledb","ctx", ctx, "callmethod");
+	DEBUG.storeFile ("ModuleDB","ctx", ctx, "callMethod");
 	
 	res = m->action ("callmethod", ofclass, ctx, returnp);
 
@@ -720,24 +720,24 @@ corestatus_t moduledb::callmethod (const statstring &parentid,
 }
 									
 // ==========================================================================
-// METHOD moduledb::setspecialphysicalquota
+// METHOD ModuleDB::setSpecialPhysicalQuota
 // ==========================================================================
-corestatus_t moduledb::setspecialphysicalquota
+corestatus_t ModuleDB::setSpecialPhysicalQuota
                                     (const statstring &tag,
 									 const value &quota,
 									 string &err)
 {
-	coremodule *m;
+	CoreModule *m;
 	corestatus_t res = status_failed;
 	
-	DEBUG.storeFile ("moduledb", "quota", quota, "setspecialphysicalquota");
+	DEBUG.storeFile ("ModuleDB", "quota", quota, "setSpecialPhysicalQuota");
 
     string ofclass = tag;
     ofclass = ofclass.left(ofclass.strchr('/'));
     
 	if (! byclass.exists (ofclass))
 	{
-		log::write (log::error, "moduledb", "Cannot resolve class for "
+		log::write (log::error, "ModuleDB", "Cannot resolve class for "
 					"quota tag %S" %format (tag));
 		return status_failed;
 	}
@@ -745,11 +745,11 @@ corestatus_t moduledb::setspecialphysicalquota
 	m = byclass[ofclass];
 	if (! m)
 	{
-		log::write (log::critical, "moduledb", "Unexpected error trying to "
+		log::write (log::critical, "ModuleDB", "Unexpected error trying to "
 				   "resolve class <%S>, specialquota tag <%S>"
 				   %format (ofclass, tag));
 		ALERT->alert ("Unexpected error trying to resolve class <%S>, specialquota tag <%S> in "
-					 "moduledb" %format (ofclass, tag));
+					 "ModuleDB" %format (ofclass, tag));
 		return status_failed;
 	}
 	
@@ -771,17 +771,17 @@ corestatus_t moduledb::setspecialphysicalquota
 }
 
 // ==========================================================================
-// METHOD moduledb::updateObject
+// METHOD ModuleDB::updateObject
 // ==========================================================================
-corestatus_t moduledb::updateObject (const statstring &ofclass,
+corestatus_t ModuleDB::updateObject (const statstring &ofclass,
 									 const statstring &withid,
 									 const value &parm,
 									 string &err)
 {
-	coremodule *m;
+	CoreModule *m;
 	corestatus_t res = status_failed;
 	
-	DEBUG.storeFile ("moduledb", "parm", parm, "updateObject");
+	DEBUG.storeFile ("ModuleDB", "parm", parm, "updateObject");
 
 	if (! byclass.exists (ofclass))
 	{
@@ -792,10 +792,10 @@ corestatus_t moduledb::updateObject (const statstring &ofclass,
 	m = byclass[ofclass];
 	if (! m)
 	{
-		log::write (log::critical, "moduledb", "Unexpected error trying to "
+		log::write (log::critical, "ModuleDB", "Unexpected error trying to "
 				   "resolve class <%S>" %format (ofclass));
 		ALERT->alert ("Unexpected error trying to resolve class <%S> in "
-					 "moduledb" %format (ofclass));
+					 "ModuleDB" %format (ofclass));
 		return status_failed;
 	}
 	
@@ -822,25 +822,25 @@ corestatus_t moduledb::updateObject (const statstring &ofclass,
 }
 
 // ==========================================================================
-// METHOD moduledb::isdynamic
+// METHOD ModuleDB::classIsDynamic
 // ==========================================================================
-bool moduledb::isdynamic (const statstring &forclass)
+bool ModuleDB::classIsDynamic (const statstring &forclass)
 {
-	if (! classexists (forclass)) return false;
-	return getclass (forclass).dynamic;
+	if (! classExists (forclass)) return false;
+	return getClass (forclass).dynamic;
 }
 
 // ==========================================================================
-// METHOD moduledb::listdynamicobjects
+// METHOD ModuleDB::listDynamicObjects
 // ==========================================================================
-value *moduledb::listdynamicobjects (const statstring &parentid,
+value *ModuleDB::listDynamicObjects (const statstring &parentid,
 									 const statstring &mparentid,
 									 const statstring &ofclass,
 									 string &err, int count, int offset)
 {
-	if (! classexists (ofclass)) return NULL;
-	if (getclass (ofclass).dynamic == false) return NULL;
-	coremodule *m = byclass[ofclass];
+	if (! classExists (ofclass)) return NULL;
+	if (getClass (ofclass).dynamic == false) return NULL;
+	CoreModule *m = byclass[ofclass];
 	
 	err = "";
 
@@ -859,7 +859,7 @@ value *moduledb::listdynamicobjects (const statstring &parentid,
 	
 	if (rez != status_ok)
 	{
-		log::write (log::error, "moduledb", "Error listing dynamic objects "
+		log::write (log::error, "ModuleDB", "Error listing dynamic objects "
 				   "for class <%S>" %format (ofclass));
 				   
 		err = "%[error]i:%[message]s" %format (returnp["OpenCORE:Result"]);
@@ -868,39 +868,39 @@ value *moduledb::listdynamicobjects (const statstring &parentid,
 
 	returnclass (value) res retain;
 	res = returnp["objects"];
-	DEBUG.storeFile ("moduledb","res", res, "listdynamicobjects");
+	DEBUG.storeFile ("ModuleDB","res", res, "listDynamicObjects");
 	return &res;
 }
 
 // ==========================================================================
-// METHOD moduledb::listparamsformethod
+// METHOD ModuleDB::listParamsForMethod
 // ==========================================================================
-value *moduledb::listparamsformethod (const statstring &parentid,
+value *ModuleDB::listParamsForMethod (const statstring &parentid,
 									  const statstring &ofclass,
 									  const statstring &withid,
 									  const statstring &methodname)
 {
 	// Complain if it's an unknown class.
-	if (! classexists (ofclass))
+	if (! classExists (ofclass))
 	{
-		log::write (log::error, "moduledb", "Listparamsformethod called "
+		log::write (log::error, "ModuleDB", "Listparamsformethod called "
 				   "for class=<%S>, class not found" %format (ofclass));
 		
 		return NULL;
 	}
 	
 	// Get a reference to the class and look for the method.
-	coreclass &cl = getclass (ofclass);
+	CoreClass &cl = getClass (ofclass);
 	if (! cl.methods.exists (methodname))
 	{
-		log::write (log::error, "moduledb", "Listparamsformethod called "
+		log::write (log::error, "ModuleDB", "Listparamsformethod called "
 				   "for class=<%S> methodname=<%S>, method not found"
 				   %format (ofclass, methodname));
 		
 		return NULL;
 	}
 
-	coremodule *m = byclass[ofclass];
+	CoreModule *m = byclass[ofclass];
 	
 	// Determine if the method is dynamic.
 	if (cl.methods[methodname]("args") == "dynamic")
@@ -919,7 +919,7 @@ value *moduledb::listparamsformethod (const statstring &parentid,
 		
 		if (rez != status_ok)
 		{
-			log::write (log::error, "moduledb", "Error getting list of "
+			log::write (log::error, "ModuleDB", "Error getting list of "
 					   "parameters for a call to class=<%S> method=<%S> "
 					   "parentid=<%S> objectid=<%S>" %format (ofclass,
 					   methodname, parentid, withid));
@@ -934,27 +934,27 @@ value *moduledb::listparamsformethod (const statstring &parentid,
 		return &res;
 	}
 
-	log::write (log::error, "moduledb", "Listparamsformethod called "
+	log::write (log::error, "ModuleDB", "Listparamsformethod called "
 			   "for class=<%S> method=<%S>, not dynamic" %format (ofclass,
 			   methodname));
 	return NULL;
 }
 
 // ==========================================================================
-// METHOD moduledb::synchronizeclass
+// METHOD ModuleDB::synchronizeClass
 // ==========================================================================
-unsigned int moduledb::synchronizeclass (const statstring &ofclass,
+unsigned int ModuleDB::synchronizeClass (const statstring &ofclass,
 								 unsigned int withserial)
 {
-	if (! classexists (ofclass))
+	if (! classExists (ofclass))
 	{
-		log::write (log::error, "moduledb", "Got synchronization request "
+		log::write (log::error, "ModuleDB", "Got synchronization request "
 				   "for class <%S> which does not exist" %format (ofclass));
 		return withserial;
 	}
 	
 	value returnp;
-	coremodule *m = byclass[ofclass];
+	CoreModule *m = byclass[ofclass];
 	
 	value outp = $("OpenCORE:Command", "sync") ->
 				 $("OpenCORE:Session",
@@ -967,7 +967,7 @@ unsigned int moduledb::synchronizeclass (const statstring &ofclass,
 	
 	if (rez != status_ok)
 	{
-		log::write (log::error, "moduledb", "Error syncing class "
+		log::write (log::error, "ModuleDB", "Error syncing class "
 				  "<%S>" %format (ofclass));
 		return withserial;
 	}
@@ -984,17 +984,17 @@ unsigned int moduledb::synchronizeclass (const statstring &ofclass,
 }
 
 // ==========================================================================
-// METHOD moduledb::deleteObject
+// METHOD ModuleDB::deleteObject
 // ==========================================================================
-corestatus_t moduledb::deleteObject (const statstring &ofclass,
+corestatus_t ModuleDB::deleteObject (const statstring &ofclass,
 									 const statstring &withid,
 									 const value &parm,
 									 string &err)
 {
-	coremodule *m;
+	CoreModule *m;
 	corestatus_t res = status_failed;
 
-	DEBUG.storeFile ("moduledb", "parm", parm, "deleteObject");
+	DEBUG.storeFile ("ModuleDB", "parm", parm, "deleteObject");
 
 	if (! byclass.exists (ofclass))
 	{
@@ -1005,10 +1005,10 @@ corestatus_t moduledb::deleteObject (const statstring &ofclass,
 	m = byclass[ofclass];
 	if (! m)
 	{
-		log::write (log::critical, "moduledb", "Unexpected error trying to "
+		log::write (log::critical, "ModuleDB", "Unexpected error trying to "
 				   "resolve class <%S>" %format (ofclass));
 		ALERT->alert ("Unexpected error trying to resolve class <%S> in "
-					 "moduledb" %format (ofclass));
+					 "ModuleDB" %format (ofclass));
 		return status_failed;
 	}
 	
@@ -1035,9 +1035,9 @@ corestatus_t moduledb::deleteObject (const statstring &ofclass,
 }
 
 // ==========================================================================
-// METHOD moduledb::getmeta
+// METHOD ModuleDB::getMeta
 // ==========================================================================
-value *moduledb::getmeta (const statstring &forclass)
+value *ModuleDB::getMeta (const statstring &forclass)
 {
 	returnclass (value) res retain;
 	
@@ -1047,11 +1047,11 @@ value *moduledb::getmeta (const statstring &forclass)
 }
 
 // ==========================================================================
-// METHOD moduledb::getcurrentconfig
+// METHOD ModuleDB::getCurrentConfig
 // ==========================================================================
-value *moduledb::getcurrentconfig (const statstring &forprimaryclass)
+value *ModuleDB::getCurrentConfig (const statstring &forprimaryclass)
 {
-	coremodule *m;
+	CoreModule *m;
 	value *res;
 	
 	m = byclass[forprimaryclass];
@@ -1059,60 +1059,60 @@ value *moduledb::getcurrentconfig (const statstring &forprimaryclass)
 	if (!m) return NULL;
 	if (m->primaryclass != forprimaryclass) return NULL;
 	
-	res = m->getcurrentconfig ();
-	DEBUG.storeFile ("moduledb", "res", *res, "getcurrentconfig");
+	res = m->getCurrentConfig ();
+	DEBUG.storeFile ("ModuleDB", "res", *res, "getCurrentConfig");
 	return res;
 }
 
 // ==========================================================================
-// METHOD moduledb::normalize
+// METHOD ModuleDB::normalize
 // ==========================================================================
-bool moduledb::normalize (const statstring &forclass, value &data, string &err)
+bool ModuleDB::normalize (const statstring &forclass, value &data, string &err)
 {
-	if (! classexists (forclass))
+	if (! classExists (forclass))
 	{
 		err = "Unknown class: %s" %format (forclass);
 		return false;
 	}
 	
-	coreclass &C = getclass (forclass);
+	CoreClass &C = getClass (forclass);
 	return C.normalize (data, err);
 }
 
 // ==========================================================================
-// METHOD moduledb::isadminclass
+// METHOD ModuleDB::isAdminClass
 // ==========================================================================
-bool moduledb::isadminclass (const statstring &classname)
+bool ModuleDB::isAdminClass (const statstring &classname)
 {
-	coremodule *m = getmoduleforclass (classname);
+	CoreModule *m = getModuleForClass (classname);
 	if (! m) return false;
 	return m->classes[classname].capabilities.attribexists ("admin");
 }
 
 // ==========================================================================
-// METHOD moduledb::getclassinfo
+// METHOD ModuleDB::getClassInfo
 // ==========================================================================
-value *moduledb::getclassinfo (const statstring &classname, bool foradmin)
+value *ModuleDB::getClassInfo (const statstring &classname, bool foradmin)
 {
 	returnclass (value) res retain;
 	
 	// Try to resolve the class name to a module.
-	coremodule *m = getmoduleforclass (classname);
+	CoreModule *m = getModuleForClass (classname);
 
 	// If we found something, process it.
 	if (m)
 	{
-		res = m->classes[classname].makeclassinfo ();
+		res = m->classes[classname].makeClassInfo ();
 		if (! res)
 		{
-			log::write (log::warning, "moduledb", "Empty result data "
+			log::write (log::warning, "ModuleDB", "Empty result data "
 					   "on asking for classinfo on <%S>" %format (classname));
 					   
 			return &res;
 		}
 		
-		// Resolve the class to a coreclass object
-		coreclass &C = m->classes[classname];
+		// Resolve the class to a CoreClass object
+		CoreClass &C = m->classes[classname];
 		
 		// Read the requirement
 		statstring pclass = C.requires;
@@ -1120,10 +1120,10 @@ value *moduledb::getclassinfo (const statstring &classname, bool foradmin)
 		if (pclass) // Anything required?
 		{
 			// Resolve requirement class to module.
-			coremodule *mm = getmoduleforclass (pclass);
+			CoreModule *mm = getModuleForClass (pclass);
 			if (mm)
 			{
-				coreclass &PC = mm->classes[pclass];
+				CoreClass &PC = mm->classes[pclass];
 				value &pinfo = res["info"]["parent"];
 				
 				pinfo << $("id", PC.name) ->
@@ -1135,7 +1135,7 @@ value *moduledb::getclassinfo (const statstring &classname, bool foradmin)
 			}
 			else if (pclass != "ROOT")
 			{
-				log::write (log::error, "moduledb", "Error resolving module "
+				log::write (log::error, "ModuleDB", "Error resolving module "
 						   "for class <%S>" %format (pclass));
 			}
 		}
@@ -1144,13 +1144,13 @@ value *moduledb::getclassinfo (const statstring &classname, bool foradmin)
 	// Look at any possible child classes.
 	foreach (cclass, byparent[classname])
 	{
-		if (isadminclass (cclass) && (! foradmin)) continue;
+		if (isAdminClass (cclass) && (! foradmin)) continue;
 		// Resolve the child class to a module.
-		coremodule *mm = getmoduleforclass (cclass.sval());
+		CoreModule *mm = getModuleForClass (cclass.sval());
 		if (mm) // Module found?
 		{
-			// Resolve to coreclass, get data.
-			coreclass &C = mm->classes[cclass.sval()];
+			// Resolve to CoreClass, get data.
+			CoreClass &C = mm->classes[cclass.sval()];
 			
 			res["info"]["children"][C.uuid] = $("id", cclass.sval()) ->
 											  $("shortname", C.shortname) ->
@@ -1159,7 +1159,7 @@ value *moduledb::getclassinfo (const statstring &classname, bool foradmin)
 		}
 		else if (cclass != "ROOT") // This shouldn't happen.
 		{
-			log::write (log::error, "moduledb", "Error resolving module for "
+			log::write (log::error, "ModuleDB", "Error resolving module for "
 					   "class <%S>" %format (cclass));
 		}
 	}
@@ -1169,12 +1169,12 @@ value *moduledb::getclassinfo (const statstring &classname, bool foradmin)
 }
 
 // ==========================================================================
-// METHOD moduledb::listmodules
+// METHOD ModuleDB::listModules
 // ==========================================================================
-value *moduledb::listmodules (void)
+value *ModuleDB::listModules (void)
 {
 	returnclass (value) res retain;
-	coremodule *c;
+	CoreModule *c;
 	
 	sharedsection (modlock)
 	{
@@ -1190,9 +1190,9 @@ value *moduledb::listmodules (void)
 }
 
 // ==========================================================================
-// METHOD moduledb::listclasses
+// METHOD ModuleDB::listClasses
 // ==========================================================================
-value *moduledb::listclasses (void)
+value *ModuleDB::listClasses (void)
 {
 	returnclass (value) res retain;
 	
@@ -1200,7 +1200,7 @@ value *moduledb::listclasses (void)
 	{
 		foreach (cv, classlist)
 		{
-			coreclass &cl = getclass (cv.id());
+			CoreClass &cl = getClass (cv.id());
 			res[cv.id()] = $("shortname", cl.shortname) ->
 						   $("description", cl.description) ->
 						   $("module", cl.module.name) ->
@@ -1213,18 +1213,18 @@ value *moduledb::listclasses (void)
 }
 
 // ==========================================================================
-// METHOD moduledb::Registermetasubclass
+// METHOD ModuleDB::Registermetasubclass
 // ==========================================================================
-void moduledb::registermetasubclass (const statstring &derivedid,
+void ModuleDB::registerMetaSubClass (const statstring &derivedid,
 									 const statstring &baseid)
 {
 	metachildren[baseid][derivedid] = derivedid;
 }
 
 // ==========================================================================
-// METHOD getmetaclasschildren
+// METHOD getMetaClassChildren
 // ==========================================================================
-const value &moduledb::getmetaclasschildren (const statstring &baseid)
+const value &ModuleDB::getMetaClassChildren (const statstring &baseid)
 {
 	return metachildren[baseid];
 }

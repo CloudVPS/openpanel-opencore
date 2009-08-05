@@ -140,7 +140,7 @@ int opencoreApp::main (void)
 	settargetuid (uid_opencore);
 
 	// Set up collection objects.
-	mdb = new moduledb;
+	mdb = new ModuleDB;
 	sdb = new sessiondb (*mdb);
 	rpc = NULL; // will be initialized by confRpc.
 		

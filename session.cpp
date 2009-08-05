@@ -26,7 +26,7 @@ const char *MD5SALT_VALID = "./abcdefghijklmnopqrstuvwxyz"
 // ==========================================================================
 // CONSTRUCTOR sessiondb
 // ==========================================================================
-sessiondb::sessiondb (moduledb &pmdb)
+sessiondb::sessiondb (ModuleDB &pmdb)
 	: mdb (pmdb)
 {
 	first = last = NULL;
@@ -376,7 +376,7 @@ int sessiondb::expire (void)
 // ==========================================================================
 // CONSTRUCTOR coresession
 // ==========================================================================
-coresession::coresession (const statstring &myid, class moduledb &pmdb)
+coresession::coresession (const statstring &myid, class ModuleDB &pmdb)
 	: id (myid), mdb (pmdb)
 {
 	next = prev = higher = lower = NULL;
@@ -507,14 +507,14 @@ string *coresession::createObject (const statstring &parentid,
 	// Catch internal classes.
 	if (mdb.isInternalClass (ofclass))
 	{
-		InternalClass &cl = mdb.geticlass (ofclass);
+		InternalClass &cl = mdb.getInternalClass (ofclass);
 		string *r = cl.createObject (this, parentid, withparam, withid);
 		if (! r) setError (ERR_ICLASS, cl.error());
 		return r;
 	}
 
 	// Check for the class.
-	if (! mdb.classexists (ofclass))
+	if (! mdb.classExists (ofclass))
 	{
 		log::write (log::error, "session", "Create request for class <%S> "
 				    "which does not exist" %format (ofclass));
@@ -522,8 +522,8 @@ string *coresession::createObject (const statstring &parentid,
 		return NULL;
 	}
 	
-	// Resolve to a coreclass reference.
-	coreclass &cl = mdb.getclass (ofclass);
+	// Resolve to a CoreClass reference.
+	CoreClass &cl = mdb.getClass (ofclass);
 	
 	// Normalize singleton instances
 	if (cl.singleton) withid = cl.singleton;
@@ -720,7 +720,7 @@ string *coresession::createObject (const statstring &parentid,
 			break;
 	}
 
-	if (ofclass && mdb.getclass (ofclass).cascades)
+	if (ofclass && mdb.getClass (ofclass).cascades)
 	{
 		handlecascade (parentid, ofclass, uuid);
 	}
@@ -737,7 +737,7 @@ bool coresession::handlecrypts (const statstring &parentid,
 								value &param)
 {
 	// Make sure we have a class.
-	if (! mdb.classexists (ofclass))
+	if (! mdb.classExists (ofclass))
 	{
 		log::write (log::critical, "session", "Request for crypt of class "
 				    "<%S> which doesn't seem to exist" %format (ofclass));
@@ -746,8 +746,8 @@ bool coresession::handlecrypts (const statstring &parentid,
 		return false;
 	}
 	
-	// Get a reference to the coreclass object.
-	coreclass &C = mdb.getclass (ofclass);
+	// Get a reference to the CoreClass object.
+	CoreClass &C = mdb.getClass (ofclass);
 	
 log::write (log::debug, "session", "Handlecrypt class=<%S>" %format (ofclass));
 	
@@ -782,7 +782,7 @@ log::write (log::debug, "session", "Handlecrypt class=<%S>" %format (ofclass));
 				{
 					// extern type: ask the module
 					incaseof ("extern") :
-						if (mdb.makecrypt (ofclass, opt.id(),
+						if (mdb.makeCrypt (ofclass, opt.id(),
 								param[opt.id()].sval(), crypted) != status_ok)
 						{
 							log::write (log::error, "session", "Could not "
@@ -865,14 +865,14 @@ bool coresession::updateObject (const statstring &parentid,
 	// Catch internal classes.
 	if (mdb.isInternalClass (ofclass))
 	{
-		InternalClass &cl = mdb.geticlass (ofclass);
+		InternalClass &cl = mdb.getInternalClass (ofclass);
 		bool r = cl.updateObject (this, parentid, withid, withparam);
 		if (! r) setError (ERR_ICLASS, cl.error());
 		return r;
 	}
 
 	// Complain if the class does not exist.
-	if (! mdb.classexists (ofclass))
+	if (! mdb.classExists (ofclass))
 	{
 		log::write (log::error, "session", "Could not update object, class "
 				    "<%S> does not exist" %format (ofclass));
@@ -905,7 +905,7 @@ bool coresession::updateObject (const statstring &parentid,
 		return false;
 	}
 	
-	coreclass &cl = mdb.getclass (ofclass);
+	CoreClass &cl = mdb.getClass (ofclass);
 	value oldobject;
 	
 	if (! db.fetchObject (oldobject, uuid, false))
@@ -1028,7 +1028,7 @@ bool coresession::updateObject (const statstring &parentid,
 			break;
 	}
 	
-	if (ofclass && mdb.getclass (ofclass).cascades)
+	if (ofclass && mdb.getClass (ofclass).cascades)
 	{
 		handlecascade (parentid, ofclass, nuuid);
 	}
@@ -1047,7 +1047,7 @@ bool coresession::deleteObject (const statstring &parentid,
 	// Catch internal classes.
 	if (mdb.isInternalClass (ofclass))
 	{
-		InternalClass &cl = mdb.geticlass (ofclass);
+		InternalClass &cl = mdb.getInternalClass (ofclass);
 		bool r = cl.deleteObject (this, parentid, withid);
 		if (! r) setError (ERR_ICLASS, cl.error());
 		return r;
@@ -1174,7 +1174,7 @@ bool coresession::deleteObject (const statstring &parentid,
 		if (firstobject) firstobject = false;
 	}
 	
-	if (ofclass && mdb.getclass (ofclass).cascades)
+	if (ofclass && mdb.getClass (ofclass).cascades)
 	{
 		handlecascade (parentid, ofclass, uuidt);
 	}
@@ -1183,15 +1183,15 @@ bool coresession::deleteObject (const statstring &parentid,
 }
 
 // ==========================================================================
-// METHOD coresession::getclassinfo
+// METHOD coresession::getClassInfo
 // ==========================================================================
-value *coresession::getclassinfo (const string &forclass)
+value *coresession::getClassInfo (const string &forclass)
 {
-	log::write (log::debug, "session", "getclassinfo <%S>" %format(forclass));
+	log::write (log::debug, "session", "getClassInfo <%S>" %format(forclass));
 	
-	// The class named "ROOT" is a virtual concept within moduledb to keep
+	// The class named "ROOT" is a virtual concept within ModuleDB to keep
 	// track of classes that don't have parent objects.
-	if ( (forclass != "ROOT") && (! mdb.classexists (forclass)) )
+	if ( (forclass != "ROOT") && (! mdb.classExists (forclass)) )
 	{
 		log::write (log::error, "session", "Info for class <%S> requested "
 				    "where no such class exists" %format (forclass));
@@ -1200,9 +1200,9 @@ value *coresession::getclassinfo (const string &forclass)
 		return NULL;
 	}
 	
-	// Squeeze the information out of the moduledb.
+	// Squeeze the information out of the ModuleDB.
 	returnclass (value) res retain;
-	res = mdb.getclassinfo (forclass, meta["user"] == "openadmin");
+	res = mdb.getClassInfo (forclass, meta["user"] == "openadmin");
 	if (! res) return &res;
 	DEBUG.storeFile ("session", "res", res, "classinfo");
 	return &res;
@@ -1217,7 +1217,7 @@ value *coresession::getUserQuota (const statstring &useruuid)
 	
 	log::write (log::debug, "session", "getUserQuota <%S>" %format (useruuid));
 	
-	value cl = mdb.listclasses ();
+	value cl = mdb.listClasses ();
 	foreach (c, cl)
 	{
         int usage = 0;
@@ -1275,9 +1275,9 @@ bool coresession::chown(const statstring &ofobject,
 }
 
 // ==========================================================================
-// METHOD coresession::callmethod
+// METHOD coresession::callMethod
 // ==========================================================================
-value *coresession::callmethod (const statstring &parentid,
+value *coresession::callMethod (const statstring &parentid,
 								const statstring &ofclass,
 								const statstring &withid,
 								const statstring &method,
@@ -1313,13 +1313,13 @@ value *coresession::callmethod (const statstring &parentid,
 	argv["argv"] = withparam;
 	
 	string moderr;
-	st = mdb.callmethod (parentid, ofclass, withid, method, argv, res, moderr);
+	st = mdb.callMethod (parentid, ofclass, withid, method, argv, res, moderr);
 	
 	// Report an error if this went wrong.
 	if (st != status_ok)
 	{
 		setError (ERR_MDB_ACTION_FAILED, moderr);
-		log::write (log::error, "session", "Callmethod: Error from moduledb "
+		log::write (log::error, "session", "Callmethod: Error from ModuleDB "
 				    "<%S::%S> id=<%S>" %format (ofclass, method, withid));
 	}
 	
@@ -1394,7 +1394,7 @@ statstring *coresession::getquotauuid (const statstring &userid,
 $exception (listObjectsInnerException, "");
 
 // ==========================================================================
-// METHOD coresession::listdynamicobjects
+// METHOD coresession::listDynamicObjects
 // ==========================================================================
 bool coresession::syncdynamicobjects (const statstring &parentid,
 									  const statstring &ofclass,
@@ -1412,7 +1412,7 @@ bool coresession::syncdynamicobjects (const statstring &parentid,
 	}
 	else rparentid = parentid;
 	
-	curdb = mdb.listdynamicobjects (parentid, rparentid, ofclass, err, count, offset);
+	curdb = mdb.listDynamicObjects (parentid, rparentid, ofclass, err, count, offset);
 	if (err.strlen())
 	{
 		setError (ERR_MDB_ACTION_FAILED, err);
@@ -1527,16 +1527,16 @@ value *coresession::listmeta (const statstring &parentid,
 {
 	returnclass (value) res retain;
 	
-	coreclass &metaclass = mdb.getclass (ofclass);
+	CoreClass &metaclass = mdb.getClass (ofclass);
 	log::write (log::debug, "session", "Getrecords metabase(%S)" %format (ofclass));
 	try
 	{
 		res[ofclass].type ("class");
-		const value &dlist = mdb.getmetaclasschildren (ofclass);
+		const value &dlist = mdb.getMetaClassChildren (ofclass);
 		
 		foreach (dclass, dlist)
 		{
-			coreclass &realclass = mdb.getclass (dclass);
+			CoreClass &realclass = mdb.getClass (dclass);
 			value tres;
 			if (! db.listObjects (tres, parentid, $(dclass), false))
 			{
@@ -1594,13 +1594,13 @@ value *coresession::listObjects (const statstring &parentid,
 	if (mdb.isInternalClass (ofclass))
 	{
 		log::write (log::debug, "session", "Listobjects for internal class");
-		InternalClass &cl = mdb.geticlass (ofclass);
+		InternalClass &cl = mdb.getInternalClass (ofclass);
 		res = cl.listObjects (this, parentid);
 		if (! res.count()) setError (ERR_ICLASS, cl.error());
 		return &res;
 	}
 
-	if (! mdb.classexists (ofclass))
+	if (! mdb.classExists (ofclass))
 	{
 		res.clear();
 		setError (ERR_SESSION_CLASS_UNKNOWN, ofclass);
@@ -1608,7 +1608,7 @@ value *coresession::listObjects (const statstring &parentid,
 	}
 	
 	// Is the class a metaclass?
-	if (ofclass && mdb.classismetabase (ofclass))
+	if (ofclass && mdb.classIsMetaBase (ofclass))
 	{
 		res = listmeta (parentid, ofclass, offset, count);
 		return &res;
@@ -1616,7 +1616,7 @@ value *coresession::listObjects (const statstring &parentid,
 
 	// Is the class dynamic? NB: dynamic classes can not be derived
 	// from a metaclass, ktxbai.
-	if (mdb.isdynamic (ofclass))
+	if (mdb.classIsDynamic (ofclass))
 	{
 		wasdynamic = true;
 		log::write (log::debug, "session", "Class is dynamic");
@@ -1662,7 +1662,7 @@ value *coresession::getObject (const statstring &parentid,
 	// Catch internal classes.
 	if (mdb.isInternalClass (ofclass))
 	{
-		InternalClass &cl = mdb.geticlass (ofclass);
+		InternalClass &cl = mdb.getInternalClass (ofclass);
 		res = cl.getObject (this, parentid, withid);
 		if (! res.count()) setError (ERR_ICLASS, cl.error());
 		return &res;
@@ -1670,7 +1670,7 @@ value *coresession::getObject (const statstring &parentid,
 
 	// Is the class dynamic? NB: dynamic classes can not be derived
 	// from a metaclass, ktxbai.
-	if (mdb.isdynamic (ofclass))
+	if (mdb.classIsDynamic (ofclass))
 	{
 		log::write (log::debug, "session", "Class is dynamic");
 		
@@ -1721,9 +1721,9 @@ value *coresession::getObject (const statstring &parentid,
 }
 
 // ==========================================================================
-// METHOD coresession::getclass
+// METHOD coresession::getClass
 // ==========================================================================
-statstring *coresession::getclass (const statstring &parentid)
+statstring *coresession::getClass (const statstring &parentid)
 {
 	return db.classNameFromUUID (parentid);
 }
@@ -1767,51 +1767,51 @@ void sessionexpire::run (void)
 }
 
 // ==========================================================================
-// METHOD coresession::getmoduleforclass
+// METHOD coresession::getModuleForClass
 // ==========================================================================
-coremodule *coresession::getmoduleforclass (const statstring &cl)
+CoreModule *coresession::getModuleForClass (const statstring &cl)
 {
-	return mdb.getmoduleforclass (cl);
+	return mdb.getModuleForClass (cl);
 }
 
 // ==========================================================================
-// METHOD coresession::classexists
+// METHOD coresession::classExists
 // ==========================================================================
-bool coresession::classexists (const statstring &cl)
+bool coresession::classExists (const statstring &cl)
 {
-	return mdb.classexists (cl);
+	return mdb.classExists (cl);
 }
 
 // ==========================================================================
-// METHOD coresession::getmodulebyname
+// METHOD coresession::getModuleByName
 // ==========================================================================
-coremodule *coresession::getmodulebyname (const statstring &mname)
+CoreModule *coresession::getModuleByName (const statstring &mname)
 {
-	return mdb.getmodulebyname (mname);
+	return mdb.getModuleByName (mname);
 }
 
 // ==========================================================================
-// METHOD coresession::getlanguages
+// METHOD coresession::getLanguages
 // ==========================================================================
-value *coresession::getlanguages (void)
+value *coresession::getLanguages (void)
 {
-	return mdb.getlanguages ();
+	return mdb.getLanguages ();
 }
 
 // ==========================================================================
-// METHOD coresession::listmodules
+// METHOD coresession::listModules
 // ==========================================================================
-value *coresession::listmodules (void)
+value *coresession::listModules (void)
 {
-	return mdb.listmodules ();
+	return mdb.listModules ();
 }
 
 // ==========================================================================
-// METHOD coresession::listclasses
+// METHOD coresession::listClasses
 // ==========================================================================
-value *coresession::listclasses (void)
+value *coresession::listClasses (void)
 {
-	return mdb.listclasses ();
+	return mdb.listClasses ();
 }
 
 // ==========================================================================
@@ -1824,21 +1824,21 @@ value *coresession::getworld (void)
 	
 	foreach (cl, mdb.classlist)
 	{
-		if ((! isadmin) && mdb.isadminclass (cl.id())) continue;
-		res[cl.id()] = mdb.getclassinfo (cl.id(), isadmin);
+		if ((! isadmin) && mdb.isAdminClass (cl.id())) continue;
+		res[cl.id()] = mdb.getClassInfo (cl.id(), isadmin);
 	}
 	return &res;
 }
 
 // ==========================================================================
-// METHOD coresession::listparamsformethod
+// METHOD coresession::listParamsForMethod
 // ==========================================================================
-value *coresession::listparamsformethod (const statstring &parentid,
+value *coresession::listParamsForMethod (const statstring &parentid,
 										 const statstring &ofclass,
 										 const statstring &withid,
 										 const statstring &methodname)
 {
-	return mdb.listparamsformethod (parentid, ofclass, withid, methodname);
+	return mdb.listParamsForMethod (parentid, ofclass, withid, methodname);
 }
 
 // ==========================================================================
@@ -1877,7 +1877,7 @@ void coresession::handlecascade (const statstring &parentid,
 	log::write (log::info, "session ", "Handling cascades for <%S>"
 			    %format (ofclass));
 			   
-	coreclass &theclass = mdb.getclass (ofclass);
+	CoreClass &theclass = mdb.getClass (ofclass);
 	if (! theclass.requires) return;
 	
 	value uuidlist;
@@ -1885,7 +1885,7 @@ void coresession::handlecascade (const statstring &parentid,
 	if (! db.listObjectTree (uuidlist, parentid)) return;
 	if (! uuidlist.count()) return;
 	
-	value classlist = mdb.getclasses (theclass.requires);
+	value classlist = mdb.getClasses (theclass.requires);
 	
 	foreach (crsr, classlist)
 	{

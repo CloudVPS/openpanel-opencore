@@ -21,9 +21,9 @@
 $exception (invalidClassAccessException, "Invalid class");
 
 //  -------------------------------------------------------------------------
-/// An abstract representation of a class as defined by a coremodule.
+/// An abstract representation of a class as defined by a CoreModule.
 //  -------------------------------------------------------------------------
-class coreclass
+class CoreClass
 {
 public:
 					 /// Default constructor. The dictionary class needs
@@ -32,15 +32,15 @@ public:
 					 /// exist yet). Used initialized this would wreak
 					 /// havoc, though, so this constructor will throw
 					 /// an exception.
-					 coreclass (void);
+					 CoreClass (void);
 					 
 					 /// The actual useful constructor.
 					 /// \param imeta The data for this class from module.xml
 					 ///              in the new format as of 2006-08-29.
-					 coreclass (const value &imeta, class coremodule *parent);
+					 CoreClass (const value &imeta, class CoreModule *parent);
 					 
 					 /// Destructor.
-					~coreclass (void);
+					~CoreClass (void);
 	
 	string			 name; ///< The class name.
 	string			 icon; ///< The icon file name.
@@ -83,7 +83,7 @@ public:
 	bool			 ismetabase;
 	
 					 /// If the class is derived in the context of
-					 /// coreclass::ismetabase, this string will
+					 /// CoreClass::ismetabase, this string will
 					 /// contain the name of the meta-baseclass.
 	string			 metabaseclass;
 	string			 metadescription;
@@ -124,7 +124,7 @@ public:
 					 /// should cascade towards siblings. This attribute
 					 /// is implied from the 'childrendep' setting of
 					 /// the parent class and filled in by
-					 /// moduledb::loadmodule.
+					 /// ModuleDB::loadModule.
 	bool			 cascades;
 
 					 /// True if the objects should be world readable.
@@ -156,7 +156,7 @@ public:
 					 /// 
 					 /// \return A value object in the following format:
 					 /// \verbinclude classinfo.format
-	value			*makeclassinfo (void);
+	value			*makeClassInfo (void);
 	
 					 /// Get class registration information in the format
 					 /// expected by dbmanager::registerClass().
@@ -174,7 +174,7 @@ public:
 					 /// format as those in param.
 	value			 methods;
 
-	class coremodule&module; ///< Link to parent module.
+	class CoreModule&module; ///< Link to parent module.
 protected:
 
 					 /// Inner loop method for checking the definition of
@@ -184,43 +184,43 @@ protected:
 					 /// \param md (in/out) The provided record.
 					 /// \param error (out) Error string.
 					 /// \return False on failure.
-	bool			 normalizelayoutnode (value &p, value &md, string &error);
+	bool			 normalizeLayoutNode (value &p, value &md, string &error);
 	
 					 /// Return a 'flattened' version of the parameters
 					 /// block, with child nodes instead of attributes.
-	value			*flattenparam (void);
+	value			*flattenParam (void);
 	
 					 /// Return a 'flattened' version of the methods
 					 /// block, with child nodes instead of attributes.
-	value			*flattenmethods (void);
+	value			*flattenMethods (void);
 	
 					 /// Return a 'flattened' version of any enums.
-	value			*flattenenums (void);
+	value			*flattenEnums (void);
 	
 					 /// Check if a value is in 'range' for a given enum.
 					 /// \param i The enum-id.
 					 /// \param v The value.
-	bool			 checkenum (const statstring &i, const string &v);
+	bool			 checkEnum (const statstring &i, const string &v);
 };
 
-typedef dictionary<coreclass> classdict;
+typedef dictionary<CoreClass> classdict;
 
 //  -------------------------------------------------------------------------
 /// Regulates access to a core module as it exists on disk.
-/// The moduledb class should wrap up the context to send to
+/// The ModuleDB class should wrap up the context to send to
 /// the module, together with the coresession object involved.
 //  -------------------------------------------------------------------------
-class coremodule
+class CoreModule
 {
 public:
 					 /// Constructor. Read the metadata.
 					 /// \param mpath The path to the module directory.
 					 /// \param mname The name of the module.
-					 coremodule (const string &mpath, const string &mname,
-					 			 class moduledb *pparent);
+					 CoreModule (const string &mpath, const string &mname,
+					 			 class ModuleDB *pparent);
 					 
 					 /// Destructor.
-					~coremodule (void);
+					~CoreModule (void);
 					
 					 /// Perform the module's verify command, which
 					 /// should perform a reasonable check to see if
@@ -247,25 +247,25 @@ public:
 					 ///              the current month.
 					 /// \param year The year to report for, 0 for
 					 ///             the current year.
-	value			*reportusage (const statstring &id,
+	value			*reportUsage (const statstring &id,
 								  int month = 0,
 								  int year = 0);
 	
 					 /// Get a list of total available resources.
 					 /// (dormant)
-	value			*getresources (void);
+	value			*getResources (void);
 	
 					 /// If applicable, gathers the running system
 					 /// configuration from the actual host system.
 					 /// \return value object in the following format:
 					 /// \verbinclude getconfig.format
-	value			*getcurrentconfig (void);
+	value			*getCurrentConfig (void);
 	
 					 /// If, on start-up, opencore detects an update of the
 					 /// module version, it will run an "updateok" call
 					 /// past the module. A negative result on this from
 					 /// the module will stop opencore from starting.
-	bool			 updateok (int currentversion);
+	bool			 updateOK (int currentversion);
 	
 	void             getCredentials(value &creds);
     void             setCredentials(const value &creds);
@@ -276,16 +276,16 @@ public:
 	value			 meta; ///< The module.xml data.
 					 ///{
 					 /// Linked list pointers.
-	coremodule		*next, *prev;
+	CoreModule		*next, *prev;
 					 ///}
-	classdict		 classes; ///< Dictionary of the module's coreclass objects.
+	classdict		 classes; ///< Dictionary of the module's CoreClass objects.
 	classdict		 classesuuid; ///< Coreclass objects indexed by uuid.
 	value			 languages; ///< Index of supported languages.
 	statstring		 apitype; ///< API type (from meta)
 	string			 license; ///< License (from meta)
 	string			 author; ///< Author (from meta)
 	string			 url; ///< URL (from meta)
-	class moduledb	&mdb;
+	class ModuleDB	&mdb;
 	
 protected:
     lock<int>        serlock; ///< Module access serialization lock.

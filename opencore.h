@@ -51,7 +51,7 @@ public:
 
 						 /// Log an error, als keeps a carbon copy
 						 /// available for coreclients using the
-						 /// OpenCORE:ErrorLog coreclass.
+						 /// OpenCORE:ErrorLog CoreClass.
 	void				 logerror (const string &who, const string &what);
 	
 	void				 log (log::priority prio, const string &who,
@@ -105,7 +105,7 @@ protected:
 	
 	appconfig			 conf; ///< Configuration database.
 public: // TODO: temporary hack for module session! FIXME!
-	moduledb			*mdb; ///< Module manager.
+	ModuleDB			*mdb; ///< Module manager.
 	sessiondb			*sdb; ///< Session manager.
 protected:
 	opencorerpc			*rpc; ///< RPC manager.

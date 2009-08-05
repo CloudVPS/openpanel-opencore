@@ -144,7 +144,7 @@ value *QuotaClass::listObjects (coresession *s,
 	
 	value &qres = res["OpenCORE:Quota"];
 	qres("type") = "object";
-	value cl = s->mdb.listclasses ();
+	value cl = s->mdb.listClasses ();
 	statstring cuuid;
 	
 	foreach (c, cl)
@@ -152,7 +152,7 @@ value *QuotaClass::listObjects (coresession *s,
 		cuuid = getUUID (parentid, c.id());
 		int usage = 0;
 		int quota = s->db.getUserQuota (c.id(), parentid, &usage);
-		coreclass &cl = s->mdb.getclass (c.id());
+		CoreClass &cl = s->mdb.getClass (c.id());
 		
 		if (cl.dynamic) continue;
 		if (! cl.capabilities.attribexists ("create")) continue;
@@ -304,7 +304,7 @@ bool QuotaClass::updateObject (coresession *s,
 		// Non-object quotas carry a name that should not
 		// clash with a classname. This is not the cleanest
 		// way to distinguish them, but probably the quickest ;)
-		if (s->mdb.classexists (mid))
+		if (s->mdb.classExists (mid))
 		{
 			if (s->setUserQuota (mid, count, parentid)) return true;
 			setError (s->error()["message"]);
@@ -340,9 +340,9 @@ bool QuotaClass::updateObject (coresession *s,
                 return false;
             }                
 
-            // now communicate phys towards moduledb
+            // now communicate phys towards ModuleDB
             string moderr;
-            if(s->mdb.setspecialphysicalquota(mid, phys, err) == status_ok) return true;
+            if(s->mdb.setSpecialPhysicalQuota(mid, phys, err) == status_ok) return true;
             
             setError (moderr);
             return false;
@@ -485,13 +485,13 @@ value *ClassListClass::listObjects (coresession *s, const statstring &pid)
 {
 	returnclass (value) res retain;
 	
-	res["OpenCORE:ClassList"] = s->mdb.listclasses ();
+	res["OpenCORE:ClassList"] = s->mdb.listClasses ();
 	foreach (n, res["OpenCORE:ClassList"])
 	{
 		n["id"] = n["metaid"] = n.id();
 		n["class"] = "OpenCORE:ClassList";
 		
-		coremodule *m = s->mdb.getmoduleforclass (n["metaid"].sval());
+		CoreModule *m = s->mdb.getModuleForClass (n["metaid"].sval());
 		if (m)
 		{
 			n["apitype"] = m->apitype;

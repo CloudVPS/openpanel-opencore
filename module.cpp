@@ -20,17 +20,17 @@
 #include "alerts.h"
 
 // ==========================================================================
-// CONSTRUCTOR coreclass
+// CONSTRUCTOR CoreClass
 // ==========================================================================
-coreclass::coreclass (void)
-	: module (*(new coremodule ("","",NULL)))
+CoreClass::CoreClass (void)
+	: module (*(new CoreModule ("","",NULL)))
 {
 	// Should never be initialized without metadata, but a default
 	// constructor is necessary if you want iteration to work.
 	throw (invalidClassAccessException());
 }
 
-coreclass::coreclass (const value &imeta, coremodule *p)
+CoreClass::CoreClass (const value &imeta, CoreModule *p)
 	: module (*p)
 {
 	// Copy all the metadata to the object. Keep in mind that we're
@@ -105,21 +105,21 @@ coreclass::coreclass (const value &imeta, coremodule *p)
 		
 		// Register this class as one to query when requesting
 		// a list of our meta-baseclass.
-		module.mdb.registermetasubclass (name, metabaseclass);
+		module.mdb.registerMetaSubClass (name, metabaseclass);
 	}
 }
 
 // ==========================================================================
-// DESTRUCTOR coremodule
+// DESTRUCTOR CoreModule
 // ==========================================================================
-coreclass::~coreclass (void)
+CoreClass::~CoreClass (void)
 {
 }
 
 // ==========================================================================
 // METHOD ::normalize
 // ==========================================================================
-bool coreclass::normalize (value &mdata, string &error)
+bool CoreClass::normalize (value &mdata, string &error)
 {
 	// Go over the data elements
 	foreach (node, mdata)
@@ -149,7 +149,7 @@ bool coreclass::normalize (value &mdata, string &error)
 		}
 		if (p("type") == "enum")
 		{
-		    if (!checkenum(p.id(), mdata[p.id()].sval()))
+		    if (!checkEnum(p.id(), mdata[p.id()].sval()))
 		    {
 		        error = "Invalid value '%s' for enum "
                         "'%s'" % format(mdata[p.id()].sval(), p.id());
@@ -169,27 +169,27 @@ bool coreclass::normalize (value &mdata, string &error)
 	{
 		bool r;
 		
-		if (! normalizelayoutnode (p, mdata, error))
+		if (! normalizeLayoutNode (p, mdata, error))
 			return false;
 	}
 	return true;
 }
 
 // ==========================================================================
-// METHOD ::checkenum
+// METHOD ::checkEnum
 // ==========================================================================
-bool coreclass::checkenum (const statstring &id, const string &val)
+bool CoreClass::checkEnum (const statstring &id, const string &val)
 {
 	if (! enums.exists (id))
 	{
-		log::write (log::warning, "coreclass", "Got reference to "
+		log::write (log::warning, "CoreClass", "Got reference to "
 				    "unknown enum '%S'" %format (id));
 		return false;
 	}
 	
 	foreach (num, enums[id])
 	{
-        log::write (log::debug, "module", "checkenum comparing: <%S> <%S>"
+        log::write (log::debug, "module", "checkEnum comparing: <%S> <%S>"
         			%format(num.id(), val));
 		if (num.id() == val) return true;
 	}
@@ -198,9 +198,9 @@ bool coreclass::checkenum (const statstring &id, const string &val)
 }
 
 // ==========================================================================
-// METHOD ::normalizelayoutnode
+// METHOD ::normalizeLayoutNode
 // ==========================================================================
-bool coreclass::normalizelayoutnode (value &p, value &mdata, string &error)
+bool CoreClass::normalizeLayoutNode (value &p, value &mdata, string &error)
 {
 	if (p.id() == "id") return true;
 	if (! param.exists (p.id())) return true;
@@ -212,12 +212,12 @@ bool coreclass::normalizelayoutnode (value &p, value &mdata, string &error)
 		
 		string nm;
 		nm = "field-%s.%s" %format (name, p.id());
-		DEBUG.storeFile ("class", nm, p, "normalizelayoutnode");
+		DEBUG.storeFile ("class", nm, p, "normalizeLayoutNode");
 
 		bool exists = mdata.exists (p.id()) && mdata[p.id()].sval();
 		if ((! exists) && (! p("default").sval()))
 		{
-			DEBUG.storeFile ("class","req-no-default", p, "normalizelayoutnode");
+			DEBUG.storeFile ("class","req-no-default", p, "normalizeLayoutNode");
 			error = "Required element with no default: %s" %format (p.id());
 			return false;
 		}
@@ -234,7 +234,7 @@ bool coreclass::normalizelayoutnode (value &p, value &mdata, string &error)
 				incaseof ("integer") : mdata[p.id()] = p("default").ival(); break;
 				incaseof ("bool") : mdata[p.id()] = p("default").bval(); break;
 				incaseof ("enum") :
-					if (! checkenum (p.id(), p("default")))
+					if (! checkEnum (p.id(), p("default")))
 					{
 						error = "Invalid default enum value: %s" %format (p("default"));
 						return false;
@@ -254,9 +254,9 @@ bool coreclass::normalizelayoutnode (value &p, value &mdata, string &error)
 }
 
 // ==========================================================================
-// METHOD ::flattenparam
+// METHOD ::flattenParam
 // ==========================================================================
-value *coreclass::flattenparam (void)
+value *CoreClass::flattenParam (void)
 {
 	returnclass (value) res retain;
 	
@@ -336,9 +336,9 @@ value *coreclass::flattenparam (void)
 }
 
 // ==========================================================================
-// METHOD ::flattenmethods
+// METHOD ::flattenMethods
 // ==========================================================================
-value *coreclass::flattenmethods (void)
+value *CoreClass::flattenMethods (void)
 {
 	returnclass (value) res retain;
 	
@@ -383,9 +383,9 @@ value *coreclass::flattenmethods (void)
 }
 
 // ==========================================================================
-// METHOD ::flattenenums
+// METHOD ::flattenEnums
 // ==========================================================================
-value *coreclass::flattenenums (void)
+value *CoreClass::flattenEnums (void)
 {
 	returnclass (value) res retain;
 	
@@ -405,21 +405,21 @@ value *coreclass::flattenenums (void)
 }
 
 // ==========================================================================
-// METHOD ::makeclassinfo
+// METHOD ::makeClassInfo
 // ==========================================================================
-value *coreclass::makeclassinfo (void)
+value *CoreClass::makeClassInfo (void)
 {
 	returnclass (value) res retain;
 	
 	value metachildren;
 	if (ismetabase)
 	{
-		metachildren = module.mdb.getmetaclasschildren (name);
+		metachildren = module.mdb.getMetaClassChildren (name);
 	}
 	
 	res =  $("structure",
-				$("parameters", flattenparam()) ->
-				$("methods", flattenmethods())
+				$("parameters", flattenParam()) ->
+				$("methods", flattenMethods())
 		    )->
 		   $("capabilities",
 				$("create", capabilities.attribexists ("create")) ->
@@ -427,7 +427,7 @@ value *coreclass::makeclassinfo (void)
 				$("update", capabilities.attribexists ("update")) ->
 				$("getinfo", capabilities.attribexists ("getinfo"))
 			)->
-		   $("enums", flattenenums()) ->
+		   $("enums", flattenEnums()) ->
 		   $("class",
 				$("id", name) ->
 				$("uuid", uuid.sval()) ->
@@ -455,7 +455,7 @@ value *coreclass::makeclassinfo (void)
 				$("indexing", manualindex ? "manual" : "auto")
 			);
 
-	DEBUG.storeFile ("class","res", res, "makeclassinfo");
+	DEBUG.storeFile ("class","res", res, "makeClassInfo");
 	
 	return &res;
 }
@@ -463,7 +463,7 @@ value *coreclass::makeclassinfo (void)
 // ==========================================================================
 // METHOD ::getregistration
 // ==========================================================================
-value *coreclass::getregistration (void)
+value *CoreClass::getregistration (void)
 {
 	returnclass (value) res retain;
 	
@@ -496,16 +496,16 @@ value *coreclass::getregistration (void)
 	if (magicdelimiter) res("magicdelimiter") = magicdelimiter;
 	if (prototype) res("prototype") = prototype;
 	
-	DEBUG.storeFile ("coreclass", "res", res, "getregistration");
-	DEBUG.storeFile ("coreclass", "uuid", uuid.sval(), "getregistration");
+	DEBUG.storeFile ("CoreClass", "res", res, "getregistration");
+	DEBUG.storeFile ("CoreClass", "uuid", uuid.sval(), "getregistration");
 	return &res;
 }
 
 // ==========================================================================
-// CONSTRUCTOR coremodule
+// CONSTRUCTOR CoreModule
 // ==========================================================================
-coremodule::coremodule (const string &mpath, const string &mname,
-						moduledb *pp) : mdb (*pp)
+CoreModule::CoreModule (const string &mpath, const string &mname,
+						ModuleDB *pp) : mdb (*pp)
 {
 	string metapath;
 	string xmlerr;
@@ -545,7 +545,7 @@ coremodule::coremodule (const string &mpath, const string &mname,
 	if (! modvalid.check (meta, xmlerr))
 		CRIT_FAILURE ("Error in '%s': %s" %format (metapath, xmlerr));
 	
-	DEBUG.storeFile ("coremodule","loaded-meta", meta);
+	DEBUG.storeFile ("CoreModule","loaded-meta", meta);
 	
 	if (meta["name"].sval() != mname)
 	{
@@ -556,12 +556,12 @@ coremodule::coremodule (const string &mpath, const string &mname,
 	apitype = meta["implementation"]["apitype"].sval();
 	if (meta.exists ("enums")) enums = meta["enums"];
 	
-	// Create coreclass objects from the classes array.
+	// Create CoreClass objects from the classes array.
 	foreach (cl, meta["classes"])
 	{
 		value v = cl;
 		v["enums"] = enums;
-		coreclass *C = new coreclass (v, this);
+		CoreClass *C = new CoreClass (v, this);
 		classes.set (cl.id(), C);
 		classesuuid.set (C->uuid, *C);
 	}
@@ -581,16 +581,16 @@ coremodule::coremodule (const string &mpath, const string &mname,
 }
 
 // ==========================================================================
-// DESTRUCTOR coremodule
+// DESTRUCTOR CoreModule
 // ==========================================================================
-coremodule::~coremodule (void)
+CoreModule::~CoreModule (void)
 {
 }
 
 // ==========================================================================
-// METHOD coremodule::verify
+// METHOD CoreModule::verify
 // ==========================================================================
-bool coremodule::verify (void)
+bool CoreModule::verify (void)
 {
 	value tmpa, tmpb;
 	string mName = meta["name"];
@@ -616,9 +616,9 @@ bool coremodule::verify (void)
 }
 
 // ==========================================================================
-// METHOD coremodule::action
+// METHOD CoreModule::action
 // ==========================================================================
-corestatus_t coremodule::action (const statstring &command,
+corestatus_t CoreModule::action (const statstring &command,
 								 const statstring &classname,
 								 const value &param,
 								 value &returndata)
@@ -680,9 +680,9 @@ corestatus_t coremodule::action (const statstring &command,
 }
 
 // ==========================================================================
-// METHOD getcurrentconfig
+// METHOD getCurrentConfig
 // ==========================================================================
-value *coremodule::getcurrentconfig (void)
+value *CoreModule::getCurrentConfig (void)
 {
 	returnclass (value) res retain;
 	value out;
@@ -691,38 +691,38 @@ value *coremodule::getcurrentconfig (void)
 	mName = mName.cutat (".module");
 	
 	out["OpenCORE:Command"] = "getconfig";
-	DEBUG.storeFile ("module", "getconfig-param", out, "getcurrentconfig");
+	DEBUG.storeFile ("module", "getconfig-param", out, "getCurrentConfig");
 	
 	returnval = (corestatus_t) API::execute (mName, apitype, path, "action",
 											 out, res);
 											 
-	DEBUG.storeFile ("module", "getconfig-result", res, "getcurrentconfig");
+	DEBUG.storeFile ("module", "getconfig-result", res, "getCurrentConfig");
 
 	if (returnval != status_ok) res.clear();
 	return &res;
 }
 
 // ==========================================================================
-// METHOD coremodule::reportusage
+// METHOD CoreModule::reportUsage
 // ==========================================================================
-value *coremodule::reportusage (const statstring &id,
+value *CoreModule::reportUsage (const statstring &id,
 								int month, int year)
 {
 	return NULL; // stub
 }
 
 // ==========================================================================
-// METHOD coremodule::getresources
+// METHOD CoreModule::getResources
 // ==========================================================================
-value *coremodule::getresources (void)
+value *CoreModule::getResources (void)
 {
 	return NULL; // stub
 }
 
 // ==========================================================================
-// METHOD coremodule::updateok
+// METHOD CoreModule::updateok
 // ==========================================================================
-bool coremodule::updateok (int currentversion)
+bool CoreModule::updateOK (int currentversion)
 {
 	corestatus_t returnval;
 	value out;

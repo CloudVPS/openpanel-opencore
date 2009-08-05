@@ -545,7 +545,7 @@ bool DBManager::fetchObject (value &into, const statstring &uuid, bool formodule
 		// value classdbres = dosqlite(query);
 		// value classdata;
 		// classdata.fromxml(classdbres["rows"][0]["content"].sval());
-		value classdata = getclassdata(row["class"].ival());
+		value classdata = getClassData(row["class"].ival());
 		DEBUG.storeFile("dbmgr", "classdata", classdata, "fetchObject");
 		
 		// stick it to me!
@@ -750,7 +750,7 @@ string *DBManager::createObject(const statstring &parent, const value &withmembe
 	string classuuid = findObject("", "Class", nokey, ofclass);
 	// TODO: check user quota 
 
-  value classdata = getclassdata(classid);
+  value classdata = getClassData(classid);
 
 	if(parent)
 	{
@@ -1766,7 +1766,7 @@ value *DBManager::hidepasswords(const value &members, int localclassid, bool tag
 	CORE->log(log::debug, "dbmgr", "hidepasswords: (%d, %s)", localclassid, tagonly ? "EGWEL" : "EGNIE");
     // DEBUG.storeFile("dbmgr", "members", members, "hidepasswords");
 	
-	value classdata = getclassdata(localclassid);
+	value classdata = getClassData(localclassid);
 		
 	// string s = members.toxml();
 	// string s2 = classdata.toxml();
@@ -1809,7 +1809,7 @@ bool DBManager::applyFieldWhiteLabel(value &objs, value &whitel)
 		
 	// this breaks when the list contains objects of different classes
 	// the GUI will never do that
-	classdata = getclassdata(findclassid(objs[0][0]["class"]));
+	classdata = getClassData(findclassid(objs[0][0]["class"]));
 	foreach(member, classdata)
 	{
 		if(!whitelv.exists(member.id()))
@@ -2508,37 +2508,37 @@ void DBManager::enableGodMode(void)
 	god=true;
 }
 
-value *DBManager::getclassdata(int classid)
+value *DBManager::getClassData(int classid)
 {
-	static lock<value> cache_getclassdata;
+	static lock<value> cache_getClassData;
 	string idstring;
 	returnclass (value) res retain;
 	string query;
 
-	CORE->log(log::debug, "dbmgr", "getclassdata %i" %format (classid));
+	CORE->log(log::debug, "dbmgr", "getClassData %i" %format (classid));
 
 	idstring.printf("%i", classid);
-	sharedsection(cache_getclassdata)
+	sharedsection(cache_getClassData)
 	{
-		if(cache_getclassdata.exists(idstring))
+		if(cache_getClassData.exists(idstring))
 		{
-			res=cache_getclassdata[idstring];
-			DEBUG.storeFile("dbmgr", "result-fromcache", res, "getclassdata");
+			res=cache_getClassData[idstring];
+			DEBUG.storeFile("dbmgr", "result-fromcache", res, "getClassData");
 			breaksection return &res;
 		}
 	}
 
-	query.printf("SELECT /* getclassdata */ content FROM objects WHERE id=%d", classid);
+	query.printf("SELECT /* getClassData */ content FROM objects WHERE id=%d", classid);
 	value classdbres = dosqlite(query);
 	value classdata;
 	classdata.fromxml(classdbres["rows"][0]["content"].sval());
 	res = classdata;
 
-	exclusivesection(cache_getclassdata)
+	exclusivesection(cache_getClassData)
 	{
-		cache_getclassdata[idstring]=res;
+		cache_getClassData[idstring]=res;
 	}
-	DEBUG.storeFile("dbmgr", "result-fromdb", res, "getclassdata");
+	DEBUG.storeFile("dbmgr", "result-fromdb", res, "getClassData");
 	return &res;
 }
 
@@ -2546,7 +2546,7 @@ bool DBManager::classhasattrib(int classid, const statstring attrib)
 {	
 	value classdata;
 	
-	classdata=getclassdata(classid);
+	classdata=getClassData(classid);
 	return classdata.attribexists(attrib);
 }
 
@@ -2555,7 +2555,7 @@ string *DBManager::classgetattrib(int classid, const statstring attrib)
 	value classdata;
 	returnclass (string) res retain;
 	
-	classdata=getclassdata(classid);
+	classdata=getClassData(classid);
 	if(classdata.attribexists(attrib))
 		res = classdata(attrib);
 	return &res;
@@ -2619,7 +2619,7 @@ bool DBManager::checkfieldlist(value &members, int classid)
 	value classdata;
 	string fid;
 	
-	classdata=getclassdata(classid);
+	classdata=getClassData(classid);
 	
 	foreach(field, members)
 	{

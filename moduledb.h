@@ -19,22 +19,22 @@
 #include "dbmanager.h"
 #include "internalclass.h"
 
-$exception (coreclassNotFoundException, "Core class not found");
-typedef dictionary<class coremodule*> moduledict;
+$exception (CoreClassNotFoundException, "Core class not found");
+typedef dictionary<class CoreModule*> moduledict;
 
 //  -------------------------------------------------------------------------
 /// Represents the collection of loaded modules.
-/// Moderates access to the coremodule objects through calls that
+/// Moderates access to the CoreModule objects through calls that
 /// will be made by a coresession.
 //  -------------------------------------------------------------------------
-class moduledb
+class ModuleDB
 {
 public:
 						 /// Constructor. Initializes linked list.
-						 moduledb (void);
+						 ModuleDB (void);
 						 
 						 /// Destructor. Clean up modules.
-						~moduledb (void);
+						~ModuleDB (void);
 						
 						 /// Initialize modules from the module
 						 /// directory.
@@ -44,7 +44,7 @@ public:
 						 ///            getconfig initialization.
 	void				 init (const value &forcereloadmodules = emptyvalue);
 							
-						 /// Command a coremodule to create an object.
+						 /// Command a CoreModule to create an object.
 						 /// \param ofclass The object's class.
 						 /// \param withid The object id (nokey for uuid)
 						 /// \param parm The member data.
@@ -55,7 +55,7 @@ public:
 									   const value &parm,
 									   string &err);
 	
-						 /// Command a coremodule to update an object.
+						 /// Command a CoreModule to update an object.
 						 /// \param ofclass The object's class.
 						 /// \param withid The object metaid or uuid.
 						 /// \param parm The new member data.
@@ -66,7 +66,7 @@ public:
 									   const value &parm,
 									   string &err);
 	
-						 /// Command a coremodule to delete an object.
+						 /// Command a CoreModule to delete an object.
 						 /// \param ofclass The object's class.
 						 /// \param withid The object metaid or uuid.
 						 /// \param parm The new member data.
@@ -82,7 +82,7 @@ public:
 	                     /// \param quota A keyed list of quota to set
 	                     /// \param err (out) error text
 	                     /// \return status_ok/status_failed/status_postponed 
-    corestatus_t         setspecialphysicalquota (const statstring &tag,
+    corestatus_t         setSpecialPhysicalQuota (const statstring &tag,
                                                   const value &quota,
                                                   string &err);
 
@@ -94,7 +94,7 @@ public:
 						 /// \param plaintext The plain text password.
 						 /// \param crypted (out) The crypted password.
 						 /// \return status_ok if everything worked out.
-	corestatus_t		 makecrypt (const statstring &ofclass,
+	corestatus_t		 makeCrypt (const statstring &ofclass,
 									const statstring &fieldid,
 									const string &plaintext,
 									string &crypted);
@@ -107,7 +107,7 @@ public:
 						 /// \param param Arguments for calling.
 						 /// \param returnp (out) return data.
 						 /// \param err (out) Error text
-	corestatus_t		 callmethod (const statstring &parentid,
+	corestatus_t		 callMethod (const statstring &parentid,
 									 const statstring &ofclass,
 									 const statstring &withid,
 									 const statstring &method,
@@ -117,14 +117,14 @@ public:
 									 
 						 /// Get relevant meta-information about a class.
 						 /// Most of the juice is loaded through the
-						 /// coreclass::makeclassinfo() with extra
+						 /// CoreClass::makeClassInfo() with extra
 						 /// information added about the parent class
 						 /// and possible child classes.
 						 /// \param classname The class id.
 						 /// \param foradmin True if requester has admin rights.
 						 /// \return The metadata:
 						 /// \verbinclude classinfo.format
-	value				*getclassinfo (const statstring &classname,
+	value				*getClassInfo (const statstring &classname,
 									   bool foradmin = true);
 	
 						 /// Get the raw meta-information for the
@@ -134,7 +134,7 @@ public:
 						 /// and fielding obscene phone calls with your
 						 /// parents.
 						 /// \param forclass The class to use.
-	value				*getmeta (const statstring &forclass);
+	value				*getMeta (const statstring &forclass);
 	
 						 /// Validate and normalize member data for
 						 /// a specific class.
@@ -146,49 +146,49 @@ public:
 									value &data, string &err);
 	
 						 /// Check if a class is admin-only.
-	bool				 isadminclass (const statstring &clid);
+	bool				 isAdminClass (const statstring &clid);
 	
 						 /// Check if a class is registered.
 						 /// \param clid The class name.
-	bool				 classexists (const statstring &clid)
+	bool				 classExists (const statstring &clid)
 						 {
 						 	return byclass.exists (clid);
 						 }
 						 
-	bool				 classuuidexists (const statstring &uuid)
+	bool				 classExistsUUID (const statstring &uuid)
 						 {
 						 	return byclassuuid.exists (uuid);
 						 }
 						 
 						 /// Check if a class is a meta-baseclass.
-						 /// See coreclass::ismetabase .
-	bool				 classismetabase (const statstring &clid)
+						 /// See CoreClass::ismetabase .
+	bool				 classIsMetaBase (const statstring &clid)
 						 {
 						 	if (clid == "ROOT") return false;
-						 	coreclass &c = getclass (clid);
+						 	CoreClass &c = getClass (clid);
 						 	return c.ismetabase;
 						 }
 						 
 						 /// Check if a specific module is loaded.
 						 /// \param modname The name of the module.
-	bool				 moduleexists (const statstring &modname)
+	bool				 moduleExists (const statstring &modname)
 						 {
 						 	return byname.exists (modname);
 						 }
 	
 						 /// Get a direct reference to a core class.
 						 /// If you call this without going through the
-						 /// classexists() method you will be taken out
+						 /// classExists() method you will be taken out
 						 /// back and shot.
-	coreclass			&getclass (const statstring &classname)
+	CoreClass			&getClass (const statstring &classname)
 						 {
-						 	coremodule *r = NULL;
+						 	CoreModule *r = NULL;
 						 	sharedsection (modlock)
 						 	{
 						 		r = byclass[classname];
 						 	}
 						 	
-						 	if (! r) throw (coreclassNotFoundException());
+						 	if (! r) throw (CoreClassNotFoundException());
 						 	return r->classes[classname];
 						 }
 						 
@@ -196,19 +196,19 @@ public:
 						 /// from its uuid. No pets. No women callers.
 						 /// Will throw a fit if the class uuid does
 						 /// not exist.
-	coreclass			&getclassuuid (const statstring &classuuid)
+	CoreClass			&getClassUUID (const statstring &classuuid)
 						 {
-						 	coremodule *r = NULL;
+						 	CoreModule *r = NULL;
 						 	sharedsection (modlock)
 						 	{
 						 		if (byclassuuid.exists (classuuid))
 							 		r = byclassuuid[classuuid];
 						 	}
 						 	
-						 	if (! r) throw (coreclassNotFoundException());
+						 	if (! r) throw (CoreClassNotFoundException());
 						 	if (! r->classesuuid.exists (classuuid))
 						 	{
-						 		throw (coreclassNotFoundException());
+						 		throw (CoreClassNotFoundException());
 						 	}
 						 	return r->classesuuid[classuuid];
 						 }
@@ -219,17 +219,17 @@ public:
 						 /// \return A reference to the value-object
 						 ///         containing the list of child
 						 ///         classes.
-	const value			&getclasses (const statstring &forclass)
+	const value			&getClasses (const statstring &forclass)
 						 {
 						 	return byparent[forclass];
 						 }
 	
 						 /// Find the module for a given class.
 						 /// \param classname The class to find.
-						 /// \return Pointer to the coremodule object or NULL.
-	coremodule			*getmoduleforclass (const statstring &classname)
+						 /// \return Pointer to the CoreModule object or NULL.
+	CoreModule			*getModuleForClass (const statstring &classname)
 						 {
-						 	coremodule *r = NULL;
+						 	CoreModule *r = NULL;
 						 	sharedsection (modlock)
 						 	{
 						 		if (byclass.exists (classname))
@@ -240,10 +240,10 @@ public:
 						 
 						 /// Find a module by its name.
 						 /// \param modname The module name.
-						 /// \return pointer to the coremodule object or NULL.
-	coremodule			*getmodulebyname (const statstring &modname)
+						 /// \return pointer to the CoreModule object or NULL.
+	CoreModule			*getModuleByName (const statstring &modname)
 						 {
-						 	coremodule *r = NULL;
+						 	CoreModule *r = NULL;
 						 	sharedsection (modlock)
 						 	{
 						 		if (byname.exists (modname))
@@ -254,9 +254,9 @@ public:
 						 
 						 /// Find a module handling the back-end of
 						 /// a specific specialquota tag.
-	coremodule			*getmodulebyspecialquota (const statstring &tag)
+	CoreModule			*getModuleBySpecialQuota (const statstring &tag)
 						 {
-						 	coremodule *r = NULL;
+						 	CoreModule *r = NULL;
 						 	sharedsection (modlock)
 						 	{
 						 		if (byquota.exists (tag))
@@ -267,11 +267,11 @@ public:
 						 
 						 /// Get a list of available modules.
 						 /// \return retainable value object with an array.
-	value				*listmodules (void);
+	value				*listModules (void);
 	
 						 /// Get a list of available classes.
 						 /// \return retainable value object with an array.
-	value				*listclasses (void);
+	value				*listClasses (void);
 	
 						 /// Use the getconfig mechanism to get an initial
 						 /// configuration dump for a module.
@@ -281,12 +281,12 @@ public:
 						 ///         in a way that makes dbmanager all
 						 ///         warm and fuzzy, like this:
 						 /// \verbinclude getconfig.format
-	value				*getcurrentconfig (const statstring &primaryclass);
+	value				*getCurrentConfig (const statstring &primaryclass);
 
 
 						 /// Checks if the class is defined as dynamic.
 						 /// \param forclass Class name.
-	bool				 isdynamic (const statstring &forclass);
+	bool				 classIsDynamic (const statstring &forclass);
 	
 						 /// If a class is defined with dynamic=true in
 						 /// its module.xml file, the module will be
@@ -301,7 +301,7 @@ public:
 						 /// \param err Output parameter for error.
 						 /// \return Data in this format:
 						 /// \verbinclude db_listObjects.format
-	value				*listdynamicobjects (const statstring &parentid,
+	value				*listDynamicObjects (const statstring &parentid,
 											 const statstring &mparentid,
 											 const statstring &ofclass,
 											 string &err,
@@ -316,7 +316,7 @@ public:
 						 /// \param ofclass The dynamic class.
 						 /// \param withid The instance's objectid.
 						 /// \param methodname The name of the method.
-	value				*listparamsformethod (const statstring &parentid,
+	value				*listParamsForMethod (const statstring &parentid,
 											  const statstring &ofclass,
 											  const statstring &withid,
 											  const statstring &methodname);
@@ -325,7 +325,7 @@ public:
 						 /// class.
 						 /// \param ofclass The class involved
 						 /// \param withserial The last known serial number.
-	unsigned int		 synchronizeclass (const statstring &ofclass,
+	unsigned int		 synchronizeClass (const statstring &ofclass,
 										   unsigned int withserial);
 
 						 /// Public property, useful for debugging.
@@ -335,7 +335,7 @@ public:
 						 /// This is provisional, this method should
 						 /// do smart things finding a common denominator
 						 /// in languages supported by all modules.
-	value				*getlanguages (void)
+	value				*getLanguages (void)
 						 {
 						 	returnclass (value) res retain;
 						 	
@@ -351,10 +351,10 @@ public:
 						 // meta-class. The implication is that it
 						 // should be included in any requested lists
 						 // for objects of that metaclass.
-	void				 registermetasubclass (const statstring &derivedid,
+	void				 registerMetaSubClass (const statstring &derivedid,
 											   const statstring &baseid);
 	
-	const value			&getmetaclasschildren (const statstring &baseid);
+	const value			&getMetaClassChildren (const statstring &baseid);
 
 						 /// Checks whether a class is handled by
 						 /// opencore internally.
@@ -365,43 +365,43 @@ public:
 						 
 						 /// Get a reference to an InternalClass
 						 /// object.
-	InternalClass		&geticlass (const statstring &classid)
+	InternalClass		&getInternalClass (const statstring &classid)
 						 {
 						 	return InternalClasses[classid];
 						 }
 
 protected:
 						 /// Helper function for init.
-	void				 loadmodule (const string &mname, value &cache,
+	void				 loadModule (const string &mname, value &cache,
 									 class DBManager &db);
 
 						 /// Helper function for handling modules we see
 						 /// for the first time.
-	void				 handlegetconfig (const string &mname, value &cache,
+	void				 handleGetConfig (const string &mname, value &cache,
 										  class DBManager &db,
-										  coremodule *m);
+										  CoreModule *m);
 
-	bool				 checkcache (const string &mname, value &cache,
-									 coremodule *m);
+	bool				 checkModuleCache (const string &mname, value &cache,
+										   CoreModule *m);
 	
 	void				 registerClasses (const string &mname, value &cache,
-										  class DBManager &db, coremodule *m);
+										  class DBManager &db, CoreModule *m);
 
-	void				 loaddependencies (const string &mname, value &cache,
-										   class DBManager &db, coremodule *m);
+	void				 loadDependencies (const string &mname, value &cache,
+										   class DBManager &db, CoreModule *m);
 
-	void				 registerquotas (coremodule *m);
+	void				 registerQuotas (CoreModule *m);
 	
-	void				 makestagingdir (const string &mname);
+	void				 createStagingDirectory (const string &mname);
 	
 						 ///{
 						 /// Linked list pointers
-	coremodule			*first, *last;
+	CoreModule			*first, *last;
 						 ///}
 						 
-	lock<int>			 modlock; ///< Lock on the moduledb.
+	lock<int>			 modlock; ///< Lock on the ModuleDB.
 	
-						 /// Keeps a pointer to the coremodules,
+						 /// Keeps a pointer to the CoreModules,
 						 /// indexed by the classes they implement.
 	moduledict			 byclass;
 	
@@ -409,7 +409,7 @@ protected:
 						 /// they implement.
 	moduledict			 byclassuuid;
 	
-						 /// Pointer collection for coremodules,
+						 /// Pointer collection for CoreModules,
 						 /// indexed by module name.
 	moduledict			 byname;
 	

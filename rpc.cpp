@@ -19,14 +19,14 @@ rpchandler::rpchandler (sessiondb *s) : handler (this), sdb (*s)
 	AddCommand  (chown);
 	AddCommand  (classinfo);
 	AddCommand  (classxml);
-	AddCommand  (callmethod);
+	BindCommand (callmethod, callMethod);
 	AddCommand  (getrecord);
 	AddCommand  (getrecords);
 	AddCommand  (getparent);
 	AddCommand  (getworld);
-	AddCommand  (listparamsformethod);
-	AddCommand  (listmodules);
-	AddCommand  (listclasses);
+	AddCommand  (listParamsForMethod);
+	BindCommand (listmodules, listModules);
+	BindCommand (listclasses, listClasses);
 	
 	#undef AddCommand
 	#undef BindCommand
@@ -58,7 +58,7 @@ value *rpchandler::handle (const value &v, uid_t uid, const string &origin)
 	caseselector (cmd)
 	{
 		incaseof ("bind") : return bind (v, uid, origin);
-		incaseof ("getlanguages") : return getlanguages (v);
+		incaseof ("getlanguages") : return getLanguages (v);
 		defaultcase : break;
 	}
 	
@@ -183,9 +183,9 @@ value *rpchandler::bind (const value &v, uid_t uid, const string &origin)
 }
 
 // ==========================================================================
-// METHOD rpchandler::getlanguages
+// METHOD rpchandler::getLanguages
 // ==========================================================================
-value *rpchandler::getlanguages (const value &v)
+value *rpchandler::getLanguages (const value &v)
 {
 	coresession *cs = NULL;
 	value meta;
@@ -211,7 +211,7 @@ value *rpchandler::getlanguages (const value &v)
 				$("error", "OK")
 		   ) ->
 		  $("body",
-		  		$("data", cs->getlanguages ())
+		  		$("data", cs->getLanguages ())
 		   );
 	
 	sdb.remove (cs);
@@ -332,7 +332,7 @@ value *rpchandler::classinfo (const value &v, coresession &cs)
 	
 	cs.mlockr ();
 	
-		tval = cs.getclassinfo (in_classid);
+		tval = cs.getClassInfo (in_classid);
 		if (! tval)
 		{
 			copysessionerror (cs, res);
@@ -353,7 +353,7 @@ value *rpchandler::classxml (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	statstring in_classid = v["body"]["classid"];
-	coremodule *m = cs.getmoduleforclass (in_classid);
+	CoreModule *m = cs.getModuleForClass (in_classid);
 	
 	if (! m)
 	{
@@ -369,7 +369,7 @@ value *rpchandler::classxml (const value &v, coresession &cs)
 // ==========================================================================
 // METHOD rpchandler::callmethod
 // ==========================================================================
-value *rpchandler::callmethod (const value &v, coresession &cs)
+value *rpchandler::callMethod (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	const value &vbody = v["body"];
@@ -380,8 +380,8 @@ value *rpchandler::callmethod (const value &v, coresession &cs)
 	value argv = vbody["argv"];
 	value tval;
 	
-	cs.mlockw ("callmethod");
-		tval = cs.callmethod (in_parentid, in_class, in_id, in_method, argv);
+	cs.mlockw ("callMethod");
+		tval = cs.callMethod (in_parentid, in_class, in_id, in_method, argv);
 	cs.munlock ();
 	
 	res["body"]["data"] = tval;
@@ -471,16 +471,16 @@ value *rpchandler::getworld (const value &v, coresession &cs)
 	cs.mlockr ();
 	
 	res["body"]["data"]["body"] = $("classes", cs.getworld()) ->
-								  $("modules", cs.listmodules());
+								  $("modules", cs.listModules());
 	
 	cs.munlock ();
 	return &res;
 }
 
 // ==========================================================================
-// METHOD rpchandler::listparamsformethod
+// METHOD rpchandler::listParamsForMethod
 // ==========================================================================
-value *rpchandler::listparamsformethod (const value &v, coresession &cs)
+value *rpchandler::listParamsForMethod (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	const value &vbody = v["body"];
@@ -492,29 +492,29 @@ value *rpchandler::listparamsformethod (const value &v, coresession &cs)
 	cs.mlockr ();
 	
 		res["body"]["data"] =
-			cs.listparamsformethod (in_parentid, in_class, in_id, in_method);
+			cs.listParamsForMethod (in_parentid, in_class, in_id, in_method);
 			
 	cs.munlock ();
 	return &res;
 }
 
 // ==========================================================================
-// METHOD rpchandler::listmodules
+// METHOD rpchandler::listModules
 // ==========================================================================
-value *rpchandler::listmodules (const value &v, coresession &cs)
+value *rpchandler::listModules (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
-	res["body"]["data"]["modules"] = cs.listmodules ();
+	res["body"]["data"]["modules"] = cs.listModules ();
 	return &res;
 }
 
 // ==========================================================================
-// METHOD rpchandler::listclasses
+// METHOD rpchandler::listClasses
 // ==========================================================================
-value *rpchandler::listclasses (const value &v, coresession &cs)
+value *rpchandler::listClasses (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
-	res["body"]["data"]["classes"] = cs.listclasses ();
+	res["body"]["data"]["classes"] = cs.listClasses ();
 	return &res;
 }
 
