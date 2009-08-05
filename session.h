@@ -376,7 +376,7 @@ public:
 						 /// for each available class indexed by its
 						 /// classname. The records are in the format
 						 /// returned by ModuleDB::getClassInfo().
-	value				*getworld (void);
+	value				*getWorld (void);
 
 						 /// Returns quota limits for a class/user
 						 /// combinations

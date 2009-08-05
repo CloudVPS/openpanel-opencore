@@ -17,7 +17,7 @@
 #include "session.h"
 
 //  -------------------------------------------------------------------------
-/// Template class for callback handling inside class rpchandler.
+/// Template class for callback handling inside class RPCHandler.
 //  -------------------------------------------------------------------------
 template <class base> class rpccmdlist
 {
@@ -61,11 +61,11 @@ protected:
 //  -------------------------------------------------------------------------
 /// Command handler for rpc requests.
 //  -------------------------------------------------------------------------
-class rpchandler
+class RPCHandler
 {
 public:
-					 rpchandler (sessiondb *s);
-					~rpchandler (void);
+					 RPCHandler (sessiondb *s);
+					~RPCHandler (void);
 
 	value			*handle (const value &v, uid_t uid, const string &origin);
 
@@ -78,25 +78,21 @@ public:
 	value			*deleteObject (const value &v, coresession &cs);
 	value			*updateObject (const value &v, coresession &cs);
 	value			*chown (const value &v, coresession &cs);
-	value			*classinfo (const value &v, coresession &cs);
-	value			*classxml (const value &v, coresession &cs);
+	value			*classInfo (const value &v, coresession &cs);
+	value			*classXML (const value &v, coresession &cs);
 	value			*callMethod (const value &v, coresession &cs);
-	value			*getrecord (const value &v, coresession &cs);
-	value			*getrecords (const value &v, coresession &cs);
-	value			*getparent (const value &v, coresession &cs);
-	value			*getworld (const value &v, coresession &cs);
+	value			*getRecord (const value &v, coresession &cs);
+	value			*getRecords (const value &v, coresession &cs);
+	value			*getParent (const value &v, coresession &cs);
+	value			*getWorld (const value &v, coresession &cs);
 	value			*listParamsForMethod (const value &v, coresession &cs);
 	value			*listModules (const value &v, coresession &cs);
 	value			*listClasses (const value &v, coresession &cs);
-	value			*getmenu (const value &v, coresession &cs);
-	value			*listtemplates (const value &v, coresession &cs);
-	value			*applytemplate (const value &v, coresession &cs);
-	value			*listmenus (const value &v, coresession &cs);
 	
-	void			 copysessionerror (coresession &cs, value &into);
+	void			 copySessionError (coresession &cs, value &into);
 	void			 setError (int errcode, value &into);
 	
 protected:
-	rpccmdlist<rpchandler>	 handler;
+	rpccmdlist<RPCHandler>	 handler;
 	sessiondb				&sdb;
 };

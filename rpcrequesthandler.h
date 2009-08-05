@@ -32,7 +32,7 @@ public:
 			 /// \param server The http server object
 			 /// \param db Link to the sessiondb.
 			 /// Note, this http object does listen to all uri's by default
-			 rpcrequesthandler (class opencoreApp *papp, 
+			 rpcrequesthandler (class OpenCoreApp *papp, 
 						 httpd &server, 
 						 class sessiondb *db);
 			 
@@ -54,7 +54,7 @@ public:
 				  tcpsocket &s);
 				  
 private:                      
-	class opencoreApp	*app; ///< Link back to application object.
+	class OpenCoreApp	*app; ///< Link back to application object.
 	class sessiondb		*sdb; ///< Link to session database.
 };
 
@@ -65,7 +65,7 @@ private:
 class iconrequesthandler : public httpdobject
 {
 public:
-			 iconrequesthandler (class opencoreApp *papp,
+			 iconrequesthandler (class OpenCoreApp *papp,
 			 					 httpd &server);
 			 
 			~iconrequesthandler (void) {}
@@ -75,7 +75,7 @@ public:
 				  tcpsocket &s);
 				  
 private:                      
-	class opencoreApp	*app; ///< Link back to application object.
+	class OpenCoreApp	*app; ///< Link back to application object.
 };
 
 //  -------------------------------------------------------------------------
@@ -85,7 +85,7 @@ private:
 class itemiconrequesthandler : public httpdobject
 {
 public:
-			 itemiconrequesthandler (class opencoreApp *papp,
+			 itemiconrequesthandler (class OpenCoreApp *papp,
 									 httpd &server);
 			~itemiconrequesthandler (void) {}
 	int      run (string &uri, string &postbody, value &inhdr,
@@ -93,7 +93,7 @@ public:
 				  tcpsocket &s);
 				  
 private:                      
-	class opencoreApp	*app; ///< Link back to application object.
+	class OpenCoreApp	*app; ///< Link back to application object.
 };
 			
 
@@ -104,7 +104,7 @@ private:
 class emblemrequesthandler : public httpdobject
 {
 public:
-			 emblemrequesthandler (class opencoreApp *papp,
+			 emblemrequesthandler (class OpenCoreApp *papp,
 			 					   httpd &server);
 			
 			~emblemrequesthandler (void) {}
@@ -114,6 +114,6 @@ public:
 				  tcpsocket &s);
 
 private:
-	class opencoreApp *app;
+	class OpenCoreApp *app;
 };
 #endif

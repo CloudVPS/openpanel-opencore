@@ -1815,9 +1815,9 @@ value *coresession::listClasses (void)
 }
 
 // ==========================================================================
-// METHOD coresession::getworld
+// METHOD coresession::getWorld
 // ==========================================================================
-value *coresession::getworld (void)
+value *coresession::getWorld (void)
 {
 	returnclass (value) res retain;
 	bool isadmin = meta["user"] == "openadmin";

@@ -20,24 +20,24 @@
 #include "moduledb.h"
 #include "session.h"
 #include "dbmanager.h"
-#include "opencorerpc.h"
+#include "OpenCoreRPC.h"
 
 //  -------------------------------------------------------------------------
 /// Implementation template for application config.
 //  -------------------------------------------------------------------------
-typedef configdb<class opencoreApp> appconfig;
+typedef configdb<class OpenCoreApp> appconfig;
 
 //  -------------------------------------------------------------------------
 /// Main daemon class.
 //  -------------------------------------------------------------------------
-class opencoreApp : public daemon
+class OpenCoreApp : public daemon
 {
 public:
 						 /// Default constructor.
-		 				 opencoreApp (void);
+		 				 OpenCoreApp (void);
 		 				 
 		 				 /// Destructor.
-		 				~opencoreApp (void);
+		 				~OpenCoreApp (void);
 	
 						 /// Main loop. Initializes all threads and waits
 						 /// for exciting things to happen (or currently
@@ -47,12 +47,12 @@ public:
 						 /// Emit dancing bears.
 	void				 dancingBears (void);
 	
-	cli<opencoreApp>	 shell; ///< Command line shell interpreter.
+	cli<OpenCoreApp>	 shell; ///< Command line shell interpreter.
 
 						 /// Log an error, als keeps a carbon copy
 						 /// available for coreclients using the
 						 /// OpenCORE:ErrorLog CoreClass.
-	void				 logerror (const string &who, const string &what);
+	void				 logError (const string &who, const string &what);
 	
 	void				 log (log::priority prio, const string &who,
 							  const string &what);
@@ -61,7 +61,7 @@ public:
 							  const char *fmt, ...);
 	
 						 /// Get last logged errors.
-	value				*geterrors (void);
+	value				*getErrors (void);
 	
 						 /// Resolve a regular expression through
 						 /// the regexpdb.
@@ -108,13 +108,13 @@ public: // TODO: temporary hack for module session! FIXME!
 	ModuleDB			*mdb; ///< Module manager.
 	sessiondb			*sdb; ///< Session manager.
 protected:
-	opencorerpc			*rpc; ///< RPC manager.
+	OpenCoreRPC			*rpc; ///< RPC manager.
 	sessionexpire		*sexp; ///< Session expire thread.
 	lock<value>			 errors; ///< Logged errors.
 	value				 debugfilter; ///< Filter for debug logging.
 	lock<value>			 regexpdb; /// < Regular expression class definitions.
 };
 
-extern opencoreApp *CORE;
+extern OpenCoreApp *CORE;
 
 #endif

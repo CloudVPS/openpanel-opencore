@@ -18,15 +18,15 @@
 
 #include <grace/thread.h>
 
-APPOBJECT(opencoreApp);
+APPOBJECT(OpenCoreApp);
 
-opencoreApp *CORE = NULL;
+OpenCoreApp *CORE = NULL;
 bool APP_SHOULDRUN;
 
 // ==========================================================================
-// CONSTRUCTOR opencoreApp
+// CONSTRUCTOR OpenCoreApp
 // ==========================================================================
-opencoreApp::opencoreApp (void)
+OpenCoreApp::OpenCoreApp (void)
 	: daemon ("com.openpanel.svc.opencore"),
 	  conf (this),
 	  shell (this, fin, fout)
@@ -35,9 +35,9 @@ opencoreApp::opencoreApp (void)
 }
 
 // ==========================================================================
-// DESTRUCTOR opencoreApp
+// DESTRUCTOR OpenCoreApp
 // ==========================================================================
-opencoreApp::~opencoreApp (void)
+OpenCoreApp::~OpenCoreApp (void)
 {
 }
 
@@ -49,7 +49,7 @@ opencoreApp::~opencoreApp (void)
 // Import from debug.cpp
 extern bool DISABLE_DEBUGGING;
 
-void opencoreApp::dancingBears (void)
+void OpenCoreApp::dancingBears (void)
 {
 	ferr.writeln ("    _--_     _--_    _--_     _--_     _--_     _--_     _--_     _--_");
 	ferr.writeln ("   (    )~~~(    )  (    )~~~(    )   (    )~~~(    )   (    )~~~(    )");
@@ -70,9 +70,9 @@ void opencoreApp::dancingBears (void)
 }
 
 // ==========================================================================
-// METHOD opencoreApp::main
+// METHOD OpenCoreApp::main
 // ==========================================================================
-int opencoreApp::main (void)
+int OpenCoreApp::main (void)
 {
 	
 	if (argv.exists ("--emit-dancing-bears"))
@@ -146,10 +146,10 @@ int opencoreApp::main (void)
 		
 	// Add watcher value for event log. System will daemonize after
 	// configuration was validated.
-	conf.addwatcher ("system", &opencoreApp::confSystem);
+	conf.addwatcher ("system", &OpenCoreApp::confSystem);
 	
 	// Add confwatcher for the daemons RPC configuration
-	conf.addwatcher ("rpc", &opencoreApp::confRpc);
+	conf.addwatcher ("rpc", &OpenCoreApp::confRpc);
 	
 	// Load will fail if watchers did not valiate.
 	if (! conf.load ("com.openpanel.svc.opencore", conferr))
@@ -212,9 +212,9 @@ int opencoreApp::main (void)
 }
 
 // ==========================================================================
-// METHOD opencoreApp::checkAuthDaemon
+// METHOD OpenCoreApp::checkAuthDaemon
 // ==========================================================================
-bool opencoreApp::checkAuthDaemon (void)
+bool OpenCoreApp::checkAuthDaemon (void)
 {
 	tcpsocket sauth;
 	
@@ -251,9 +251,9 @@ bool opencoreApp::checkAuthDaemon (void)
 }
 
 // ==========================================================================
-// METHOD opencoreApp::confSystem
+// METHOD OpenCoreApp::confSystem
 // ==========================================================================
-bool opencoreApp::confSystem (config::action act, keypath &kp,
+bool OpenCoreApp::confSystem (config::action act, keypath &kp,
 						      const value &nval, const value &oval)
 {
 	string tstr;
@@ -298,12 +298,12 @@ bool opencoreApp::confSystem (config::action act, keypath &kp,
 }
 
 // ==========================================================================
-// METHOD opencoreApp::confRpc
+// METHOD OpenCoreApp::confRpc
 // ==========================================================================
-bool opencoreApp::confRpc (config::action act, keypath &kp,
+bool OpenCoreApp::confRpc (config::action act, keypath &kp,
 						   const value &nval, const value &oval)
 {
-	if (! rpc) rpc = new opencorerpc (sdb, this);
+	if (! rpc) rpc = new OpenCoreRPC (sdb, this);
 
 	switch (act)
 	{
@@ -340,21 +340,21 @@ bool opencoreApp::confRpc (config::action act, keypath &kp,
 }
 
 // ==========================================================================
-// METHOD opencoreApp::commandline
+// METHOD OpenCoreApp::commandline
 // ==========================================================================
-void opencoreApp::commandline (void)
+void OpenCoreApp::commandline (void)
 {
 	bool shouldrun = true;
 	
-	shell.addsrc    ("@sessionid", &opencoreApp::srcSessionId);
+	shell.addsrc    ("@sessionid", &OpenCoreApp::srcSessionId);
 	
-	shell.addsyntax ("show classes", &opencoreApp::cmdShowClasses);
-	shell.addsyntax ("show session", &opencoreApp::cmdShowSessions);
-	shell.addsyntax ("show session @sessionid", &opencoreApp::cmdShowSession);
+	shell.addsyntax ("show classes", &OpenCoreApp::cmdShowClasses);
+	shell.addsyntax ("show session", &OpenCoreApp::cmdShowSessions);
+	shell.addsyntax ("show session @sessionid", &OpenCoreApp::cmdShowSession);
 	
-	shell.addsyntax ("show threads", &opencoreApp::cmdShowThreads);
-	shell.addsyntax ("show version", &opencoreApp::cmdShowVersion);
-	shell.addsyntax ("exit", &opencoreApp::cmdExit);
+	shell.addsyntax ("show threads", &OpenCoreApp::cmdShowThreads);
+	shell.addsyntax ("show version", &OpenCoreApp::cmdShowVersion);
+	shell.addsyntax ("exit", &OpenCoreApp::cmdExit);
 	
 	shell.addhelp ("show", "Display information");
 	shell.addhelp ("show classes", "All class registrations");
@@ -369,9 +369,9 @@ void opencoreApp::commandline (void)
 }
 
 // ==========================================================================
-// METHOD opencoreApp::cmdShowSession
+// METHOD OpenCoreApp::cmdShowSession
 // ==========================================================================
-int opencoreApp::cmdShowSession (const value &cmdata)
+int OpenCoreApp::cmdShowSession (const value &cmdata)
 {
 	if (cmdata.count() != 3)
 	{
@@ -402,9 +402,9 @@ int opencoreApp::cmdShowSession (const value &cmdata)
 }
 
 // ==========================================================================
-// METHOD opencoreApp::srcSessionId
+// METHOD OpenCoreApp::srcSessionId
 // ==========================================================================
-value *opencoreApp::srcSessionId (const value &cmd, int p)
+value *OpenCoreApp::srcSessionId (const value &cmd, int p)
 {
 	returnclass (value) res retain;
 	
@@ -417,9 +417,9 @@ value *opencoreApp::srcSessionId (const value &cmd, int p)
 }
 
 // ==========================================================================
-// METHOD opencoreApp::cmdShowSessions
+// METHOD OpenCoreApp::cmdShowSessions
 // ==========================================================================
-int opencoreApp::cmdShowSessions (const value &cmdata)
+int OpenCoreApp::cmdShowSessions (const value &cmdata)
 {
 	value res;
 	res = sdb->list ();
@@ -444,9 +444,9 @@ int opencoreApp::cmdShowSessions (const value &cmdata)
 }
 
 // ==========================================================================
-// METHOD opencoreApp::cmdShowVersion
+// METHOD OpenCoreApp::cmdShowVersion
 // ==========================================================================
-int opencoreApp::cmdShowVersion (const value &cmdata)
+int OpenCoreApp::cmdShowVersion (const value &cmdata)
 {
 	fout.writeln ("OpenCORE version %s - %s (%s@%s)"
 				 %format (version::release, version::date,
@@ -458,9 +458,9 @@ int opencoreApp::cmdShowVersion (const value &cmdata)
 }
 
 // ==========================================================================
-// METHOD opencoreApp::cmdShowThreads
+// METHOD OpenCoreApp::cmdShowThreads
 // ==========================================================================
-int opencoreApp::cmdShowThreads (const value &cmdata)
+int OpenCoreApp::cmdShowThreads (const value &cmdata)
 {
 	value v;
 	string out;
@@ -471,9 +471,9 @@ int opencoreApp::cmdShowThreads (const value &cmdata)
 }
 
 // ==========================================================================
-// METHOD opencoreApp::cmdShowClasses
+// METHOD OpenCoreApp::cmdShowClasses
 // ==========================================================================
-int opencoreApp::cmdShowClasses (const value &cmdata)
+int OpenCoreApp::cmdShowClasses (const value &cmdata)
 {
 	shell.setprompt ("opencore# ");
 	fout.writeln ("Class                                           Module");
@@ -489,9 +489,9 @@ int opencoreApp::cmdShowClasses (const value &cmdata)
 }
 
 // ==========================================================================
-// METHOD openoreApp::logerror
+// METHOD openoreApp::logError
 // ==========================================================================
-void opencoreApp::logerror (const string &who, const string &_what)
+void OpenCoreApp::logError (const string &who, const string &_what)
 {
 	string what = "%s (%s)" %format (_what, DEBUG.uuid());
 	daemon::log (log::error, who, what);
@@ -510,13 +510,13 @@ void opencoreApp::logerror (const string &who, const string &_what)
 }
 
 // ==========================================================================
-// METHOD opencoreApp::log
+// METHOD OpenCoreApp::log
 // ==========================================================================
-void opencoreApp::log (log::priority p, const string &who, const string &_what)
+void OpenCoreApp::log (log::priority p, const string &who, const string &_what)
 {
 	if (p == log::error)
 	{
-		logerror (who, _what);
+		logError (who, _what);
 		return;
 	}
 	
@@ -532,7 +532,7 @@ void opencoreApp::log (log::priority p, const string &who, const string &_what)
 	daemon::log (p, who, what);
 }
 
-void opencoreApp::log (log::priority p, const string &who, const char *fmt, ...)
+void OpenCoreApp::log (log::priority p, const string &who, const char *fmt, ...)
 {
 	string what;
 	va_list ap;
@@ -544,9 +544,9 @@ void opencoreApp::log (log::priority p, const string &who, const char *fmt, ...)
 }
 
 // ==========================================================================
-// METHOD opencoreApp::geterrors
+// METHOD OpenCoreApp::getErrors
 // ==========================================================================
-value *opencoreApp::geterrors (void)
+value *OpenCoreApp::getErrors (void)
 {
 	returnclass (value) res retain;
 	sharedsection (errors)
@@ -558,9 +558,9 @@ value *opencoreApp::geterrors (void)
 }
 
 // ==========================================================================
-// METHOD opencoreApp::regexp
+// METHOD OpenCoreApp::regexp
 // ==========================================================================
-string *opencoreApp::regexp (const string &orig)
+string *OpenCoreApp::regexp (const string &orig)
 {
 	if (! orig) return NULL;
 	returnclass (string) res retain;

@@ -12,7 +12,7 @@
 // --------------------------------------------------------------------------
 
 // Class header
-#include "opencorerpc.h"
+#include "OpenCoreRPC.h"
 
 // Application
 #include "opencore.h"
@@ -26,7 +26,7 @@
 //	=========================================================================
 ///	Constructor
 //	=========================================================================
-opencorerpc::opencorerpc (sessiondb *sdb, opencoreApp *papp)
+OpenCoreRPC::OpenCoreRPC (sessiondb *sdb, OpenCoreApp *papp)
 {
 	pdb	= sdb;	///< Session db pointer
 	app	= papp;	///< Application pointer
@@ -37,7 +37,7 @@ opencorerpc::opencorerpc (sessiondb *sdb, opencoreApp *papp)
 ///	Destructor
 /// Send a gracefull shutdown to all server objects
 //	=========================================================================
-opencorerpc::~opencorerpc (void)
+OpenCoreRPC::~OpenCoreRPC (void)
 {
 	// Finish all activities and stop accepting 
 	// new connections.
@@ -50,7 +50,7 @@ opencorerpc::~opencorerpc (void)
 /// \param conf Object configuration
 /// \return true on ok, false on fail
 //	=========================================================================
-bool opencorerpc::confcheck  (const value &conf)
+bool OpenCoreRPC::confcheck  (const value &conf)
 {
 	string 	fName;
 	string	fBase;
@@ -103,7 +103,7 @@ bool opencorerpc::confcheck  (const value &conf)
 /// \param conf Object configuration
 /// \return true on ok, false on fail
 //	=========================================================================
-bool opencorerpc::_confcreate (const value &conf, int update)
+bool OpenCoreRPC::_confcreate (const value &conf, int update)
 {
 	// Try setting up the httpd daemon using a
 	// Unix Domain Socket
@@ -136,7 +136,7 @@ bool opencorerpc::_confcreate (const value &conf, int update)
 			new iconrequesthandler (app, httpdTcp);
 			new itemiconrequesthandler (app, httpdTcp);
 			new emblemrequesthandler (app, httpdTcp);
-			new imagepreloader (app, httpdTcp);
+			new ImagePreloader (app, httpdTcp);
 			new httpdfileshare (httpdTcp, "*", "/var/openpanel/http");
 		}
 		
@@ -160,7 +160,7 @@ bool opencorerpc::_confcreate (const value &conf, int update)
 /// \param conf Object configuration
 /// \return true on ok, false on fail
 //	=========================================================================
-bool opencorerpc::confupdate (const value &conf)
+bool OpenCoreRPC::confupdate (const value &conf)
 {
 	try
 	{	
@@ -184,17 +184,17 @@ bool opencorerpc::confupdate (const value &conf)
 	return true;
 }
 
-imagepreloader::imagepreloader (opencoreApp *papp, httpd &x)
+ImagePreloader::ImagePreloader (OpenCoreApp *papp, httpd &x)
 	: httpdobject (x, "*/preloader.js")
 {
 	app = papp;
 }
 
-imagepreloader::~imagepreloader (void)
+ImagePreloader::~ImagePreloader (void)
 {
 }
 
-int imagepreloader::run (string &uri, string &postbody, value &inhdr,
+int ImagePreloader::run (string &uri, string &postbody, value &inhdr,
 						 string &out, value &outhdr, value &env,
 						 tcpsocket &s)
 {

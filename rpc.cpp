@@ -5,26 +5,26 @@
 #include "debug.h"
 
 // ==========================================================================
-// CONSTRUCTOR rpchandler
+// CONSTRUCTOR RPCHandler
 // ==========================================================================
-rpchandler::rpchandler (sessiondb *s) : handler (this), sdb (*s)
+RPCHandler::RPCHandler (sessiondb *s) : handler (this), sdb (*s)
 {
-	#define AddCommand(foo) handler.setcmd ( #foo, &rpchandler:: foo )
-	#define BindCommand(foo,bar) handler.setcmd (#foo, &rpchandler:: bar )
+	#define AddCommand(foo) handler.setcmd ( #foo, &RPCHandler:: foo )
+	#define BindCommand(foo,bar) handler.setcmd (#foo, &RPCHandler:: bar )
 	
 	BindCommand (create, createObject);
 	BindCommand (delete, deleteObject);
 	BindCommand (update, updateObject);
 	AddCommand  (ping);
 	AddCommand  (chown);
-	AddCommand  (classinfo);
-	AddCommand  (classxml);
+	BindCommand (classinfo, classInfo);
+	BindCommand (classxml, classXML);
 	BindCommand (callmethod, callMethod);
-	AddCommand  (getrecord);
-	AddCommand  (getrecords);
-	AddCommand  (getparent);
-	AddCommand  (getworld);
-	AddCommand  (listParamsForMethod);
+	BindCommand (getrecord, getRecord);
+	BindCommand (getrecords, getRecords);
+	BindCommand (getparent, getParent);
+	BindCommand (getworld, getWorld);
+	BindCommand (listparamsformethod, listParamsForMethod);
 	BindCommand (listmodules, listModules);
 	BindCommand (listclasses, listClasses);
 	
@@ -39,16 +39,16 @@ rpchandler::rpchandler (sessiondb *s) : handler (this), sdb (*s)
 		value &resname = *__rpc_res;
 						
 // ==========================================================================
-// DESTRUCTOR rpchandler
+// DESTRUCTOR RPCHandler
 // ==========================================================================
-rpchandler::~rpchandler (void)
+RPCHandler::~RPCHandler (void)
 {
 }
 
 // ==========================================================================
-// METHOD rpchandler::handle
+// METHOD RPCHandler::handle
 // ==========================================================================
-value *rpchandler::handle (const value &v, uid_t uid, const string &origin)
+value *RPCHandler::handle (const value &v, uid_t uid, const string &origin)
 {
 	DEBUG.newSession ();
 	DEBUG.storeFile ("rpc","in", v);
@@ -89,9 +89,9 @@ value *rpchandler::handle (const value &v, uid_t uid, const string &origin)
 }
 
 // ==========================================================================
-// METHOD rpchandler::call
+// METHOD RPCHandler::call
 // ==========================================================================
-value *rpchandler::call (const statstring &cmd, const value &v,
+value *RPCHandler::call (const statstring &cmd, const value &v,
 						 coresession &cs)
 {
 	if (! handler.exists (cmd))
@@ -107,9 +107,9 @@ value *rpchandler::call (const statstring &cmd, const value &v,
 }
 
 // ==========================================================================
-// METHOD rpchandler::bind
+// METHOD RPCHandler::bind
 // ==========================================================================
-value *rpchandler::bind (const value &v, uid_t uid, const string &origin)
+value *RPCHandler::bind (const value &v, uid_t uid, const string &origin)
 {
 	const value &vbody = v["body"];
 	coresession *cs = NULL;
@@ -177,15 +177,15 @@ value *rpchandler::bind (const value &v, uid_t uid, const string &origin)
 	
 	// It definitely didn't happen. Propagate the coresession error.
 	returnclass (value) res retain;
-	copysessionerror (*cs, res);
+	copySessionError (*cs, res);
 	sdb.remove (cs);
 	return &res;
 }
 
 // ==========================================================================
-// METHOD rpchandler::getLanguages
+// METHOD RPCHandler::getLanguages
 // ==========================================================================
-value *rpchandler::getLanguages (const value &v)
+value *RPCHandler::getLanguages (const value &v)
 {
 	coresession *cs = NULL;
 	value meta;
@@ -219,18 +219,18 @@ value *rpchandler::getLanguages (const value &v)
 }
 
 // ==========================================================================
-// METHOD rpchandler::ping
+// METHOD RPCHandler::ping
 // ==========================================================================
-value *rpchandler::ping (const value &v, coresession &cs)
+value *RPCHandler::ping (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	return &res;
 }
 
 // ==========================================================================
-// METHOD rpchandler::createObject
+// METHOD RPCHandler::createObject
 // ==========================================================================
-value *rpchandler::createObject (const value &v, coresession &cs)
+value *RPCHandler::createObject (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	const value &vbody = v["body"];
@@ -247,7 +247,7 @@ value *rpchandler::createObject (const value &v, coresession &cs)
 		
 		if (! objid)
 		{
-			copysessionerror (cs, res);
+			copySessionError (cs, res);
 		}
 		
 	cs.munlock ();
@@ -256,9 +256,9 @@ value *rpchandler::createObject (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::deleteObject
+// METHOD RPCHandler::deleteObject
 // ==========================================================================
-value *rpchandler::deleteObject (const value &v, coresession &cs)
+value *RPCHandler::deleteObject (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	statstring in_class = v["body"]["classid"];
@@ -270,7 +270,7 @@ value *rpchandler::deleteObject (const value &v, coresession &cs)
 	
 		if (! cs.deleteObject (in_parent, in_class, in_id, in_immediate))
 		{
-			copysessionerror (cs, res);
+			copySessionError (cs, res);
 		}
 	
 	cs.munlock ();
@@ -278,9 +278,9 @@ value *rpchandler::deleteObject (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::updateObject
+// METHOD RPCHandler::updateObject
 // ==========================================================================
-value *rpchandler::updateObject (const value &v, coresession &cs)
+value *RPCHandler::updateObject (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	const value &vbody = v["body"];
@@ -294,7 +294,7 @@ value *rpchandler::updateObject (const value &v, coresession &cs)
 	
 		if (! cs.updateObject (in_parent, in_class, in_id, in_data, in_immediate))
 		{
-			copysessionerror (cs, res);
+			copySessionError (cs, res);
 		}
 		
 	cs.munlock ();
@@ -302,9 +302,9 @@ value *rpchandler::updateObject (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::chown
+// METHOD RPCHandler::chown
 // ==========================================================================
-value *rpchandler::chown (const value &v, coresession &cs)
+value *RPCHandler::chown (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	statstring in_object = v["body"]["objectid"];
@@ -314,7 +314,7 @@ value *rpchandler::chown (const value &v, coresession &cs)
 	
 		if (! cs.chown (in_object, in_user))
 		{
-			copysessionerror (cs, res);
+			copySessionError (cs, res);
 		}
 	
 	cs.munlock ();
@@ -322,9 +322,9 @@ value *rpchandler::chown (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::classinfo
+// METHOD RPCHandler::classInfo
 // ==========================================================================
-value *rpchandler::classinfo (const value &v, coresession &cs)
+value *RPCHandler::classInfo (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	statstring in_classid = v["body"]["classid"];
@@ -335,7 +335,7 @@ value *rpchandler::classinfo (const value &v, coresession &cs)
 		tval = cs.getClassInfo (in_classid);
 		if (! tval)
 		{
-			copysessionerror (cs, res);
+			copySessionError (cs, res);
 		}
 		else
 		{
@@ -347,9 +347,9 @@ value *rpchandler::classinfo (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::classxml
+// METHOD RPCHandler::classXML
 // ==========================================================================
-value *rpchandler::classxml (const value &v, coresession &cs)
+value *RPCHandler::classXML (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	statstring in_classid = v["body"]["classid"];
@@ -357,7 +357,7 @@ value *rpchandler::classxml (const value &v, coresession &cs)
 	
 	if (! m)
 	{
-		copysessionerror (cs, res);
+		copySessionError (cs, res);
 	}
 	else
 	{
@@ -367,9 +367,9 @@ value *rpchandler::classxml (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::callmethod
+// METHOD RPCHandler::callmethod
 // ==========================================================================
-value *rpchandler::callMethod (const value &v, coresession &cs)
+value *RPCHandler::callMethod (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	const value &vbody = v["body"];
@@ -389,9 +389,9 @@ value *rpchandler::callMethod (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::getrecord
+// METHOD RPCHandler::getRecord
 // ==========================================================================
-value *rpchandler::getrecord (const value &v, coresession &cs)
+value *RPCHandler::getRecord (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	const value &vbody = v["body"];
@@ -405,7 +405,7 @@ value *rpchandler::getrecord (const value &v, coresession &cs)
 		dres["object"] = cs.getObject (in_parentid, in_class, in_objectid);
 		if (! dres["object"])
 		{
-			copysessionerror (cs, res);
+			copySessionError (cs, res);
 		}
 		
 	cs.munlock ();
@@ -413,9 +413,9 @@ value *rpchandler::getrecord (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::getrecords
+// METHOD RPCHandler::getRecords
 // ==========================================================================
-value *rpchandler::getrecords (const value &v, coresession &cs)
+value *RPCHandler::getRecords (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	const value &vbody = v["body"];
@@ -446,9 +446,9 @@ value *rpchandler::getrecords (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::getparent
+// METHOD RPCHandler::getParent
 // ==========================================================================
-value *rpchandler::getparent (const value &v, coresession &cs)
+value *RPCHandler::getParent (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	statstring in_objectid = v["body"]["objectid"];
@@ -463,14 +463,14 @@ value *rpchandler::getparent (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::getworld
+// METHOD RPCHandler::getWorld
 // ==========================================================================
-value *rpchandler::getworld (const value &v, coresession &cs)
+value *RPCHandler::getWorld (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	cs.mlockr ();
 	
-	res["body"]["data"]["body"] = $("classes", cs.getworld()) ->
+	res["body"]["data"]["body"] = $("classes", cs.getWorld()) ->
 								  $("modules", cs.listModules());
 	
 	cs.munlock ();
@@ -478,9 +478,9 @@ value *rpchandler::getworld (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::listParamsForMethod
+// METHOD RPCHandler::listParamsForMethod
 // ==========================================================================
-value *rpchandler::listParamsForMethod (const value &v, coresession &cs)
+value *RPCHandler::listParamsForMethod (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	const value &vbody = v["body"];
@@ -499,9 +499,9 @@ value *rpchandler::listParamsForMethod (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::listModules
+// METHOD RPCHandler::listModules
 // ==========================================================================
-value *rpchandler::listModules (const value &v, coresession &cs)
+value *RPCHandler::listModules (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	res["body"]["data"]["modules"] = cs.listModules ();
@@ -509,9 +509,9 @@ value *rpchandler::listModules (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::listClasses
+// METHOD RPCHandler::listClasses
 // ==========================================================================
-value *rpchandler::listClasses (const value &v, coresession &cs)
+value *RPCHandler::listClasses (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	res["body"]["data"]["classes"] = cs.listClasses ();
@@ -519,9 +519,9 @@ value *rpchandler::listClasses (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::copysessionerror
+// METHOD RPCHandler::copySessionError
 // ==========================================================================
-void rpchandler::copysessionerror (coresession &cs, value &into)
+void RPCHandler::copySessionError (coresession &cs, value &into)
 {
 	string txt = "(%[code]04i) %[message]s" %format (cs.error());
 	into["header"] = $("errorid", cs.error()["code"]) ->
@@ -529,9 +529,9 @@ void rpchandler::copysessionerror (coresession &cs, value &into)
 }
 
 // ==========================================================================
-// METHOD rpchandler::setError
+// METHOD RPCHandler::setError
 // ==========================================================================
-void rpchandler::setError (int errcode, value &into)
+void RPCHandler::setError (int errcode, value &into)
 {
 	statstring mid = "%04x" %format (errcode);
 	into["header"] = $("errorid", errcode) ->

@@ -19,23 +19,23 @@
 #include <grace/value.h>
 #include <grace/filesystem.h>
 
-class imagepreloader : public httpdobject
+class ImagePreloader : public httpdobject
 {
 public:
-				 imagepreloader (class opencoreApp *papp, httpd &x);
-				~imagepreloader (void);
+				 ImagePreloader (class OpenCoreApp *papp, httpd &x);
+				~ImagePreloader (void);
 				
 	int			 run (string &uri, string &postbody, value &inhdr,
 					  string &out, value &outhdr, value &env, tcpsocket &s);
 					  
-	class opencoreApp *app;
+	class OpenCoreApp *app;
 };
 
 //  -------------------------------------------------------------------------
 /// This class provides basic handling for all
 /// listening sockets
 //  -------------------------------------------------------------------------
-class opencorerpc
+class OpenCoreRPC
 {
 	public:
 				 /// Constructor
@@ -51,11 +51,11 @@ class opencorerpc
 				 ///
 				 /// \param sdb Link to the session database.
 				 /// \param papp Link to the application object.
-				 opencorerpc (class sessiondb *sdb,
-				 			  class opencoreApp *papp);
+				 OpenCoreRPC (class sessiondb *sdb,
+				 			  class OpenCoreApp *papp);
 
 				 /// Destructor
-				~opencorerpc (void);
+				~OpenCoreRPC (void);
 
 				 /// Configuration checker for configdb.
 		bool	 confcheck  (const value &conf);
@@ -76,7 +76,7 @@ class opencorerpc
 				 httpd				 httpdTcp;	///< HTTP TCP Server
 				 
 		class	 sessiondb			*pdb; ///< Link to the session database.
-		class	 opencoreApp		*app; ///< Link to the application.
+		class	 OpenCoreApp		*app; ///< Link to the application.
 		class 	 rpcrequesthandler	*_huds; ///< Link to the unix domain http handler.
 		class	 rpcrequesthandler	*_htcp; ///< Link to http handler for tcp domain.
 		

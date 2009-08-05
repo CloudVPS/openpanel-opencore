@@ -22,7 +22,7 @@
 //	=========================================================================
 /// Constructor
 //	=========================================================================
-rpcrequesthandler::rpcrequesthandler (class opencoreApp *papp, httpd &server, 
+rpcrequesthandler::rpcrequesthandler (class OpenCoreApp *papp, httpd &server, 
 					 	class sessiondb *db)
 						: httpdobject (server, "*/json")
 {
@@ -45,7 +45,7 @@ int rpcrequesthandler::run (string &uri, string &postbody, value &inhdr,
 	value res;
 	string origin = "ipc";
 	uid_t uid = 0;
-	rpchandler hdl (sdb);
+	RPCHandler hdl (sdb);
 
 	indata.fromjson (postbody);
 	if (inhdr.exists ("X-OpenCORE-Origin"))
@@ -122,7 +122,7 @@ int rpcrequesthandler::run (string &uri, string &postbody, value &inhdr,
 }
 
 
-iconrequesthandler::iconrequesthandler (class opencoreApp *papp, httpd &serv)
+iconrequesthandler::iconrequesthandler (class OpenCoreApp *papp, httpd &serv)
 	: httpdobject (serv, "/images/icons/*"), app (papp)
 {
 }
@@ -177,7 +177,7 @@ int iconrequesthandler::run (string &uri, string &postbody, value &inhdr,
 	return 200;
 }
 
-itemiconrequesthandler::itemiconrequesthandler (class opencoreApp *papp, httpd &serv)
+itemiconrequesthandler::itemiconrequesthandler (class OpenCoreApp *papp, httpd &serv)
 	: httpdobject (serv, "/images/itemicons/*"), app (papp)
 {
 }
@@ -217,7 +217,7 @@ int itemiconrequesthandler::run (string &uri, string &postbody, value &inhdr,
 	return 200;
 }
 
-emblemrequesthandler::emblemrequesthandler (class opencoreApp *papp, httpd &serv)
+emblemrequesthandler::emblemrequesthandler (class OpenCoreApp *papp, httpd &serv)
 	: httpdobject (serv, "/images/emblems/*"), app (papp)
 {
 }

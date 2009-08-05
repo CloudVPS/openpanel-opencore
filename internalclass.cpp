@@ -414,7 +414,7 @@ value *ErrorLogClass::listObjects (coresession *s, const statstring &pid)
 {
 	returnclass (value) res retain;
 	value &qres = res["OpenCORE:ErrorLog"];
-	value m = CORE->geterrors ();
+	value m = CORE->getErrors ();
 	statstring uu;
 	
 	foreach (row, m)

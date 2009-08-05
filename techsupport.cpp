@@ -23,7 +23,7 @@
 #include "dbmanager.h"
 
 // This is ugly, but we need it or we can't link.
-#define techsupportApp opencoreApp
+#define techsupportApp OpenCoreApp
 
 class techsupportApp : public daemon
 {
