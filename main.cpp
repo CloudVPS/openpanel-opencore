@@ -99,7 +99,7 @@ int opencoreApp::main (void)
 		{
 			value tval = strutil::split (argv["--debug"], ',');
 			foreach (v, tval) debugfilter[v] = true;
-			DEBUG.setfilter (debugfilter);
+			DEBUG.setFilter (debugfilter);
 		}
 	}
 

@@ -253,7 +253,7 @@ int techsupportApp::main (void)
 	disablepidcheck();
 	daemonize();
 	
-	// DEBUG.newsession();
+	// DEBUG.newSession();
 
 	string tmppath;
 	

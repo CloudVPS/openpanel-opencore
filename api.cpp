@@ -108,7 +108,7 @@ int API::commandline (const string &mname, const string &fullcmd,
 
 	makeShellEnvironment (env, "", in);
 	
-	DEBUG.storefile ("api", "env", env, "commandline");
+	DEBUG.storeFile ("api", "env", env, "commandline");
 	tcpsocket s;
 	
 	pid_t t = kernel.proc.self();
@@ -223,7 +223,7 @@ int API::grace (const string &mname, const string &fullcmd, const value &in, val
 	value argv;
 	string outdat;
 	
-	DEBUG.storefile ("api", "parm", in, "grace");
+	DEBUG.storeFile ("api", "parm", in, "grace");
 	
 	outdat = in.toxml();
 	
@@ -284,7 +284,7 @@ int API::grace (const string &mname, const string &fullcmd, const value &in, val
 	
 	proc.serialize();
 
-	DEBUG.storefile ("api", "result", dt, "grace");
+	DEBUG.storeFile ("api", "result", dt, "grace");
 	
 	if (dt.strlen())
 	{
@@ -306,7 +306,7 @@ int API::grace (const string &mname, const string &fullcmd, const value &in, val
 		CORE->log (log::error, "api", "Call to Grace-API module "
 				   "with no result-block");
 		
-		DEBUG.storefile ("api","no-result",out,"grace");
+		DEBUG.storeFile ("api","no-result",out,"grace");
 		return 1;
 	}
 	

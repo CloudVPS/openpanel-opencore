@@ -502,7 +502,7 @@ string *coresession::createObject (const statstring &parentid,
 	
 	if (withid) withparam["id"] = withid;
 	
-	DEBUG.storefile ("session", "create-param", withparam);
+	DEBUG.storeFile ("session", "create-param", withparam);
 
 	// Catch internal classes.
 	if (mdb.isinternalclass (ofclass))
@@ -612,7 +612,7 @@ string *coresession::createObject (const statstring &parentid,
 		}
 	}
 	
-	DEBUG.storefile ("session", "normalize-pre", withparam, "createObject");
+	DEBUG.storeFile ("session", "normalize-pre", withparam, "createObject");
 	
 	if (! cl.normalize (withparam, err))
 	{
@@ -622,7 +622,7 @@ string *coresession::createObject (const statstring &parentid,
 		return NULL;
 	}
 
-	DEBUG.storefile ("session", "normalize-post", withparam, "createObject");
+	DEBUG.storeFile ("session", "normalize-post", withparam, "createObject");
 	
 	// Handle any module-bound crypting voodoo on the fields.
 	if (! handlecrypts (parentid, ofclass, withid, withparam))
@@ -860,7 +860,7 @@ bool coresession::updateObject (const statstring &parentid,
 	string nuuid;
 	string err;
 	
-	DEBUG.storefile ("session", "param", withparam, "updateObject");
+	DEBUG.storeFile ("session", "param", withparam, "updateObject");
 	
 	// Catch internal classes.
 	if (mdb.isinternalclass (ofclass))
@@ -1122,7 +1122,7 @@ bool coresession::deleteObject (const statstring &parentid,
 			}
 		}
 
-		DEBUG.storefile ("session", "fetched", parm, "deleteObject");
+		DEBUG.storeFile ("session", "fetched", parm, "deleteObject");
 
 		ctx = $("OpenCORE:Context", parm[0].id()) ->
 			  $("OpenCORE:Session",
@@ -1204,7 +1204,7 @@ value *coresession::getclassinfo (const string &forclass)
 	returnclass (value) res retain;
 	res = mdb.getclassinfo (forclass, meta["user"] == "openadmin");
 	if (! res) return &res;
-	DEBUG.storefile ("session", "res", res, "classinfo");
+	DEBUG.storeFile ("session", "res", res, "classinfo");
 	return &res;
 }
 
@@ -1427,8 +1427,8 @@ bool coresession::syncdynamicobjects (const statstring &parentid,
 		olddb.clear();
 	}
 	
-	DEBUG.storefile ("session","old", olddb, "syncdynamicobjects");
-	DEBUG.storefile ("session","new", curdb, "syncdynamicobjects");
+	DEBUG.storeFile ("session","old", olddb, "syncdynamicobjects");
+	DEBUG.storeFile ("session","new", curdb, "syncdynamicobjects");
 	
 	value skipfields = $("uuid",true) ->
 					   $("parentid",true) ->
@@ -1634,7 +1634,7 @@ value *coresession::listObjects (const statstring &parentid,
 		seterror (db.getLastErrorCode(), db.getLastError());
 	}
 	
-	DEBUG.storefile ("session", "res", res, "listObjects");
+	DEBUG.storeFile ("session", "res", res, "listObjects");
 
 	return &res;
 }
@@ -1716,7 +1716,7 @@ value *coresession::getobject (const statstring &parentid,
 	}
 	res[0]["class"] = ofclass;
 
-	DEBUG.storefile ("session","res", res, "getobject");
+	DEBUG.storeFile ("session","res", res, "getobject");
 	return &res; 
 }
 
@@ -1909,7 +1909,7 @@ void coresession::handlecascade (const statstring &parentid,
 							$("objectid", objectid.sval())
 						 );
 				
-				DEBUG.storefile ("session", "data", tenv, "handlecascade");
+				DEBUG.storeFile ("session", "data", tenv, "handlecascade");
 				
 				string moderr;
 				mdb.updateObject (objectclass, objectid, tenv, moderr);

@@ -107,7 +107,7 @@ const value &internalclass::resolveuuid (const statstring &uuid)
 // ==========================================================================
 const string &internalclass::getmetaid (const statstring &uuid)
 {
-    DEBUG.storefile("internalclass",uuid, metamap, "getmetaid");
+    DEBUG.storeFile("internalclass",uuid, metamap, "getmetaid");
 	return metamap[uuid][1];
 }
 
@@ -116,7 +116,7 @@ const string &internalclass::getmetaid (const statstring &uuid)
 // ==========================================================================
 const string &internalclass::getparentid (const statstring &uuid)
 {
-	DEBUG.storefile("internalclass", uuid, metamap, "getmetaid");
+	DEBUG.storeFile("internalclass", uuid, metamap, "getmetaid");
 	return metamap[uuid][0];
 }
 

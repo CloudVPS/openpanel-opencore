@@ -50,8 +50,8 @@ rpchandler::~rpchandler (void)
 // ==========================================================================
 value *rpchandler::handle (const value &v, uid_t uid, const string &origin)
 {
-	DEBUG.newsession ();
-	DEBUG.storefile ("rpc","in", v);
+	DEBUG.newSession ();
+	DEBUG.storeFile ("rpc","in", v);
 	statstring cmd = v["header"]["command"];
 	statstring sessid = v["header"]["session_id"];
 	
@@ -84,7 +84,7 @@ value *rpchandler::handle (const value &v, uid_t uid, const string &origin)
 	value *res = call (cmd, v, *cs);
 	sdb.release (cs);
 	
-	DEBUG.storefile ("rpc","out", *res);
+	DEBUG.storeFile ("rpc","out", *res);
 	return res;
 }
 
@@ -164,7 +164,7 @@ value *rpchandler::bind (const value &v, uid_t uid, const string &origin)
 		{
 			string sid = cs->id;
 			sdb.release (cs);
-			DEBUG.newsession ();
+			DEBUG.newSession ();
 			CORE->log (log::debug, "rpc", "Login: success");
 			
 			return $("header",

@@ -152,7 +152,7 @@ int DBManager::findObjectDeletedVersion (int uc, const statstring &withmetaid)
 	query.strcat(escapeforsql("=", " AND ", where));
 	query.strcat(" ORDER BY version DESC LIMIT 1");
 	value v = dosqlite(query);
-	DEBUG.storefile("dbmgr", "dbres", v, "findObjectDeletedVersion");
+	DEBUG.storeFile("dbmgr", "dbres", v, "findObjectDeletedVersion");
 	
 	if(v["rows"].count() == 0)
 	{
@@ -163,7 +163,7 @@ int DBManager::findObjectDeletedVersion (int uc, const statstring &withmetaid)
 	{
 		lasterror = "An object with this id already exists";
 		errorcode = ERR_DBMANAGER_EXISTS;
-		DEBUG.storefile("dbmgr","errorcontext", v, "findObjectDeletedVersion");
+		DEBUG.storeFile("dbmgr","errorcontext", v, "findObjectDeletedVersion");
 		return -1;
 	}
 
@@ -211,7 +211,7 @@ string *DBManager::findObject (const statstring &parent, const statstring &ofcla
 	query.strcat(" ORDER BY version DESC LIMIT 1");
 	CORE->log(log::debug, "dbmgr", "findObject: classid: %d" %format (classid));
 	value v = dosqlite(query);
-	DEBUG.storefile("dbmgr", "dbres", v, "findObject");
+	DEBUG.storeFile("dbmgr", "dbres", v, "findObject");
 	
 	// query="SELECT objects.id,version,classes.name,reality,wanted FROM objects,classes WHERE objects.class=classes.id AND ";
 	// where["parent"]=contextid;
@@ -448,7 +448,7 @@ bool DBManager::listObjects (value &into, const statstring &parent, const value 
 		}
 	}
 	
-	DEBUG.storefile("dbmgr", "res", into, "listObjects");
+	DEBUG.storeFile("dbmgr", "res", into, "listObjects");
 	
 	return true;
 }
@@ -528,7 +528,7 @@ bool DBManager::fetchObject (value &into, const statstring &uuid, bool formodule
 			return false;
 		}
 		value row=dbres["rows"][0];
-		DEBUG.storefile("dbmgr", "objectrow", row, "fetchObject");
+		DEBUG.storeFile("dbmgr", "objectrow", row, "fetchObject");
 
 		string id = _classNameFromUUID(row["class"]);
 		
@@ -546,7 +546,7 @@ bool DBManager::fetchObject (value &into, const statstring &uuid, bool formodule
 		// value classdata;
 		// classdata.fromxml(classdbres["rows"][0]["content"].sval());
 		value classdata = getclassdata(row["class"].ival());
-		DEBUG.storefile("dbmgr", "classdata", classdata, "fetchObject");
+		DEBUG.storeFile("dbmgr", "classdata", classdata, "fetchObject");
 		
 		// stick it to me!
 		// because class A cannot require class B, indexing on classname
@@ -649,7 +649,7 @@ bool DBManager::fetchObject (value &into, const statstring &uuid, bool formodule
 		}
 		if(formodule && classdata.attribexists("childrendep"))
 		{	
-			DEBUG.storefile("dbmgr", "childrendep", classdata, "fetchObject");
+			DEBUG.storeFile("dbmgr", "childrendep", classdata, "fetchObject");
 			CORE->log(log::debug, "dbmgr", "fetchObject: doing childrendep "
 					 "(%s, %s)" %format (classdata("childrendep"), row["uuid"]));
 					 
@@ -685,7 +685,7 @@ bool DBManager::fetchObject (value &into, const statstring &uuid, bool formodule
 		localid = row["parent"].ival();
 	}
 	
-	DEBUG.storefile("dbmgr", "result", into, "fetchObject");
+	DEBUG.storeFile("dbmgr", "result", into, "fetchObject");
 	
 	return true;
 }
@@ -738,7 +738,7 @@ string *DBManager::createObject(const statstring &parent, const value &withmembe
 	
 	CORE->log(log::debug, "dbmgr", "createObject(parent=%s, [members], "
 			 "ofclass=%s, metaid=%s)" %format (parent, ofclass, metaid));
-	DEBUG.storefile("dbmgr", "members", withmembers, "createObject");
+	DEBUG.storeFile("dbmgr", "members", withmembers, "createObject");
 	
 	classid=findclassid(ofclass);  // FIXME: handle failure
 	
@@ -1060,7 +1060,7 @@ string *DBManager::copyprototype(int fromid, int parentid, int ownerid, value &r
 	CORE->log(log::debug, "dbmgr", "copyprototype: valueparsing "
 			  "[%s]" %format (in["metaid"]));
 			  
-	DEBUG.storefile("dbmgr", "repl", repl, "copyprototype");
+	DEBUG.storeFile("dbmgr", "repl", repl, "copyprototype");
 	v["metaid"] = strutil::valueparse(in["metaid"], repl);
 
 	// find class data
@@ -1411,7 +1411,7 @@ int DBManager::findclassid(const statstring &classname)
 	query.strcat(escapeforsql("=", " AND ", where));
 	query.strcat(" ORDER BY version DESC LIMIT 1");
 	v = dosqlite(query);
-	DEBUG.storefile("dbmgr", "dbres", v, "findclassid");
+	DEBUG.storeFile("dbmgr", "dbres", v, "findclassid");
 	
 	CORE->log(log::debug, "dbmgr","findclassid: %i" %format(v["rows"][0]["id"]));
     return v["rows"][0]["id"].ival(); // FIXME: check if it's there?
@@ -1691,7 +1691,7 @@ bool DBManager::deref(value &members, int localclassid)
 				members.clear();
 				return false;
 			}
-			DEBUG.storefile("dbmgr", "dbres", refdbres, "deref");
+			DEBUG.storeFile("dbmgr", "dbres", refdbres, "deref");
 
 			value row = refdbres["rows"][0];
 			value fields = deserialize(row["content"]);
@@ -1712,7 +1712,7 @@ bool DBManager::deref(value &members, int localclassid)
 			
 			CORE->log(log::debug, "dbmgr", "deref: debugcontent found: %s", classdata[field.id()]("reflabel").cval());
 			CORE->log(log::debug, "dbmgr", "deref: debugcontent found: %s", classdata[field.id()]("nick").cval());
-			DEBUG.storefile("dbmgr", "field", fields, "deref");
+			DEBUG.storeFile("dbmgr", "field", fields, "deref");
 
 			CORE->log(log::debug, "dbmgr", "content found: %s", fields[classdata[field.id()]("reflabel")].cval());
 			// FIXME: do the replace -> fetch the right field from the right object etc.
@@ -1764,7 +1764,7 @@ value *DBManager::hidepasswords(const value &members, int localclassid, bool tag
 	string query;
 	
 	CORE->log(log::debug, "dbmgr", "hidepasswords: (%d, %s)", localclassid, tagonly ? "EGWEL" : "EGNIE");
-    // DEBUG.storefile("dbmgr", "members", members, "hidepasswords");
+    // DEBUG.storeFile("dbmgr", "members", members, "hidepasswords");
 	
 	value classdata = getclassdata(localclassid);
 		
@@ -1799,8 +1799,8 @@ bool DBManager::applyFieldWhiteLabel(value &objs, value &whitel)
 	value blackl, classdata;
 	valueindex whitelv;
 
-	DEBUG.storefile("dbmgr", "objs", objs, "whitel");
-	DEBUG.storefile("dbmgr", "whitel", whitel, "whitel");
+	DEBUG.storeFile("dbmgr", "objs", objs, "whitel");
+	DEBUG.storeFile("dbmgr", "whitel", whitel, "whitel");
 
 	if(!whitel.count())
 		return true;
@@ -1816,16 +1816,16 @@ bool DBManager::applyFieldWhiteLabel(value &objs, value &whitel)
 			blackl.newval() = member.id();
 	}
 	
-	DEBUG.storefile("dbmgr", "blackl", blackl, "whitel");
+	DEBUG.storeFile("dbmgr", "blackl", blackl, "whitel");
 	
 	foreach(object, objs[0])
 	{
-	    DEBUG.storefile("dbmgr", "obj-prerm", object, "whitel");
+	    DEBUG.storeFile("dbmgr", "obj-prerm", object, "whitel");
 		foreach(b, blackl)
 		{
 			object.rmval(b);
 		}
-	    DEBUG.storefile("dbmgr", "obj-postrm", object, "whitel");
+	    DEBUG.storeFile("dbmgr", "obj-postrm", object, "whitel");
 	}
 
 	return true;
@@ -2032,7 +2032,7 @@ bool DBManager::registerClass(const value &classdata)
 	string tmp;
 	
 	string debug;
-	DEBUG.storefile("dbmgr", "parm", classdata, "registerClass");
+	DEBUG.storeFile("dbmgr", "parm", classdata, "registerClass");
 
 	CORE->log(log::debug, "dbmgr", "registerClass UUID: %S", classdata("uuid").cval());
 	if(!classdata.attribexists("uuid"))
@@ -2068,7 +2068,7 @@ bool DBManager::registerClass(const value &classdata)
 	query.strcat(escapeforsql("=", " AND ", where));
 	query.strcat(" ORDER BY version DESC LIMIT 1");
 	value dbres = dosqlite(query);
-	DEBUG.storefile("dbmgr", "dbres", dbres, "registerClass");
+	DEBUG.storeFile("dbmgr", "dbres", dbres, "registerClass");
 	if(dbres["rows"].count()) // zero rows means this class is new
 	{	
 		value row = dbres["rows"][0];
@@ -2523,7 +2523,7 @@ value *DBManager::getclassdata(int classid)
 		if(cache_getclassdata.exists(idstring))
 		{
 			res=cache_getclassdata[idstring];
-			DEBUG.storefile("dbmgr", "result-fromcache", res, "getclassdata");
+			DEBUG.storeFile("dbmgr", "result-fromcache", res, "getclassdata");
 			breaksection return &res;
 		}
 	}
@@ -2538,7 +2538,7 @@ value *DBManager::getclassdata(int classid)
 	{
 		cache_getclassdata[idstring]=res;
 	}
-	DEBUG.storefile("dbmgr", "result-fromdb", res, "getclassdata");
+	DEBUG.storeFile("dbmgr", "result-fromdb", res, "getclassdata");
 	return &res;
 }
 
@@ -2827,7 +2827,7 @@ bool DBManager::setSpecialQuota (const statstring &tag, const statstring &useruu
     q.strcat(escapeforinsert(v));
     
 	value dbres = dosqlite(q);
-	DEBUG.storefile("dbmgr", "phys", phys, "setSpecialQuota");
+	DEBUG.storeFile("dbmgr", "phys", phys, "setSpecialQuota");
 	return (bool) dbres;
 }
 

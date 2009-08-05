@@ -17,14 +17,14 @@
 
 bool DISABLE_DEBUGGING = false;
 
-debugger::debugger (void)
+Debugger::Debugger (void)
 {
 	first = last = NULL;
 }
 
-debugger::~debugger (void)
+Debugger::~Debugger (void)
 {
-	threaduuid *c, *nc;
+	ThreadUUID *c, *nc;
 	
 	c = first;
 	while (c)
@@ -35,31 +35,31 @@ debugger::~debugger (void)
 	}
 }
 
-void debugger::newsession (void)
+void Debugger::newSession (void)
 {
-	threaduuid *c = getnode();
+	ThreadUUID *c = getNode();
 	if (! c) return;
 	
 	c->uuid = strutil::uuid();
 	c->serial = 0;
-	CORE->log (log::debug, "debugger", "Created debugging session <%s>",
+	CORE->log (log::debug, "Debugger", "Created debugging session <%s>",
 			   c->uuid.str());
 }
 
-const string &debugger::uuid (void)
+const string &Debugger::uuid (void)
 {
 	static string nothing;
-	threaduuid *c = getnode();
+	ThreadUUID *c = getNode();
 	if (c) return c->uuid;
 	return nothing;
 }
 
-void debugger::setfilter (const value &filterlist)
+void Debugger::setFilter (const value &filterlist)
 {
 	filter = filterlist;
 }
 
-void debugger::storefile (const string &subsystem, const string &action,
+void Debugger::storeFile (const string &subsystem, const string &action,
 						  const value &idata, const string &function)
 {
 	if (DISABLE_DEBUGGING) return;
@@ -67,7 +67,7 @@ void debugger::storefile (const string &subsystem, const string &action,
 	
 	string data;
 	
-	threaduuid *c = getnode();
+	ThreadUUID *c = getNode();
 	if (idata.count() || (idata.type() != t_string))
 	{
 		data = idata.toxml();
@@ -104,10 +104,10 @@ void debugger::storefile (const string &subsystem, const string &action,
 	fs.save (fname, data);
 }
 
-threaduuid *debugger::getnode (void)
+ThreadUUID *Debugger::getNode (void)
 {
 	pthread_t me = pthread_self();
-	threaduuid *c = NULL;
+	ThreadUUID *c = NULL;
 	
 	sharedsection (lck)
 	{
@@ -119,7 +119,7 @@ threaduuid *debugger::getnode (void)
 		}
 	}
 	
-	c = new threaduuid;
+	c = new ThreadUUID;
 	c->serial = 0;
 	c->thr = me;
 	c->uuid = "nosession";
@@ -143,4 +143,4 @@ threaduuid *debugger::getnode (void)
 	return c;
 }
 
-debugger DEBUG;
+Debugger DEBUG;

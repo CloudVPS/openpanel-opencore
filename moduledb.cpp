@@ -259,7 +259,7 @@ bool moduledb::checkcache (const string &mname, value &cache,
 	log::write (log::info, "moduledb", "No cache entry for "
 			   "module <%s>" %format (mname));
 			   
-	DEBUG.storefile ("moduledb", "miss", cache["modules"], "checkcache");
+	DEBUG.storeFile ("moduledb", "miss", cache["modules"], "checkcache");
 	return true;
 }
 
@@ -389,7 +389,7 @@ void moduledb::registerClasses (const string &mname, value &cache,
 		value regdata = classobj.getregistration ();
 		regdata("modulename") = mname;
 		
-		DEBUG.storefile ("moduledb", "regdata", regdata, "registerClasses");
+		DEBUG.storeFile ("moduledb", "regdata", regdata, "registerClasses");
 		
 		// Send it to the database manager.
 		if (! db.registerClass (regdata))
@@ -448,7 +448,7 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 			}
 		}
 		
-		DEBUG.storefile ("moduledb","getconfig-tree", out, "handlenewmodule");
+		DEBUG.storeFile ("moduledb","getconfig-tree", out, "handlenewmodule");
 		
 		// Iterate over the flattened out array
 		foreach (obj, out)
@@ -513,7 +513,7 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 						   $("class", oclass) ->
 						   $("metaid", metaid);
 			
-			DEBUG.storefile ("moduledb","dbman-args", vdebug, "handlenewmodule");
+			DEBUG.storeFile ("moduledb","dbman-args", vdebug, "handlenewmodule");
 			
 			// Henny penny the sky is falling!
 			if (! uuid)
@@ -531,7 +531,7 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 			}
 		}
 		
-		DEBUG.storefile ("moduledb","getconfig-uuids", uuids, "handlenewmodule");
+		DEBUG.storeFile ("moduledb","getconfig-uuids", uuids, "handlenewmodule");
 	}
 }
 
@@ -540,7 +540,7 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 // ==========================================================================
 void moduledb::parsetree (const value &tree, value &into, int parent)
 {
-	if (! into.count()) DEBUG.storefile ("moduledb", "in", tree, "parsetree");
+	if (! into.count()) DEBUG.storeFile ("moduledb", "in", tree, "parsetree");
 	foreach (instance, tree)
 	{
 		int pos = into.count();
@@ -583,7 +583,7 @@ corestatus_t moduledb::createObject (const statstring &ofclass,
 	coremodule *m;
 	corestatus_t res = status_failed;
 	
-	DEBUG.storefile ("moduledb", "parm", parm, "createObject");
+	DEBUG.storeFile ("moduledb", "parm", parm, "createObject");
 	
 	if (! byclass.exists (ofclass))
 	{
@@ -621,7 +621,7 @@ corestatus_t moduledb::createObject (const statstring &ofclass,
 	// FIXME: is it useful to keep returnp?
 	// FIXME: report errors here or upstream?
 	
-	DEBUG.storefile ("moduledb", "returnp", returnp, "createObject");
+	DEBUG.storeFile ("moduledb", "returnp", returnp, "createObject");
 	
 	if (res != status_ok)
 	{
@@ -707,7 +707,7 @@ corestatus_t moduledb::callmethod (const statstring &parentid,
 		  	$("method", method)) ->
 		$merge(param);
 
-	DEBUG.storefile ("moduledb","ctx", ctx, "callmethod");
+	DEBUG.storeFile ("moduledb","ctx", ctx, "callmethod");
 	
 	res = m->action ("callmethod", ofclass, ctx, returnp);
 
@@ -730,7 +730,7 @@ corestatus_t moduledb::setspecialphysicalquota
 	coremodule *m;
 	corestatus_t res = status_failed;
 	
-	DEBUG.storefile ("moduledb", "quota", quota, "setspecialphysicalquota");
+	DEBUG.storeFile ("moduledb", "quota", quota, "setspecialphysicalquota");
 
     string ofclass = tag;
     ofclass = ofclass.left(ofclass.strchr('/'));
@@ -781,7 +781,7 @@ corestatus_t moduledb::updateObject (const statstring &ofclass,
 	coremodule *m;
 	corestatus_t res = status_failed;
 	
-	DEBUG.storefile ("moduledb", "parm", parm, "updateObject");
+	DEBUG.storeFile ("moduledb", "parm", parm, "updateObject");
 
 	if (! byclass.exists (ofclass))
 	{
@@ -868,7 +868,7 @@ value *moduledb::listdynamicobjects (const statstring &parentid,
 
 	returnclass (value) res retain;
 	res = returnp["objects"];
-	DEBUG.storefile ("moduledb","res", res, "listdynamicobjects");
+	DEBUG.storeFile ("moduledb","res", res, "listdynamicobjects");
 	return &res;
 }
 
@@ -994,7 +994,7 @@ corestatus_t moduledb::deleteObject (const statstring &ofclass,
 	coremodule *m;
 	corestatus_t res = status_failed;
 
-	DEBUG.storefile ("moduledb", "parm", parm, "deleteObject");
+	DEBUG.storeFile ("moduledb", "parm", parm, "deleteObject");
 
 	if (! byclass.exists (ofclass))
 	{
@@ -1060,7 +1060,7 @@ value *moduledb::getcurrentconfig (const statstring &forprimaryclass)
 	if (m->primaryclass != forprimaryclass) return NULL;
 	
 	res = m->getcurrentconfig ();
-	DEBUG.storefile ("moduledb", "res", *res, "getcurrentconfig");
+	DEBUG.storeFile ("moduledb", "res", *res, "getcurrentconfig");
 	return res;
 }
 

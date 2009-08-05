@@ -163,7 +163,7 @@ bool coreclass::normalize (value &mdata, string &error)
 		$("mdata", mdata) ->
 		$("param", param);
 
-	DEBUG.storefile ("class", "gathered", dbug, "normalize");
+	DEBUG.storeFile ("class", "gathered", dbug, "normalize");
 	
 	foreach (p, param)
 	{
@@ -212,12 +212,12 @@ bool coreclass::normalizelayoutnode (value &p, value &mdata, string &error)
 		
 		string nm;
 		nm = "field-%s.%s" %format (name, p.id());
-		DEBUG.storefile ("class", nm, p, "normalizelayoutnode");
+		DEBUG.storeFile ("class", nm, p, "normalizelayoutnode");
 
 		bool exists = mdata.exists (p.id()) && mdata[p.id()].sval();
 		if ((! exists) && (! p("default").sval()))
 		{
-			DEBUG.storefile ("class","req-no-default", p, "normalizelayoutnode");
+			DEBUG.storeFile ("class","req-no-default", p, "normalizelayoutnode");
 			error = "Required element with no default: %s" %format (p.id());
 			return false;
 		}
@@ -455,7 +455,7 @@ value *coreclass::makeclassinfo (void)
 				$("indexing", manualindex ? "manual" : "auto")
 			);
 
-	DEBUG.storefile ("class","res", res, "makeclassinfo");
+	DEBUG.storeFile ("class","res", res, "makeclassinfo");
 	
 	return &res;
 }
@@ -496,8 +496,8 @@ value *coreclass::getregistration (void)
 	if (magicdelimiter) res("magicdelimiter") = magicdelimiter;
 	if (prototype) res("prototype") = prototype;
 	
-	DEBUG.storefile ("coreclass", "res", res, "getregistration");
-	DEBUG.storefile ("coreclass", "uuid", uuid.sval(), "getregistration");
+	DEBUG.storeFile ("coreclass", "res", res, "getregistration");
+	DEBUG.storeFile ("coreclass", "uuid", uuid.sval(), "getregistration");
 	return &res;
 }
 
@@ -545,7 +545,7 @@ coremodule::coremodule (const string &mpath, const string &mname,
 	if (! modvalid.check (meta, xmlerr))
 		CRIT_FAILURE ("Error in '%s': %s" %format (metapath, xmlerr));
 	
-	DEBUG.storefile ("coremodule","loaded-meta", meta);
+	DEBUG.storeFile ("coremodule","loaded-meta", meta);
 	
 	if (meta["name"].sval() != mname)
 	{
@@ -628,7 +628,7 @@ corestatus_t coremodule::action (const statstring &command,
 	log::write (log::info, "module", "Action class=<%S> "
 			   			   "command=<%S>" %format (classname, command));
 
-	DEBUG.storefile ("module", "parm", vin, "action");
+	DEBUG.storeFile ("module", "parm", vin, "action");
 
 	string mName = meta["name"];
 	mName = mName.cutat (".module");
@@ -691,12 +691,12 @@ value *coremodule::getcurrentconfig (void)
 	mName = mName.cutat (".module");
 	
 	out["OpenCORE:Command"] = "getconfig";
-	DEBUG.storefile ("module", "getconfig-param", out, "getcurrentconfig");
+	DEBUG.storeFile ("module", "getconfig-param", out, "getcurrentconfig");
 	
 	returnval = (corestatus_t) API::execute (mName, apitype, path, "action",
 											 out, res);
 											 
-	DEBUG.storefile ("module", "getconfig-result", res, "getcurrentconfig");
+	DEBUG.storeFile ("module", "getconfig-result", res, "getcurrentconfig");
 
 	if (returnval != status_ok) res.clear();
 	return &res;

@@ -21,12 +21,12 @@
 //  -------------------------------------------------------------------------
 /// Keeper of a thread-specific debug session uuid.
 //  -------------------------------------------------------------------------
-class threaduuid
+class ThreadUUID
 {
 public:
 	///{
 	/// List links.
-	threaduuid *next, *prev;
+	ThreadUUID *next, *prev;
 	///}
 	
 	/// Thread identifier.
@@ -44,14 +44,14 @@ public:
 /// thread can distinguish a new session, then log string or value objects
 /// to numbered files in /var/opencore/debug/$subsystem.
 //  -------------------------------------------------------------------------
-class debugger
+class Debugger
 {
 public:
 					 /// Constructor. Initializes linked list.
-					 debugger (void);
+					 Debugger (void);
 					 
 					 /// Destructor.
-					~debugger (void);
+					~Debugger (void);
 	
 					 /// Register a new session for this thread. The
 					 /// session-id is a uuid created on the fly. Keep
@@ -59,7 +59,7 @@ public:
 					 /// id of a coresession, rather most debugging
 					 /// sessions will represent a single round of
 					 /// interaction stemming from an rpc command.
-	void			 newsession (void);
+	void			 newSession (void);
 	
 					 /// Get the debug session uuid for this thread.
 	const string	&uuid (void);
@@ -71,26 +71,26 @@ public:
 					 /// \param action The action involved.
 					 /// \param data The data object.
 					 /// \param function Optional function name.
-	void			 storefile (const string &subsystem, const string &action,
+	void			 storeFile (const string &subsystem, const string &action,
 								const value &data, const string &f = "");
 					
 					 /// Set up a subsystem filter.
-	void			 setfilter (const value &filterlist);
+	void			 setFilter (const value &filterlist);
 									
 protected:
 
 					 /// Get node for the current thread.
-	threaduuid		*getnode (void);
+	ThreadUUID		*getNode (void);
 	
 					 ///{
 					 /// Linked list links.
-	threaduuid		*first, *last;
+	ThreadUUID		*first, *last;
 					 ///}
 					 
 	lock<int>		 lck; ///< Lock on linked list.
 	value			 filter; /// < Filter subsystem list
 };
 
-extern debugger DEBUG;
+extern Debugger DEBUG;
 
 #endif
