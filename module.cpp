@@ -596,7 +596,7 @@ bool coremodule::verify (void)
 	string mName = meta["name"];
 	mName = mName.cutat (".module");
 	
-	if (api::execute (mName, "commandline", path, "verify", tmpa, tmpb))
+	if (API::execute (mName, "commandline", path, "verify", tmpa, tmpb))
 	{
 		string errstr;
 		if (tmpb.exists ("OpenCORE:Result"))
@@ -662,7 +662,7 @@ corestatus_t coremodule::action (const statstring &command,
             CORE->sdb->release(usersession);
         
             vin["OpenCORE:Session"]["sessionid"] = modulesession->id;
-            result = api::execute (mName, apitype, path,
+            result = API::execute (mName, apitype, path,
             					   "action", vin, returndata);
             					   
             CORE->sdb->release(modulesession);
@@ -671,7 +671,7 @@ corestatus_t coremodule::action (const statstring &command,
     	else
     	{
             vin["OpenCORE:Session"].rmval("sessionid");
-			result = api::execute (mName, apitype, path, "action",
+			result = API::execute (mName, apitype, path, "action",
 								   vin, returndata);
     	}
     }
@@ -693,7 +693,7 @@ value *coremodule::getcurrentconfig (void)
 	out["OpenCORE:Command"] = "getconfig";
 	DEBUG.storefile ("module", "getconfig-param", out, "getcurrentconfig");
 	
-	returnval = (corestatus_t) api::execute (mName, apitype, path, "action",
+	returnval = (corestatus_t) API::execute (mName, apitype, path, "action",
 											 out, res);
 											 
 	DEBUG.storefile ("module", "getconfig-result", res, "getcurrentconfig");
@@ -732,7 +732,7 @@ bool coremodule::updateok (int currentversion)
 	out["OpenCORE:Command"] = "updateok";
 	out["OpenCORE:Session"]["currentversion"] = currentversion;
 	
-	returnval = (corestatus_t) api::execute (mName, apitype, path,
+	returnval = (corestatus_t) API::execute (mName, apitype, path,
 											 "updateok", out, res);
 	
 	if (returnval != status_ok) return false;

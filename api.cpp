@@ -17,9 +17,9 @@
 #include "error.h"
 
 // ==========================================================================
-// METHOD api::execute
+// METHOD API::execute
 // ==========================================================================
-int api::execute (const string &mname, const statstring &apitype,
+int API::execute (const string &mname, const statstring &apitype,
 				  const string &path, const string &cmd, const value &in,
 				  value &out)
 {
@@ -43,7 +43,7 @@ int api::execute (const string &mname, const statstring &apitype,
 	}
 }
 
-void api::mkenv (value &env, const string &pfx, const value &src)
+void API::makeShellEnvironment (value &env, const string &pfx, const value &src)
 {
 	value subst = $("_", "_usc_") ->
 				  $(".", "_dot_") ->
@@ -76,7 +76,7 @@ void api::mkenv (value &env, const string &pfx, const value &src)
 			
 		if (node.count())
 		{
-			mkenv (env, prefix, node);
+			makeShellEnvironment (env, prefix, node);
 		}
 		else
 		{
@@ -86,9 +86,9 @@ void api::mkenv (value &env, const string &pfx, const value &src)
 }
 
 // ==========================================================================
-// METHOD api::commandline (defunct)
+// METHOD API::commandline (defunct)
 // ==========================================================================
-int api::commandline (const string &mname, const string &fullcmd,
+int API::commandline (const string &mname, const string &fullcmd,
 					  const value &in, value &out)
 {
 	int i,j;
@@ -106,7 +106,7 @@ int api::commandline (const string &mname, const string &fullcmd,
 		  $("PATH",      "/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:"
 		  			     "/usr/local/sbin:/var/opencore/tools");
 
-	mkenv (env, "", in);
+	makeShellEnvironment (env, "", in);
 	
 	DEBUG.storefile ("api", "env", env, "commandline");
 	tcpsocket s;
@@ -117,7 +117,7 @@ int api::commandline (const string &mname, const string &fullcmd,
 	// Connect to authd in child context.
 	if (t != kernel.proc.self())
 	{
-		if (! connectauthd (s, mname))
+		if (! connectToAuthDaemon (s, mname))
 			exit (187);
 	}
 	
@@ -164,9 +164,9 @@ int api::commandline (const string &mname, const string &fullcmd,
 }
 
 // ==========================================================================
-// METHOD api::connectauthd
+// METHOD API::connectToAuthDaemon
 // ==========================================================================
-bool api::connectauthd (tcpsocket &s, const string &mname)
+bool API::connectToAuthDaemon (tcpsocket &s, const string &mname)
 {
 	if (! s.uconnect ("/var/opencore/sockets/authd/authd.sock"))
 	{
@@ -203,9 +203,9 @@ bool api::connectauthd (tcpsocket &s, const string &mname)
 }
 
 // ==========================================================================
-// METHOD api::cgi (defunct)
+// METHOD API::cgi (defunct)
 // ==========================================================================
-int api::cgi (const string &mname, const string &fullcmd, const value &in, value &out)
+int API::cgi (const string &mname, const string &fullcmd, const value &in, value &out)
 {
 	value argv;
 	value env;
@@ -216,9 +216,9 @@ int api::cgi (const string &mname, const string &fullcmd, const value &in, value
 }
 
 // ==========================================================================
-// METHOD api::grace
+// METHOD API::grace
 // ==========================================================================
-int api::grace (const string &mname, const string &fullcmd, const value &in, value &out)
+int API::grace (const string &mname, const string &fullcmd, const value &in, value &out)
 {
 	value argv;
 	string outdat;
@@ -240,7 +240,7 @@ int api::grace (const string &mname, const string &fullcmd, const value &in, val
 	systemprocess proc (argv, false);
 	if (t != kernel.proc.self())
 	{
-		if (! connectauthd (s, mname))
+		if (! connectToAuthDaemon (s, mname))
 			exit (1);
 	}
 	
@@ -325,9 +325,9 @@ int api::grace (const string &mname, const string &fullcmd, const value &in, val
 }
 
 // ==========================================================================
-// METHOD api::flatten
+// METHOD API::flatten
 // ==========================================================================
-value *api::flatten (const value &tree)
+value *API::flatten (const value &tree)
 {
 	returnclass (value) res retain;
 	
@@ -348,9 +348,9 @@ value *api::flatten (const value &tree)
 }
 
 // ==========================================================================
-// METHOD api::flatten_r
+// METHOD API::flatten_r
 // ==========================================================================
-void api::flatten_r (const value &tree, value &into, const string &path)
+void API::flatten_r (const value &tree, value &into, const string &path)
 {
 	int count = 0;
 	foreach (node, tree)

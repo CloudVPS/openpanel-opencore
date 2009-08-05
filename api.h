@@ -22,7 +22,7 @@
 /// Static-only class implements the different API methods to call
 /// an OpenCORE module.
 //  -------------------------------------------------------------------------
-class api
+class API
 {
 public:
 	/// Primary method. Will call the proper static API method depending
@@ -64,9 +64,9 @@ public:
 	/// \param s (inout) The socket to connect.
 	/// \param err (out) Error string if an error occurs.
 	/// \return true if the connection succeeded.
-	static bool connectauthd (tcpsocket &s, const string &err);
+	static bool connectToAuthDaemon (tcpsocket &s, const string &err);
 	
-	static void mkenv (value &, const string &, const value &);
+	static void makeShellEnvironment (value &, const string &, const value &);
 };
 
 #endif
