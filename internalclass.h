@@ -24,11 +24,11 @@
 /// This can be useful for exposing a class that needs internal knowledge
 /// of OpenCORE's structures.
 //  -------------------------------------------------------------------------
-class internalclass
+class InternalClass
 {
 public:
-					 internalclass (void);
-	virtual			~internalclass (void);
+					 InternalClass (void);
+	virtual			~InternalClass (void);
 	
 					 /// Should return an object list keyed
 					 /// by uuid. All subclasses should override
@@ -37,11 +37,11 @@ public:
 								  const statstring &parentid);
 
 					 /// Should return a specific object instance
-					 /// in the same format as coresession::getobject().
+					 /// in the same format as coresession::getObject().
 					 /// If you don't override this method, the base
 					 /// class will use your listObjects() and
 					 /// filter it for the specific id.
-	virtual value	*getobject (coresession *s,
+	virtual value	*getObject (coresession *s,
 								const statstring &parentid,
 								const statstring &id);
 					
@@ -71,51 +71,51 @@ public:
 protected:
 					 /// Set an error condition.
 					 /// \param s The error string.
-	void			 seterror (const string &s) { err = s; }
+	void			 setError (const string &s) { err = s; }
 	
 					 /// Translate a metaid/parentid combination
 					 /// to a uuid that is guaranteed to be
 					 /// static for the lifetime of this
 					 /// instance. Use this function to generate
 					 /// uuids in listObjects(), reuse them
-					 /// in other methods through resolveuuid() or
+					 /// in other methods through resolveUUID() or
 					 /// metaid().
 					 /// \param parentid The parent-id.
 					 /// \param metaid The meta-id.
-	const string	&getuuid (const statstring &parentid,
+	const string	&getUUID (const statstring &parentid,
 							  const statstring &metaid);
 	
 					 /// Resolve a raw uuid to its parent-/metaid.
 					 /// \param uuid The uuid.
 					 /// \return Reference to a 2 element array of
 					 ///         [parentid,metaid].
-	const value		&resolveuuid (const statstring &uuid);
+	const value		&resolveUUID (const statstring &uuid);
 	
 					 /// Resolve a uuid to its metaid.
-	const string	&getmetaid (const statstring &uuid);
+	const string	&getMetaID (const statstring &uuid);
 	
 					 /// Resolve a uuid to its parentid.
-	const string	&getparentid (const statstring &uuid);
+	const string	&getParentID (const statstring &uuid);
 	
 	value			 uuidmap;
 	value			 metamap;
 	string			 err;
 };
 
-typedef dictionary<internalclass> internalclassdb;
+typedef dictionary<InternalClass> InternalClassdb;
 
 //  -------------------------------------------------------------------------
 /// Implementation of the OpenCORE:Quota core class.
 //  -------------------------------------------------------------------------
-class quotaclass : public internalclass
+class QuotaClass : public InternalClass
 {
 public:
-					 quotaclass (void);
-					~quotaclass (void);
+					 QuotaClass (void);
+					~QuotaClass (void);
 					
 	value			*listObjects (coresession *s, const statstring &pid);
 	
-	value			*getobject (coresession *s,
+	value			*getObject (coresession *s,
 								const statstring &parentid,
 								const statstring &id);
 								
@@ -129,11 +129,11 @@ public:
 /// Synthetic root singleton used to keep the
 /// OpenCORE:ErrorLog and OpenCORE:ActiveSession objects.
 //  -------------------------------------------------------------------------
-class coresystemclass : public internalclass
+class CoreSystemClass : public InternalClass
 {
 public:
-					 coresystemclass (void);
-					~coresystemclass (void);
+					 CoreSystemClass (void);
+					~CoreSystemClass (void);
 					
 	value			*listObjects (coresession *s, const statstring &pid);
 
@@ -144,11 +144,11 @@ protected:
 //  -------------------------------------------------------------------------
 /// Impleentation of the OpenCORE:ActiveSession core class.
 //  -------------------------------------------------------------------------
-class sessionlistclass : public internalclass
+class SessionListClass : public InternalClass
 {
 public:
-					 sessionlistclass (void);
-					~sessionlistclass (void);
+					 SessionListClass (void);
+					~SessionListClass (void);
 					
 	value			*listObjects (coresession *s, const statstring &pid);
 };
@@ -156,11 +156,11 @@ public:
 //  -------------------------------------------------------------------------
 /// Implementation of the OpenCORE:ErrorLog coreclass.
 //  -------------------------------------------------------------------------
-class errorlogclass : public internalclass
+class ErrorLogClass : public InternalClass
 {
 public:
-					 errorlogclass (void);
-					~errorlogclass (void);
+					 ErrorLogClass (void);
+					~ErrorLogClass (void);
 					
 	value			*listObjects (coresession *s, const statstring &pid);
 };
@@ -168,11 +168,11 @@ public:
 //  -------------------------------------------------------------------------
 /// Implementation of the OpenCORE:ClassList coreclass.
 //  -------------------------------------------------------------------------
-class classlistclass : public internalclass
+class ClassListClass : public InternalClass
 {
 public:
-					 classlistclass (void);
-					~classlistclass (void);
+					 ClassListClass (void);
+					~ClassListClass (void);
 					
 	value			*listObjects (coresession *s, const statstring &pid);
 };

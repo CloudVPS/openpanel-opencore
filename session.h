@@ -179,8 +179,8 @@ protected:
 class coresession
 {
 friend class sessiondb;
-friend class quotaclass;
-friend class classlistclass;
+friend class QuotaClass;
+friend class ClassListClass;
 public:
 						 /// Constructor. The session-id is generated
 						 /// by the sessiondb.
@@ -264,7 +264,7 @@ public:
 						 ///                 root level.
 						 /// \param ofclass The object's class.
 						 /// \param withkey The object's uuid or metaid.
-	value				*getobject (const statstring &parentid,
+	value				*getObject (const statstring &parentid,
 									const statstring &ofclass,
 									const statstring &withkey);
 
@@ -316,13 +316,13 @@ public:
 						 /// the /errors/$LANGUAGE key.
 						 /// \param code The error code.
 						 /// \param msg The error message.
-	void				 seterror (unsigned int code, const string &msg);
+	void				 setError (unsigned int code, const string &msg);
 						
 						 /// Add an opencore error to the session error
 						 /// list. See error.h and rsrc/resources.xml at
 						 /// the /errors/$LANGUAGE key.
 						 /// \param code The error code.
-	void				 seterror (unsigned int code);
+	void				 setError (unsigned int code);
 
 						 /// \return The number of errors.
 	int					 errorcount (void) { return errors.exists("code"); }
@@ -474,7 +474,7 @@ protected:
 						 /// \fixme Ideally we should not need to
 						 ///        synchronize with the database. Figure
 						 ///        out if we can deal with dynamic objects
-						 ///        in much the same way as internalclass
+						 ///        in much the same way as InternalClass
 						 ///        objects.
 						 /// \param parentid The parent-id.
 						 /// \param ofclass The class name.

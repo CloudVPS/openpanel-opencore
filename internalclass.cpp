@@ -5,33 +5,33 @@
 #include <grace/version.h>
 
 // ==========================================================================
-// CONSTRUCTOR internalclass
+// CONSTRUCTOR InternalClass
 // ==========================================================================
-internalclass::internalclass (void)
+InternalClass::InternalClass (void)
 {
 }
 
 // ==========================================================================
-// DESTRUCTOR internalclass
+// DESTRUCTOR InternalClass
 // ==========================================================================
-internalclass::~internalclass (void)
+InternalClass::~InternalClass (void)
 {
 }
 
 // ==========================================================================
-// METHOD internalclass::listObjects
+// METHOD InternalClass::listObjects
 // ==========================================================================
-value *internalclass::listObjects (coresession *s, const statstring &parentid)
+value *InternalClass::listObjects (coresession *s, const statstring &parentid)
 {
 	CORE->log (log::error, "iclass", "Listobjects on base class");
-	seterror ("List not implemented");
+	setError ("List not implemented");
 	return NULL;
 }
 
 // ==========================================================================
-// METHOD internalclass::getobject
+// METHOD InternalClass::getObject
 // ==========================================================================
-value *internalclass::getobject (coresession *s, const statstring &parentid,
+value *InternalClass::getObject (coresession *s, const statstring &parentid,
 								 const statstring &id)
 {
 	returnclass (value) res retain;
@@ -41,44 +41,44 @@ value *internalclass::getobject (coresession *s, const statstring &parentid,
 }
 
 // ==========================================================================
-// METHOD internalclass::createObject
+// METHOD InternalClass::createObject
 // ==========================================================================
-string *internalclass::createObject (coresession *s,
+string *InternalClass::createObject (coresession *s,
 									 const statstring &parentid,
 									 const value &withparam,
 									 const statstring &withid)
 {
-	seterror ("Create not implemented");
+	setError ("Create not implemented");
 	return NULL;
 }
 
 // ==========================================================================
-// METHOD internalclass::deleteObject
+// METHOD InternalClass::deleteObject
 // ==========================================================================
-bool internalclass::deleteObject (coresession *s,
+bool InternalClass::deleteObject (coresession *s,
 								  const statstring &parentid,
 								  const statstring &witid)
 {
-	seterror ("Delete not implemented");
+	setError ("Delete not implemented");
 	return false;
 }
 
 // ==========================================================================
-// METHOD internalclass::updateObject
+// METHOD InternalClass::updateObject
 // ==========================================================================
-bool internalclass::updateObject (coresession *s,
+bool InternalClass::updateObject (coresession *s,
 								  const statstring &parentid,
 								  const statstring &withid,
 								  const value &withparam)
 {
-	seterror ("Update not implemented");
+	setError ("Update not implemented");
 	return false;
 }
 
 // ==========================================================================
-// METHOD internalclass::getuuid
+// METHOD InternalClass::getUUID
 // ==========================================================================
-const string &internalclass::getuuid (const statstring &parentid,
+const string &InternalClass::getUUID (const statstring &parentid,
 									  const statstring &metaid)
 {
 	statstring pid = parentid;
@@ -95,49 +95,49 @@ const string &internalclass::getuuid (const statstring &parentid,
 }
 
 // ==========================================================================
-// METHOD internalclass::resolveuuid
+// METHOD InternalClass::resolveUUID
 // ==========================================================================
-const value &internalclass::resolveuuid (const statstring &uuid)
+const value &InternalClass::resolveUUID (const statstring &uuid)
 {
 	return metamap[uuid];
 }
 
 // ==========================================================================
-// METHOD internalclass::metaid
+// METHOD InternalClass::metaid
 // ==========================================================================
-const string &internalclass::getmetaid (const statstring &uuid)
+const string &InternalClass::getMetaID (const statstring &uuid)
 {
-    DEBUG.storeFile("internalclass",uuid, metamap, "getmetaid");
+    DEBUG.storeFile("InternalClass",uuid, metamap, "getMetaID");
 	return metamap[uuid][1];
 }
 
 // ==========================================================================
-// METHOD internalclass::getparentid
+// METHOD InternalClass::getParentID
 // ==========================================================================
-const string &internalclass::getparentid (const statstring &uuid)
+const string &InternalClass::getParentID (const statstring &uuid)
 {
-	DEBUG.storeFile("internalclass", uuid, metamap, "getmetaid");
+	DEBUG.storeFile("InternalClass", uuid, metamap, "getMetaID");
 	return metamap[uuid][0];
 }
 
 // ==========================================================================
-// CONSTRUCTOR quotaclass
+// CONSTRUCTOR QuotaClass
 // ==========================================================================
-quotaclass::quotaclass (void)
+QuotaClass::QuotaClass (void)
 {
 }
 
 // ==========================================================================
-// DESTRUCTOR quotaclass
+// DESTRUCTOR QuotaClass
 // ==========================================================================
-quotaclass::~quotaclass (void)
+QuotaClass::~QuotaClass (void)
 {
 }
 
 // ==========================================================================
-// METHOD quotaclass::listObjects
+// METHOD QuotaClass::listObjects
 // ==========================================================================
-value *quotaclass::listObjects (coresession *s,
+value *QuotaClass::listObjects (coresession *s,
 								const statstring &parentid)
 {
 	returnclass (value) res retain;
@@ -149,7 +149,7 @@ value *quotaclass::listObjects (coresession *s,
 	
 	foreach (c, cl)
 	{
-		cuuid = getuuid (parentid, c.id());
+		cuuid = getUUID (parentid, c.id());
 		int usage = 0;
 		int quota = s->db.getUserQuota (c.id(), parentid, &usage);
 		coreclass &cl = s->mdb.getclass (c.id());
@@ -175,7 +175,7 @@ value *quotaclass::listObjects (coresession *s,
 		statstring qwarningid = "%s:warning" %format (q.id());
 		string qdesc = "%s (warning level)" %format (q);
 		
-		cuuid = getuuid (parentid, qid);
+		cuuid = getUUID (parentid, qid);
 		qres << $(qid,
 					$("class", "OpenCORE:Quota") ->
 					$("uuid", cuuid) ->
@@ -186,7 +186,7 @@ value *quotaclass::listObjects (coresession *s,
 					$("usage", s->db.getSpecialQuotaUsage (qid, parentid)) ->
 					$("quota", s->db.getSpecialQuota (qid, parentid)));
 		
-		cuuid = getuuid (parentid, qwarningid);
+		cuuid = getUUID (parentid, qwarningid);
 		qres << $(qwarningid,
 					$("class", "OpenCORE:Quota") ->
 					$("uuid", cuuid) ->
@@ -202,9 +202,9 @@ value *quotaclass::listObjects (coresession *s,
 }
 
 // ==========================================================================
-// METHOD quotaclass::getobject
+// METHOD QuotaClass::getObject
 // ==========================================================================
-value *quotaclass::getobject (coresession *s,
+value *QuotaClass::getObject (coresession *s,
 							  const statstring &parentid,
 							  const statstring &withid)
 {
@@ -215,12 +215,12 @@ value *quotaclass::getobject (coresession *s,
 	
 	if (mid.sval().strchr ('-') == 8)
 	{
-		mid = getmetaid (mid);
+		mid = getMetaID (mid);
 		cuuid = withid;
 	}
 	else
 	{
-		cuuid = getuuid (parentid, mid);
+		cuuid = getUUID (parentid, mid);
 	}
 	
 	if (mid == "bandwidth")
@@ -267,9 +267,9 @@ value *quotaclass::getobject (coresession *s,
 }
 
 // ==========================================================================
-// METHOD quotaclass::updateObject
+// METHOD QuotaClass::updateObject
 // ==========================================================================
-bool quotaclass::updateObject (coresession *s,
+bool QuotaClass::updateObject (coresession *s,
 							   const statstring &_parentid,
 							   const statstring &withid,
 							   const value &withparam)
@@ -279,8 +279,8 @@ bool quotaclass::updateObject (coresession *s,
     statstring mid;
 	if (withid.sval().strchr ('-') == 8)
 	{
-		mid = getmetaid (withid);
-		parentid = getparentid (withid);
+		mid = getMetaID (withid);
+		parentid = getParentID (withid);
 		
 	}
 	else
@@ -292,11 +292,11 @@ bool quotaclass::updateObject (coresession *s,
 	
 	if (parentmeta == s->meta["user"])
 	{
-		seterror ("Cannot change own quota");
+		setError ("Cannot change own quota");
 		return false;
 	}
     
-    CORE->log (log::debug, "quotaclass", "Updateobject id=<%s> metaid=<%s> "
+    CORE->log (log::debug, "QuotaClass", "Updateobject id=<%s> metaid=<%s> "
     		   "parentid=<%s> param=%J" %format (withid, mid, parentid, withparam));
 
 	if (mid)
@@ -307,7 +307,7 @@ bool quotaclass::updateObject (coresession *s,
 		if (s->mdb.classexists (mid))
 		{
 			if (s->setUserQuota (mid, count, parentid)) return true;
-			seterror (s->error()["message"]);
+			setError (s->error()["message"]);
 			return false;
 		}
 		
@@ -317,7 +317,7 @@ bool quotaclass::updateObject (coresession *s,
         {
             // TODO: strip ':usage' from mid
             if(s->db.setSpecialQuotaUsage(mid, parentid, withparam["usage"])) return true;
-            seterror (s->db.getLastError());
+            setError (s->db.getLastError());
             return false;
         }
         value phys;
@@ -328,7 +328,7 @@ bool quotaclass::updateObject (coresession *s,
 			string tag = mid.sval().copyuntil (":warning");
             int curquota=s->db.getSpecialQuota(tag, parentid);
             if(s->db.setSpecialQuota(tag, parentid, curquota, count, phys)) return true;
-            seterror (s->db.getLastError());
+            setError (s->db.getLastError());
             return false;
 		}
 		else
@@ -336,7 +336,7 @@ bool quotaclass::updateObject (coresession *s,
 		    int curwarn=s->db.getSpecialQuotaWarning(mid, parentid);
             if (!(s->db.setSpecialQuota(mid, parentid, count, curwarn, phys)))
             {            
-                seterror (s->db.getLastError());
+                setError (s->db.getLastError());
                 return false;
             }                
 
@@ -344,34 +344,34 @@ bool quotaclass::updateObject (coresession *s,
             string moderr;
             if(s->mdb.setspecialphysicalquota(mid, phys, err) == status_ok) return true;
             
-            seterror (moderr);
+            setError (moderr);
             return false;
 		}
 		return false; // can't happen
 	}
 	if (s->setUserQuota (withid, count, parentid)) return true;
-	seterror (s->error()["message"]);
+	setError (s->error()["message"]);
 	return false;
 }
 
 // ==========================================================================
-// CONSTRUCTOR sessionlistclass
+// CONSTRUCTOR SessionListClass
 // ==========================================================================
-sessionlistclass::sessionlistclass (void)
+SessionListClass::SessionListClass (void)
 {
 }
 
 // ==========================================================================
-// DESTRUCTOR sessionlistclass
+// DESTRUCTOR SessionListClass
 // ==========================================================================
-sessionlistclass::~sessionlistclass (void)
+SessionListClass::~SessionListClass (void)
 {
 }
 
 // ==========================================================================
 // METHOD sesionlistclass::listObjects
 // ==========================================================================
-value *sessionlistclass::listObjects (coresession *s, const statstring &pid)
+value *SessionListClass::listObjects (coresession *s, const statstring &pid)
 {
 	//if (s->meta["user"] != "openadmin") return NULL;
 	
@@ -394,23 +394,23 @@ value *sessionlistclass::listObjects (coresession *s, const statstring &pid)
 }
 
 // ==========================================================================
-// CONSTRUCTOR errorlogclass
+// CONSTRUCTOR ErrorLogClass
 // ==========================================================================
-errorlogclass::errorlogclass (void)
+ErrorLogClass::ErrorLogClass (void)
 {
 }
 
 // ==========================================================================
-// DESTRUCTOR errorlogclass
+// DESTRUCTOR ErrorLogClass
 // ==========================================================================
-errorlogclass::~errorlogclass (void)
+ErrorLogClass::~ErrorLogClass (void)
 {
 }
 
 // ==========================================================================
-// METHOD errorlogclass::listObjects
+// METHOD ErrorLogClass::listObjects
 // ==========================================================================
-value *errorlogclass::listObjects (coresession *s, const statstring &pid)
+value *ErrorLogClass::listObjects (coresession *s, const statstring &pid)
 {
 	returnclass (value) res retain;
 	value &qres = res["OpenCORE:ErrorLog"];
@@ -431,24 +431,24 @@ value *errorlogclass::listObjects (coresession *s, const statstring &pid)
 }
 
 // ==========================================================================
-// CONSTRUCTOR coresystemclass
+// CONSTRUCTOR CoreSystemClass
 // ==========================================================================
-coresystemclass::coresystemclass (void)
+CoreSystemClass::CoreSystemClass (void)
 {
 	sysuuid = strutil::uuid ();
 }
 
 // ==========================================================================
-// DESTRUCTOR coresystemclass
+// DESTRUCTOR CoreSystemClass
 // ==========================================================================
-coresystemclass::~coresystemclass (void)
+CoreSystemClass::~CoreSystemClass (void)
 {
 }
 
 // ==========================================================================
-// METHOD coresystemclass::listObjects
+// METHOD CoreSystemClass::listObjects
 // ==========================================================================
-value *coresystemclass::listObjects (coresession *s, const statstring &pid)
+value *CoreSystemClass::listObjects (coresession *s, const statstring &pid)
 {
 	return $("OpenCORE:System",
 				$("system",
@@ -465,23 +465,23 @@ value *coresystemclass::listObjects (coresession *s, const statstring &pid)
 }
 
 // ==========================================================================
-// CONSTRUCTOR classlistclass
+// CONSTRUCTOR ClassListClass
 // ==========================================================================
-classlistclass::classlistclass (void)
+ClassListClass::ClassListClass (void)
 {
 }
 
 // ==========================================================================
-// DESTRUCTOR classlistclass
+// DESTRUCTOR ClassListClass
 // ==========================================================================
-classlistclass::~classlistclass (void)
+ClassListClass::~ClassListClass (void)
 {
 }
 
 // ==========================================================================
-// METHOD classlistclass::listObjects
+// METHOD ClassListClass::listObjects
 // ==========================================================================
-value *classlistclass::listObjects (coresession *s, const statstring &pid)
+value *ClassListClass::listObjects (coresession *s, const statstring &pid)
 {
 	returnclass (value) res retain;
 	

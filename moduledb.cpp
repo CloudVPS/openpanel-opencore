@@ -41,11 +41,11 @@ moduledb::moduledb (void)
 {
 	first = last = NULL;
 	
-	internalclasses.set ("OpenCORE:Quota", new quotaclass);
-	internalclasses.set ("OpenCORE:ActiveSession", new sessionlistclass);
-	internalclasses.set ("OpenCORE:ErrorLog", new errorlogclass);
-	internalclasses.set ("OpenCORE:System", new coresystemclass);
-	internalclasses.set ("OpenCORE:ClassList", new classlistclass);
+	InternalClasses.set ("OpenCORE:Quota", new QuotaClass);
+	InternalClasses.set ("OpenCORE:ActiveSession", new SessionListClass);
+	InternalClasses.set ("OpenCORE:ErrorLog", new ErrorLogClass);
+	InternalClasses.set ("OpenCORE:System", new CoreSystemClass);
+	InternalClasses.set ("OpenCORE:ClassList", new ClassListClass);
 }
 
 // ==========================================================================

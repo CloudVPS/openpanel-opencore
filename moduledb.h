@@ -358,16 +358,16 @@ public:
 
 						 /// Checks whether a class is handled by
 						 /// opencore internally.
-	bool				 isinternalclass (const statstring &classid)
+	bool				 isInternalClass (const statstring &classid)
 						 {
-						 	return internalclasses.exists (classid);
+						 	return InternalClasses.exists (classid);
 						 }
 						 
-						 /// Get a reference to an internalclass
+						 /// Get a reference to an InternalClass
 						 /// object.
-	internalclass		&geticlass (const statstring &classid)
+	InternalClass		&geticlass (const statstring &classid)
 						 {
-						 	return internalclasses[classid];
+						 	return InternalClasses[classid];
 						 }
 
 protected:
@@ -434,7 +434,7 @@ protected:
 
 						 /// Dictionary of pointers to internally handled
 						 /// classes.
-	internalclassdb		 internalclasses;
+	InternalClassdb		 InternalClasses;
 };
 
 #endif

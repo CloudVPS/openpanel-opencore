@@ -402,7 +402,7 @@ value *rpchandler::getrecord (const value &v, coresession &cs)
 	
 	cs.mlockr ();
 	
-		dres["object"] = cs.getobject (in_parentid, in_class, in_objectid);
+		dres["object"] = cs.getObject (in_parentid, in_class, in_objectid);
 		if (! dres["object"])
 		{
 			copysessionerror (cs, res);
@@ -529,9 +529,9 @@ void rpchandler::copysessionerror (coresession &cs, value &into)
 }
 
 // ==========================================================================
-// METHOD rpchandler::seterror
+// METHOD rpchandler::setError
 // ==========================================================================
-void rpchandler::seterror (int errcode, value &into)
+void rpchandler::setError (int errcode, value &into)
 {
 	statstring mid = "%04x" %format (errcode);
 	into["header"] = $("errorid", errcode) ->

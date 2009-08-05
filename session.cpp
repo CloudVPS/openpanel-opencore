@@ -418,7 +418,7 @@ bool coresession::login (const string &user, const string &pass, bool superuser)
 	{
 		if (! user) return false;
 
-		seterror (ERR_DBMANAGER_LOGINFAIL);
+		setError (ERR_DBMANAGER_LOGINFAIL);
 		log::write (log::error, "session", "Failed login user "
 				    "<%S> (%S)" %format (user, db.getLastError()));
 		
@@ -472,7 +472,7 @@ bool coresession::userlogin (const string &user)
 	}
 	
 	// FIXME: is this ok?
-	seterror (db.getLastErrorCode(), db.getLastError());
+	setError (db.getLastErrorCode(), db.getLastError());
 	return res;
 }
 
@@ -505,11 +505,11 @@ string *coresession::createObject (const statstring &parentid,
 	DEBUG.storeFile ("session", "create-param", withparam);
 
 	// Catch internal classes.
-	if (mdb.isinternalclass (ofclass))
+	if (mdb.isInternalClass (ofclass))
 	{
-		internalclass &cl = mdb.geticlass (ofclass);
+		InternalClass &cl = mdb.geticlass (ofclass);
 		string *r = cl.createObject (this, parentid, withparam, withid);
-		if (! r) seterror (ERR_ICLASS, cl.error());
+		if (! r) setError (ERR_ICLASS, cl.error());
 		return r;
 	}
 
@@ -518,7 +518,7 @@ string *coresession::createObject (const statstring &parentid,
 	{
 		log::write (log::error, "session", "Create request for class <%S> "
 				    "which does not exist" %format (ofclass));
-		seterror (ERR_SESSION_CLASS_UNKNOWN);
+		setError (ERR_SESSION_CLASS_UNKNOWN);
 		return NULL;
 	}
 	
@@ -533,7 +533,7 @@ string *coresession::createObject (const statstring &parentid,
 	{
 		log::write (log::error, "session", "Create request with manual id "
 				    "on class <%S> with autoindex" %format (ofclass));
-		seterror (ERR_SESSION_INDEX);
+		setError (ERR_SESSION_INDEX);
 		return NULL;
 	}
 	
@@ -541,7 +541,7 @@ string *coresession::createObject (const statstring &parentid,
 	{
 		log::write (log::error, "session", "Create request with no required "
 				    "manual id on class <%S>" %format (ofclass));
-		seterror (ERR_SESSION_NOINDEX);
+		setError (ERR_SESSION_NOINDEX);
 		return NULL;
 	}
 	
@@ -554,7 +554,7 @@ string *coresession::createObject (const statstring &parentid,
 		{
 			log::write (log::error, "session", "Lookup failed for "
 					    "fetchObject on parentid=<%S>" %format (parentid));
-			seterror (ERR_SESSION_PARENTREALM);
+			setError (ERR_SESSION_PARENTREALM);
 			return NULL;
 		}
 		
@@ -563,7 +563,7 @@ string *coresession::createObject (const statstring &parentid,
 		{
 			log::write (log::error, "session", "Error getting metaid "
 					    "from resolved parent object: %J" %format (vparent));
-			seterror (ERR_SESSION_PARENTREALM, "Error finding metaid");
+			setError (ERR_SESSION_PARENTREALM, "Error finding metaid");
 			return NULL;
 		}
 		
@@ -572,7 +572,7 @@ string *coresession::createObject (const statstring &parentid,
 			log::write (log::error, "session", "Blocking attempt to "
 					    "create new prototype records under"
 					    " id=%S" %format (pmid));
-			seterror (ERR_SESSION_CREATEPROTO);
+			setError (ERR_SESSION_CREATEPROTO);
 			return NULL;
 		}
 		
@@ -618,7 +618,7 @@ string *coresession::createObject (const statstring &parentid,
 	{
 		log::write (log::error, "session", "Input data validation "
 				    "error: %s " %format (err));
-		seterror (ERR_SESSION_VALIDATION, err);
+		setError (ERR_SESSION_VALIDATION, err);
 		return NULL;
 	}
 
@@ -638,7 +638,7 @@ string *coresession::createObject (const statstring &parentid,
 	{
 		log::write (log::error, "session", "Database error: %s"
 				    %format (db.getLastError()));
-		seterror (db.getLastErrorCode(), db.getLastError());
+		setError (db.getLastErrorCode(), db.getLastError());
 		return NULL;
 	}
 	
@@ -647,7 +647,7 @@ string *coresession::createObject (const statstring &parentid,
 		if (! chown (uuid, owner))
 		{
 			db.reportFailure (uuid);
-			seterror (ERR_SESSION_CHOWN);
+			setError (ERR_SESSION_CHOWN);
 			return NULL;
 		}
 	}
@@ -696,7 +696,7 @@ string *coresession::createObject (const statstring &parentid,
 			if (! db.reportSuccess (uuid))
 			{
 				// Failed. Not sure if this is what we want.
-				seterror (db.getLastErrorCode(), db.getLastError());
+				setError (db.getLastErrorCode(), db.getLastError());
 				log::write (log::error, "session ", "Database failure on marking "
 						    "record: %s" %format (db.getLastError()));
 				
@@ -706,7 +706,7 @@ string *coresession::createObject (const statstring &parentid,
 			break;
 		
 		case status_failed:
-			seterror (ERR_MDB_ACTION_FAILED, moderr);
+			setError (ERR_MDB_ACTION_FAILED, moderr);
 			
 			if (! db.reportFailure (uuid))
 			{
@@ -787,7 +787,7 @@ log::write (log::debug, "session", "Handlecrypt class=<%S>" %format (ofclass));
 						{
 							log::write (log::error, "session", "Could not "
 									    "get crypt-result from module");
-							seterror (ERR_SESSION_CRYPT);
+							setError (ERR_SESSION_CRYPT);
 							return false;
 						}
 						break;
@@ -830,7 +830,7 @@ log::write (log::debug, "session", "Handlecrypt class=<%S>" %format (ofclass));
 							    "object, member=<%S::%S>"
 							    %format (ofclass, opt.id()));
 							   
-					seterror (ERR_SESSION_CRYPT_ORIG);
+					setError (ERR_SESSION_CRYPT_ORIG);
 					return false;
 				}
 				
@@ -863,11 +863,11 @@ bool coresession::updateObject (const statstring &parentid,
 	DEBUG.storeFile ("session", "param", withparam, "updateObject");
 	
 	// Catch internal classes.
-	if (mdb.isinternalclass (ofclass))
+	if (mdb.isInternalClass (ofclass))
 	{
-		internalclass &cl = mdb.geticlass (ofclass);
+		InternalClass &cl = mdb.geticlass (ofclass);
 		bool r = cl.updateObject (this, parentid, withid, withparam);
-		if (! r) seterror (ERR_ICLASS, cl.error());
+		if (! r) setError (ERR_ICLASS, cl.error());
 		return r;
 	}
 
@@ -876,7 +876,7 @@ bool coresession::updateObject (const statstring &parentid,
 	{
 		log::write (log::error, "session", "Could not update object, class "
 				    "<%S> does not exist" %format (ofclass));
-		seterror (ERR_SESSION_CLASS_UNKNOWN);
+		setError (ERR_SESSION_CLASS_UNKNOWN);
 		return false;
 	}
 	
@@ -885,7 +885,7 @@ bool coresession::updateObject (const statstring &parentid,
 	{
 		// Crypting failed. Bummer.
 		log::write (log::error, "session", "Update failed due to crypt error");
-		seterror (ERR_SESSION_CRYPT);
+		setError (ERR_SESSION_CRYPT);
 		return false;
 	}
 	
@@ -901,7 +901,7 @@ bool coresession::updateObject (const statstring &parentid,
 				    "which could not be found in the database: %s"
 				    %format (withid, db.getLastError()));
 				   
-		seterror (ERR_SESSION_OBJECT_NOT_FOUND);
+		setError (ERR_SESSION_OBJECT_NOT_FOUND);
 		return false;
 	}
 	
@@ -913,7 +913,7 @@ bool coresession::updateObject (const statstring &parentid,
 		log::write (log::error, "session", "Object disappeared while trying "
 				    "to update class=<%S> uuid=<%S>" %format (ofclass, uuid));
 		
-		seterror (ERR_SESSION_OBJECT_NOT_FOUND);
+		setError (ERR_SESSION_OBJECT_NOT_FOUND);
 		return false;
 	}
 	
@@ -935,7 +935,7 @@ bool coresession::updateObject (const statstring &parentid,
 	{
 		log::write (log::error, "session", "Input data validation error: "
 				    "%S" %format (err));
-		seterror (ERR_SESSION_VALIDATION, err);
+		setError (ERR_SESSION_VALIDATION, err);
 		return false;
 	}
 
@@ -944,7 +944,7 @@ bool coresession::updateObject (const statstring &parentid,
 	updatesucceeded = db.updateObject (withparam, uuid, immediate);
 	if (! updatesucceeded) // FIXME: get rid of bool var?
 	{
-		seterror (db.getLastErrorCode(), db.getLastError());
+		setError (db.getLastErrorCode(), db.getLastError());
 		log::write (log::error, "session ", "Database failure on updating "
 				    "object: %s" %format (db.getLastError()));
 		return false;
@@ -991,7 +991,7 @@ bool coresession::updateObject (const statstring &parentid,
 		case status_ok:
 			if (! db.reportSuccess (nuuid))
 			{
-				seterror (db.getLastErrorCode(), db.getLastError());
+				setError (db.getLastErrorCode(), db.getLastError());
 				log::write (log::error, "session ", "Database failure on marking "
 						    "record: %s" %format (db.getLastError()));
 				
@@ -1015,7 +1015,7 @@ bool coresession::updateObject (const statstring &parentid,
 			break;
 		
 		case status_failed:
-			seterror (ERR_MDB_ACTION_FAILED, moderr);
+			setError (ERR_MDB_ACTION_FAILED, moderr);
 			if (! db.reportFailure (uuid))
 			{
 				log::write (log::error, "session ", "Database failure on "
@@ -1045,11 +1045,11 @@ bool coresession::deleteObject (const statstring &parentid,
 							    bool immediate)
 {
 	// Catch internal classes.
-	if (mdb.isinternalclass (ofclass))
+	if (mdb.isInternalClass (ofclass))
 	{
-		internalclass &cl = mdb.geticlass (ofclass);
+		InternalClass &cl = mdb.geticlass (ofclass);
 		bool r = cl.deleteObject (this, parentid, withid);
-		if (! r) seterror (ERR_ICLASS, cl.error());
+		if (! r) setError (ERR_ICLASS, cl.error());
 		return r;
 	}
 
@@ -1062,7 +1062,7 @@ bool coresession::deleteObject (const statstring &parentid,
 		log::write (log::error, "session", "Error deleting object '%S': not "
 				    "found: %s" %format (uuidt, db.getLastError()));
 				   
-		seterror (db.getLastErrorCode(), db.getLastError());
+		setError (db.getLastErrorCode(), db.getLastError());
 		return false;
 	}
 
@@ -1070,7 +1070,7 @@ bool coresession::deleteObject (const statstring &parentid,
 	{
 		log::write (log::error, "session", "Error deleting object '%S': "
 				    "%s" %format (uuidt, db.getLastError()));
-		seterror (db.getLastErrorCode(), db.getLastError());
+		setError (db.getLastErrorCode(), db.getLastError());
 		return false;
 	}
 
@@ -1082,7 +1082,7 @@ bool coresession::deleteObject (const statstring &parentid,
 					"recursive listing failed: %s" %format (uuidt,
 					db.getLastError()));
 				   
-		seterror (db.getLastErrorCode(), db.getLastError());
+		setError (db.getLastErrorCode(), db.getLastError());
 		return false;
 	}
 	
@@ -1098,7 +1098,7 @@ bool coresession::deleteObject (const statstring &parentid,
 			log::write (log::error, "session", "Error deleting object '%S': %s"
 					    %format (uuid, db.getLastError()));
 			
-			seterror (db.getLastErrorCode(), db.getLastError());
+			setError (db.getLastErrorCode(), db.getLastError());
 			return false;
 		}
 		
@@ -1117,7 +1117,7 @@ bool coresession::deleteObject (const statstring &parentid,
 			{
 				log::write (log::error, "session", "Denied delete of "
 						    "prototype object");
-				seterror (ERR_SESSION_NOTALLOWED);
+				setError (ERR_SESSION_NOTALLOWED);
 				return false;
 			}
 		}
@@ -1144,7 +1144,7 @@ bool coresession::deleteObject (const statstring &parentid,
 				if (firstobject)
 				{
 					db.reportFailure (uuid);
-					seterror (ERR_MDB_ACTION_FAILED);
+					setError (ERR_MDB_ACTION_FAILED);
 					return false;
 				}
     			ALERT->alert ("Module failed to delete %s in recursive delete: %s"
@@ -1154,7 +1154,7 @@ bool coresession::deleteObject (const statstring &parentid,
 			case status_ok:
 				if (! db.reportSuccess (uuid))
 				{
-					seterror (db.getLastErrorCode(), db.getLastError());
+					setError (db.getLastErrorCode(), db.getLastError());
 					
 					log::write (log::error, "session ", "Database failure "
 							    "on marking record: %s"
@@ -1196,7 +1196,7 @@ value *coresession::getclassinfo (const string &forclass)
 		log::write (log::error, "session", "Info for class <%S> requested "
 				    "where no such class exists" %format (forclass));
 		
-		seterror (ERR_SESSION_CLASS_UNKNOWN);
+		setError (ERR_SESSION_CLASS_UNKNOWN);
 		return NULL;
 	}
 	
@@ -1252,7 +1252,7 @@ bool coresession::setUserQuota (const statstring &ofclass,
 			    %format (ofclass, useruuid, count));
 			   
 	if (db.setUserQuota (ofclass, count, useruuid)) return true;
-	seterror (db.getLastErrorCode(), db.getLastError());
+	setError (db.getLastErrorCode(), db.getLastError());
 	return false;
 }
 
@@ -1270,7 +1270,7 @@ bool coresession::chown(const statstring &ofobject,
 	if (! uuid) uuid = user;
 	
 	if (db.chown (ofobject, uuid)) return true;
-	seterror (db.getLastErrorCode(), db.getLastError());
+	setError (db.getLastErrorCode(), db.getLastError());
 	return false;
 }
 
@@ -1302,7 +1302,7 @@ value *coresession::callmethod (const statstring &parentid,
 		{
 			log::write (log::error, "session", "Callmethod: object not found "
 					    "class=<%S> id=<%S>" %format (ofclass, withid));
-			seterror (ERR_SESSION_OBJECT_NOT_FOUND);
+			setError (ERR_SESSION_OBJECT_NOT_FOUND);
 			return &res;
 		}
 		obj.clear();
@@ -1318,7 +1318,7 @@ value *coresession::callmethod (const statstring &parentid,
 	// Report an error if this went wrong.
 	if (st != status_ok)
 	{
-		seterror (ERR_MDB_ACTION_FAILED, moderr);
+		setError (ERR_MDB_ACTION_FAILED, moderr);
 		log::write (log::error, "session", "Callmethod: Error from moduledb "
 				    "<%S::%S> id=<%S>" %format (ofclass, method, withid));
 	}
@@ -1327,18 +1327,18 @@ value *coresession::callmethod (const statstring &parentid,
 }
 
 // ==========================================================================
-// METHOD coresession::seterror
+// METHOD coresession::setError
 // ==========================================================================
-void coresession::seterror (unsigned int code, const string &msg)
+void coresession::setError (unsigned int code, const string &msg)
 {
 	errors = $("code", code) ->
 			 $("message", msg);
 }
 
 // ==========================================================================
-// METHOD coresession::seterror
+// METHOD coresession::setError
 // ==========================================================================
-void coresession::seterror (unsigned int code)
+void coresession::setError (unsigned int code)
 {
     string mid = "0x%04x" %format (code);
 	
@@ -1415,7 +1415,7 @@ bool coresession::syncdynamicobjects (const statstring &parentid,
 	curdb = mdb.listdynamicobjects (parentid, rparentid, ofclass, err, count, offset);
 	if (err.strlen())
 	{
-		seterror (ERR_MDB_ACTION_FAILED, err);
+		setError (ERR_MDB_ACTION_FAILED, err);
 		return false;
 	}
 
@@ -1510,7 +1510,7 @@ bool coresession::syncdynamicobjects (const statstring &parentid,
 				log::write (log::error, "session", "Error creating "
 						    "database cache of dynamic list: %s"
 						    %format (db.getLastError()));
-				seterror (db.getLastErrorCode(), db.getLastError());
+				setError (db.getLastErrorCode(), db.getLastError());
 			}
 		}
 	}
@@ -1570,7 +1570,7 @@ value *coresession::listmeta (const statstring &parentid,
 	catch (exception e)
 	{
 		res.clear();
-		seterror (db.getLastErrorCode(), db.getLastError());
+		setError (db.getLastErrorCode(), db.getLastError());
 	}
 	
 	return &res;
@@ -1591,19 +1591,19 @@ value *coresession::listObjects (const statstring &parentid,
 			    "parentid=<%S>" %format (ofclass, parentid));
 
 	// Catch internal classes.
-	if (mdb.isinternalclass (ofclass))
+	if (mdb.isInternalClass (ofclass))
 	{
 		log::write (log::debug, "session", "Listobjects for internal class");
-		internalclass &cl = mdb.geticlass (ofclass);
+		InternalClass &cl = mdb.geticlass (ofclass);
 		res = cl.listObjects (this, parentid);
-		if (! res.count()) seterror (ERR_ICLASS, cl.error());
+		if (! res.count()) setError (ERR_ICLASS, cl.error());
 		return &res;
 	}
 
 	if (! mdb.classexists (ofclass))
 	{
 		res.clear();
-		seterror (ERR_SESSION_CLASS_UNKNOWN, ofclass);
+		setError (ERR_SESSION_CLASS_UNKNOWN, ofclass);
 		return &res;
 	}
 	
@@ -1631,7 +1631,7 @@ value *coresession::listObjects (const statstring &parentid,
 						   count, offset))
 	{
 		res.clear();
-		seterror (db.getLastErrorCode(), db.getLastError());
+		setError (db.getLastErrorCode(), db.getLastError());
 	}
 	
 	DEBUG.storeFile ("session", "res", res, "listObjects");
@@ -1650,9 +1650,9 @@ bool coresession::applyFieldWhiteLabel (value &objs, value &whitel)
 }	
 
 // ==========================================================================
-// METHOD coresession::getobject
+// METHOD coresession::getObject
 // ==========================================================================
-value *coresession::getobject (const statstring &parentid,
+value *coresession::getObject (const statstring &parentid,
 							   const statstring &ofclass,
 							   const statstring &withid)
 {
@@ -1660,11 +1660,11 @@ value *coresession::getobject (const statstring &parentid,
 	returnclass (value) res retain; 
 	
 	// Catch internal classes.
-	if (mdb.isinternalclass (ofclass))
+	if (mdb.isInternalClass (ofclass))
 	{
-		internalclass &cl = mdb.geticlass (ofclass);
-		res = cl.getobject (this, parentid, withid);
-		if (! res.count()) seterror (ERR_ICLASS, cl.error());
+		InternalClass &cl = mdb.geticlass (ofclass);
+		res = cl.getObject (this, parentid, withid);
+		if (! res.count()) setError (ERR_ICLASS, cl.error());
 		return &res;
 	}
 
@@ -1689,7 +1689,7 @@ value *coresession::getobject (const statstring &parentid,
 				    "parentid=<%S> class=<%S> key=<%S>"
 				    %format (parentid, ofclass, withid));
 
-		seterror (ERR_SESSION_OBJECT_NOT_FOUND);
+		setError (ERR_SESSION_OBJECT_NOT_FOUND);
 		return &res;
 	}
 	
@@ -1703,7 +1703,7 @@ value *coresession::getobject (const statstring &parentid,
 					  "uuid=<%S> error=<%S>" %format (uuid,
 					  db.getLastError()));
 				   
-		seterror (db.getLastErrorCode(), db.getLastError());
+		setError (db.getLastErrorCode(), db.getLastError());
 		return NULL;
 	}
 		
@@ -1716,7 +1716,7 @@ value *coresession::getobject (const statstring &parentid,
 	}
 	res[0]["class"] = ofclass;
 
-	DEBUG.storeFile ("session","res", res, "getobject");
+	DEBUG.storeFile ("session","res", res, "getObject");
 	return &res; 
 }
 

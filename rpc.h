@@ -94,7 +94,7 @@ public:
 	value			*listmenus (const value &v, coresession &cs);
 	
 	void			 copysessionerror (coresession &cs, value &into);
-	void			 seterror (int errcode, value &into);
+	void			 setError (int errcode, value &into);
 	
 protected:
 	rpccmdlist<rpchandler>	 handler;
