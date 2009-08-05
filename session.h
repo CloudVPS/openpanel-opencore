@@ -203,11 +203,11 @@ public:
 	
 	                     /// Set credentials (usually copied from another session).
 	                     /// \param creds Credential specification
-    void                 setcredentials (const value &creds);
+    void                 setCredentials (const value &creds);
 	
 	                     /// Get credentials for copying.
 	                     /// \param creds Value object for storing credentials
-    void                 getcredentials (value &creds);
+    void                 getCredentials (value &creds);
 
 						 /// Authenticate the session as a specific
 						 /// pre-validated user.
@@ -247,16 +247,16 @@ public:
 						 /// \param offset An offset if you want a range.
 						 /// \param count Maximum size of resultset.
 						 /// \return data in the following format:
-						 /// \verbinclude db_listobjects.format
-	value				*listobjects (const statstring &parentid,
+						 /// \verbinclude db_listObjects.format
+	value				*listObjects (const statstring &parentid,
 										const statstring &ofclass = nokey,
 										int offset=0, int count=-1);
 	
-						 /// Filter a listobjects resultset through a fieldname
+						 /// Filter a listObjects resultset through a fieldname
 						 /// whitelist
-						 /// \param objs listobjects result
+						 /// \param objs listObjects result
 						 /// \param whitel list of allowed fieldnames
-	bool				 fieldwhitel (value &objs, value &whitel);
+	bool				 applyFieldWhiteLabel (value &objs, value &whitel);
 	
 						 /// Get a particular object.
 						 /// \param parentid The object parent's uuid, or
@@ -278,7 +278,7 @@ public:
 						 /// \param ofclass The opencore class of the object.
 						 /// \param withkey The id of the instance to nuke.
 						 /// \return true if the delete succeeded.
-	bool				 deleteobject (const statstring &parentid,
+	bool				 deleteObject (const statstring &parentid,
 									   const statstring &ofclass,
 									   const statstring &withkey,
 									   bool immediate = false);
@@ -292,7 +292,7 @@ public:
 						 /// \param withparams Instance records.
 						 /// \return Instance id on success, empty
 						 ///         string or NULL on failure.
-	string				*createobject (const statstring &parentid,
+	string				*createObject (const statstring &parentid,
 									   const statstring &ofclass,
 									   const value &withparams,
 									   const statstring &withid = nokey,
@@ -305,7 +305,7 @@ public:
 						 /// \param ofclass The opencore class.
 						 /// \param withid The requested id.
 						 /// \param withparam Instance records.
-	bool				 updateobject (const statstring &parentid,
+	bool				 updateObject (const statstring &parentid,
 									   const statstring &ofclass,
 									   const statstring &withid,
 									   const value &withparam,
@@ -360,7 +360,7 @@ public:
 						 	
 						 	value obj;
 						 	
-						 	if (db.fetchobject(obj, uuid, false))
+						 	if (db.fetchObject(obj, uuid, false))
 								return getclassinfo (obj["class"]);
 						 	
 						 	return NULL;
@@ -381,11 +381,11 @@ public:
 						 /// Returns quota limits for a class/user
 						 /// combinations
 						 /// \return FIXME
-	value				*getuserquota (const statstring &useruuid = nokey);
+	value				*getUserQuota (const statstring &useruuid = nokey);
 										
 						 /// Sets quota limit for a specific class/user
 						 /// combination, self if user is not given.
-	bool				 setuserquota (const statstring &ofclass,
+	bool				 setUserQuota (const statstring &ofclass,
 									    int count,
 										const statstring &useruuid = nokey);
 
@@ -503,7 +503,7 @@ protected:
 									   const statstring &metaid);
 
 	class moduledb		&mdb; ///< Link to the moduledb.
-	class dbmanager		 db; ///< Local dbmanager instance.
+	class DBManager		 db; ///< Local DBManager instance.
 	value				 errors; ///< Details of error.
 	time_t				 heartbeat; ///< Timeout tracker.
 	int					 inuse; ///< Flags status.

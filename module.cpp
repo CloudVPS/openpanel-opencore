@@ -657,8 +657,8 @@ corestatus_t coremodule::action (const statstring &command,
             }
         
             usersession = CORE->sdb->get(vin["OpenCORE:Session"]["sessionid"]);
-            usersession->getcredentials(creds);
-            modulesession->setcredentials(creds);
+            usersession->getCredentials(creds);
+            modulesession->setCredentials(creds);
             CORE->sdb->release(usersession);
         
             vin["OpenCORE:Session"]["sessionid"] = modulesession->id;

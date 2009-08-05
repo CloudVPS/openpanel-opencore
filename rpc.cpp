@@ -12,9 +12,9 @@ rpchandler::rpchandler (sessiondb *s) : handler (this), sdb (*s)
 	#define AddCommand(foo) handler.setcmd ( #foo, &rpchandler:: foo )
 	#define BindCommand(foo,bar) handler.setcmd (#foo, &rpchandler:: bar )
 	
-	BindCommand (create, createobject);
-	BindCommand (delete, deleteobject);
-	BindCommand (update, updateobject);
+	BindCommand (create, createObject);
+	BindCommand (delete, deleteObject);
+	BindCommand (update, updateObject);
 	AddCommand  (ping);
 	AddCommand  (chown);
 	AddCommand  (classinfo);
@@ -228,9 +228,9 @@ value *rpchandler::ping (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::createobject
+// METHOD rpchandler::createObject
 // ==========================================================================
-value *rpchandler::createobject (const value &v, coresession &cs)
+value *rpchandler::createObject (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	const value &vbody = v["body"];
@@ -241,9 +241,9 @@ value *rpchandler::createobject (const value &v, coresession &cs)
     statstring in_immediate = vbody["immediate"];
 	string objid;
 
-	cs.mlockw ("createobject");
+	cs.mlockw ("createObject");
 
-		objid = cs.createobject (in_parent, in_class, in_data, in_id, in_immediate);
+		objid = cs.createObject (in_parent, in_class, in_data, in_id, in_immediate);
 		
 		if (! objid)
 		{
@@ -256,9 +256,9 @@ value *rpchandler::createobject (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::deleteobject
+// METHOD rpchandler::deleteObject
 // ==========================================================================
-value *rpchandler::deleteobject (const value &v, coresession &cs)
+value *rpchandler::deleteObject (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	statstring in_class = v["body"]["classid"];
@@ -266,9 +266,9 @@ value *rpchandler::deleteobject (const value &v, coresession &cs)
 	statstring in_parent = v["body"]["parentid"];
 	statstring in_immediate = v["body"]["immediate"];	
 	
-	cs.mlockw ("deleteobject");
+	cs.mlockw ("deleteObject");
 	
-		if (! cs.deleteobject (in_parent, in_class, in_id, in_immediate))
+		if (! cs.deleteObject (in_parent, in_class, in_id, in_immediate))
 		{
 			copysessionerror (cs, res);
 		}
@@ -278,9 +278,9 @@ value *rpchandler::deleteobject (const value &v, coresession &cs)
 }
 
 // ==========================================================================
-// METHOD rpchandler::updateobject
+// METHOD rpchandler::updateObject
 // ==========================================================================
-value *rpchandler::updateobject (const value &v, coresession &cs)
+value *rpchandler::updateObject (const value &v, coresession &cs)
 {
 	RPCRETURN (res);
 	const value &vbody = v["body"];
@@ -290,9 +290,9 @@ value *rpchandler::updateobject (const value &v, coresession &cs)
 	statstring in_immediate = vbody["immediate"];	
 	const value &in_data = vbody["data"];
 
-	cs.mlockw ("updateobject");
+	cs.mlockw ("updateObject");
 	
-		if (! cs.updateobject (in_parent, in_class, in_id, in_data, in_immediate))
+		if (! cs.updateObject (in_parent, in_class, in_id, in_data, in_immediate))
 		{
 			copysessionerror (cs, res);
 		}
@@ -433,12 +433,12 @@ value *rpchandler::getrecords (const value &v, coresession &cs)
 	
 	cs.mlockr ();
 	
-		dres = cs.listobjects (in_parentid, in_class, offset, count);
+		dres = cs.listObjects (in_parentid, in_class, offset, count);
 		dres["info"]["total"] = dres[0].count ();
 		if (vbody.exists ("whitelist"))
 		{
 			value in_whitel = vbody["whitelist"];
-			cs.fieldwhitel (dres, in_whitel);
+			cs.applyFieldWhiteLabel (dres, in_whitel);
 		}
 	
 	cs.munlock ();

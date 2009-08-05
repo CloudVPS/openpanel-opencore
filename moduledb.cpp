@@ -57,7 +57,7 @@ void moduledb::init (const value &reloadmods)
 {
 	value cache;
 	
-	dbmanager db;
+	DBManager db;
 	if (! db.init ())
 	{
 		log::write (log::critical, "moduledb", "Could not init database");
@@ -66,7 +66,7 @@ void moduledb::init (const value &reloadmods)
 	
 	// Indicate to the database that we're bypassing the authorization layer
 	// for this primary exercise.
-	db.iamgod();
+	db.enableGodMode();
 
 	// Load the module.cache file, we will use this to track module versions
 	// between opencore runs.
@@ -149,7 +149,7 @@ void moduledb::init (const value &reloadmods)
 // ==========================================================================
 // METHOD moduledb::loadmodule
 // ==========================================================================
-void moduledb::loadmodule (const string &mname, value &cache, dbmanager &db)
+void moduledb::loadmodule (const string &mname, value &cache, DBManager &db)
 {
 	static value history;
 	
@@ -201,7 +201,7 @@ void moduledb::loadmodule (const string &mname, value &cache, dbmanager &db)
 	
 	bool firsttime = checkcache (mname, cache, m);
 	registerquotas (m);
-	registerclasses (mname, cache, db, m);
+	registerClasses (mname, cache, db, m);
 	makestagingdir (mname);
 	
 	if (firsttime) handlegetconfig (mname, cache, db, m);
@@ -267,7 +267,7 @@ bool moduledb::checkcache (const string &mname, value &cache,
 // METHOD moduledb::loaddependencies
 // ==========================================================================
 void moduledb::loaddependencies (const string &mname, value &cache,
-								 dbmanager &db, coremodule *m)
+								 DBManager &db, coremodule *m)
 {
 	// Does the module require another module?
 	if (m->meta.exists ("requires"))
@@ -332,10 +332,10 @@ void moduledb::makestagingdir (const string &mname)
 }
 
 // ==========================================================================
-// METHOD moduledb::registerclasses
+// METHOD moduledb::registerClasses
 // ==========================================================================
-void moduledb::registerclasses (const string &mname, value &cache,
-								dbmanager &db, coremodule *m)
+void moduledb::registerClasses (const string &mname, value &cache,
+								DBManager &db, coremodule *m)
 {
 	value childrendeps;
 	
@@ -389,15 +389,15 @@ void moduledb::registerclasses (const string &mname, value &cache,
 		value regdata = classobj.getregistration ();
 		regdata("modulename") = mname;
 		
-		DEBUG.storefile ("moduledb", "regdata", regdata, "registerclasses");
+		DEBUG.storefile ("moduledb", "regdata", regdata, "registerClasses");
 		
 		// Send it to the database manager.
-		if (! db.registerclass (regdata))
+		if (! db.registerClass (regdata))
 		{
 			// Failed, croak.
 			log::write (log::critical, "moduledb", "Could not register "
-					   "class <%S> with dbmanager: %s"
-					   %format (classobj.name, db.getlasterror()));
+					   "class <%S> with DBManager: %s"
+					   %format (classobj.name, db.getLastError()));
 
 			sleep (2);
 			cache["modules"].rmval (mname);
@@ -423,10 +423,10 @@ void moduledb::registerclasses (const string &mname, value &cache,
 // METHOD moduledb::handlegetconfig
 // ==========================================================================
 void moduledb::handlegetconfig (const string &mname, value &cache,
-							    dbmanager &db, coremodule *m)
+							    DBManager &db, coremodule *m)
 {
 	value current; //< Return from the module call.
-	value out; //< Translated for dbmanager flattening.
+	value out; //< Translated for DBManager flattening.
 	value uuids; //< Local-to-global id mapping for flattening.
 	value skipparents; // parent-uuids that already existed
 	
@@ -483,21 +483,21 @@ void moduledb::handlegetconfig (const string &mname, value &cache,
 				else if (obj.exists ("parentclass"))
 				{
 					statstring parentclass = obj["parentclass"];
-					parentid  = db.findobject (nokey, parentclass, nokey, parent);
+					parentid  = db.findObject (nokey, parentclass, nokey, parent);
 					log::write (log::info, "moduledb", "Resolved %s/%s to "
 							   "<%s>" %format (parentclass,parent,parentid));
 				}
 			}
 			
-			// Hammer the dbmanager.
-			uuid = db.createobject (parentid, obj["members"],
+			// Hammer the DBManager.
+			uuid = db.createObject (parentid, obj["members"],
 									oclass, metaid, false, true);
 			
-			if ((! uuid) && (db.getlasterrorcode() != ERR_DBMANAGER_EXISTS))
+			if ((! uuid) && (db.getLastErrorCode() != ERR_DBMANAGER_EXISTS))
 			{
 				log::write (log::critical, "moduledb", "Could not "
 						   "commit initial <%S> object in database: "
-						   "%s" %format (oclass, db.getlasterror()));
+						   "%s" %format (oclass, db.getLastError()));
 						   
 				cache["modules"].rmval (mname);
 				throw (moduleInitException());
@@ -573,9 +573,9 @@ void moduledb::parsetree (const value &tree, value &into, int parent)
 }
 
 // ==========================================================================
-// METHOD moduledb::createobject
+// METHOD moduledb::createObject
 // ==========================================================================
-corestatus_t moduledb::createobject (const statstring &ofclass,
+corestatus_t moduledb::createObject (const statstring &ofclass,
 									 const statstring &withid,
 									 const value &parm,
 									 string &err)
@@ -583,7 +583,7 @@ corestatus_t moduledb::createobject (const statstring &ofclass,
 	coremodule *m;
 	corestatus_t res = status_failed;
 	
-	DEBUG.storefile ("moduledb", "parm", parm, "createobject");
+	DEBUG.storefile ("moduledb", "parm", parm, "createObject");
 	
 	if (! byclass.exists (ofclass))
 	{
@@ -606,7 +606,7 @@ corestatus_t moduledb::createobject (const statstring &ofclass,
 	value returnp;
 
 	outp = parm; // Picking up the proper parameters for the module
-	             // shifted to the dbmanager.
+	             // shifted to the DBManager.
 	
 	outp["OpenCORE:Command"] = "create";
 	outp["OpenCORE:Session"]["classid"] = ofclass;
@@ -621,7 +621,7 @@ corestatus_t moduledb::createobject (const statstring &ofclass,
 	// FIXME: is it useful to keep returnp?
 	// FIXME: report errors here or upstream?
 	
-	DEBUG.storefile ("moduledb", "returnp", returnp, "createobject");
+	DEBUG.storefile ("moduledb", "returnp", returnp, "createObject");
 	
 	if (res != status_ok)
 	{
@@ -771,9 +771,9 @@ corestatus_t moduledb::setspecialphysicalquota
 }
 
 // ==========================================================================
-// METHOD moduledb::updateobject
+// METHOD moduledb::updateObject
 // ==========================================================================
-corestatus_t moduledb::updateobject (const statstring &ofclass,
+corestatus_t moduledb::updateObject (const statstring &ofclass,
 									 const statstring &withid,
 									 const value &parm,
 									 string &err)
@@ -781,7 +781,7 @@ corestatus_t moduledb::updateobject (const statstring &ofclass,
 	coremodule *m;
 	corestatus_t res = status_failed;
 	
-	DEBUG.storefile ("moduledb", "parm", parm, "updateobject");
+	DEBUG.storefile ("moduledb", "parm", parm, "updateObject");
 
 	if (! byclass.exists (ofclass))
 	{
@@ -803,7 +803,7 @@ corestatus_t moduledb::updateobject (const statstring &ofclass,
 	value returnp;
 	
 	outp = parm; // Picking up the proper parameters for the module
-	             // shifted to the dbmanager.
+	             // shifted to the DBManager.
 	             
 	outp << $("OpenCORE:Command", "update") ->
 			$("OpenCORE:Session",
@@ -845,7 +845,7 @@ value *moduledb::listdynamicobjects (const statstring &parentid,
 	err = "";
 
 	value returnp;
-	value outp = $("OpenCORE:Command", "listobjects") ->
+	value outp = $("OpenCORE:Command", "listObjects") ->
 				 $("OpenCORE:Session",
 				 		$("parentid", parentid) ->
 				 		$("parentmetaid", mparentid) ->
@@ -855,7 +855,7 @@ value *moduledb::listdynamicobjects (const statstring &parentid,
 				  );
 	
 	corestatus_t rez = status_failed;
-	rez = m->action ("listobjects", ofclass, outp, returnp);
+	rez = m->action ("listObjects", ofclass, outp, returnp);
 	
 	if (rez != status_ok)
 	{
@@ -972,8 +972,8 @@ unsigned int moduledb::synchronizeclass (const statstring &ofclass,
 		return withserial;
 	}
 
-	dbmanager db;
-	db.iamgod ();
+	DBManager db;
+	db.enableGodMode ();
 	
 	foreach (update, returnp["objects"])
 	{
@@ -984,9 +984,9 @@ unsigned int moduledb::synchronizeclass (const statstring &ofclass,
 }
 
 // ==========================================================================
-// METHOD moduledb::deleteobject
+// METHOD moduledb::deleteObject
 // ==========================================================================
-corestatus_t moduledb::deleteobject (const statstring &ofclass,
+corestatus_t moduledb::deleteObject (const statstring &ofclass,
 									 const statstring &withid,
 									 const value &parm,
 									 string &err)
@@ -994,7 +994,7 @@ corestatus_t moduledb::deleteobject (const statstring &ofclass,
 	coremodule *m;
 	corestatus_t res = status_failed;
 
-	DEBUG.storefile ("moduledb", "parm", parm, "deleteobject");
+	DEBUG.storefile ("moduledb", "parm", parm, "deleteObject");
 
 	if (! byclass.exists (ofclass))
 	{
@@ -1016,7 +1016,7 @@ corestatus_t moduledb::deleteobject (const statstring &ofclass,
 	value returnp;
 	
 	outp = parm; // Picking up the proper parameters for the module
-	             // shifted to the dbmanager.
+	             // shifted to the DBManager.
 	             
 	outp << $("OpenCORE:Command", "delete") ->
 			$("OpenCORE:Session",

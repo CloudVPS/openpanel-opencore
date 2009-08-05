@@ -74,9 +74,9 @@ public:
 	value			*bind (const value &v, uid_t uid, const string &origin);
 
 	value			*ping (const value &v, coresession &cs);
-	value			*createobject (const value &v, coresession &cs);
-	value			*deleteobject (const value &v, coresession &cs);
-	value			*updateobject (const value &v, coresession &cs);
+	value			*createObject (const value &v, coresession &cs);
+	value			*deleteObject (const value &v, coresession &cs);
+	value			*updateObject (const value &v, coresession &cs);
 	value			*chown (const value &v, coresession &cs);
 	value			*classinfo (const value &v, coresession &cs);
 	value			*classxml (const value &v, coresession &cs);

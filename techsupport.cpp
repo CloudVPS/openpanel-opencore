@@ -109,18 +109,18 @@ void techsupportApp::docmdlist(void)
 
 void techsupportApp::dumppaneldb(void)
 {
-	dbmanager db;
+	DBManager db;
     if (! db.init ())
     {
 		ferr.printf("panel database error\n");
 		return;
     }
 	
-	db.iamgod();
+	db.enableGodMode();
 	
 	value objs;
 	
-	if (! db.listobjects(objs))
+	if (! db.listObjects(objs))
 	{
 		ferr.printf("failed to fetch root object list\n");
 		return;

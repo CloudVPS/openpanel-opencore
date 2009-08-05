@@ -159,7 +159,7 @@ public:
 	value			*makeclassinfo (void);
 	
 					 /// Get class registration information in the format
-					 /// expected by dbmanager::registerclass().
+					 /// expected by dbmanager::registerClass().
 					 /// \return A value object in the following format:
 					 /// \verbinclude classregistration.format
 	value			*getregistration (void);
@@ -267,8 +267,8 @@ public:
 					 /// the module will stop opencore from starting.
 	bool			 updateok (int currentversion);
 	
-	void             getcredentials(value &creds);
-    void             setcredentials(const value &creds);
+	void             getCredentials(value &creds);
+    void             setCredentials(const value &creds);
     
     string			 name; ///< The module's name.
 	string			 path; ///< Path to the module.

@@ -33,13 +33,13 @@ public:
 					 /// Should return an object list keyed
 					 /// by uuid. All subclasses should override
 					 /// this.
-	virtual value	*listobjects (coresession *s,
+	virtual value	*listObjects (coresession *s,
 								  const statstring &parentid);
 
 					 /// Should return a specific object instance
 					 /// in the same format as coresession::getobject().
 					 /// If you don't override this method, the base
-					 /// class will use your listobjects() and
+					 /// class will use your listObjects() and
 					 /// filter it for the specific id.
 	virtual value	*getobject (coresession *s,
 								const statstring &parentid,
@@ -47,20 +47,20 @@ public:
 					
 					 /// If your coreclass implements it, override
 					 /// this method to handle a create event.
-	virtual string	*createobject (coresession *s,
+	virtual string	*createObject (coresession *s,
 								   const statstring &parentid,
 								   const value &withparam,
 								   const statstring &withid="");
 							   
 					 /// If your coreclass implements it, override
 					 /// this method to handle a delete event.
-	virtual bool	 deleteobject (coresession *s,
+	virtual bool	 deleteObject (coresession *s,
 								   const statstring &parentid,
 								   const statstring &withid);
 	
 					 /// If your coreclass implements it, override
 					 /// this method to handle an update event.
-	virtual bool	 updateobject (coresession *s,
+	virtual bool	 updateObject (coresession *s,
 								   const statstring &parentid,
 								   const statstring &withid,
 								   const value &withparam);
@@ -77,7 +77,7 @@ protected:
 					 /// to a uuid that is guaranteed to be
 					 /// static for the lifetime of this
 					 /// instance. Use this function to generate
-					 /// uuids in listobjects(), reuse them
+					 /// uuids in listObjects(), reuse them
 					 /// in other methods through resolveuuid() or
 					 /// metaid().
 					 /// \param parentid The parent-id.
@@ -113,13 +113,13 @@ public:
 					 quotaclass (void);
 					~quotaclass (void);
 					
-	value			*listobjects (coresession *s, const statstring &pid);
+	value			*listObjects (coresession *s, const statstring &pid);
 	
 	value			*getobject (coresession *s,
 								const statstring &parentid,
 								const statstring &id);
 								
-	bool			 updateobject (coresession *s,
+	bool			 updateObject (coresession *s,
 								   const statstring &parentid,
 								   const statstring &withid,
 								   const value &withparam);
@@ -135,7 +135,7 @@ public:
 					 coresystemclass (void);
 					~coresystemclass (void);
 					
-	value			*listobjects (coresession *s, const statstring &pid);
+	value			*listObjects (coresession *s, const statstring &pid);
 
 protected:
 	string			 sysuuid;
@@ -150,7 +150,7 @@ public:
 					 sessionlistclass (void);
 					~sessionlistclass (void);
 					
-	value			*listobjects (coresession *s, const statstring &pid);
+	value			*listObjects (coresession *s, const statstring &pid);
 };
 
 //  -------------------------------------------------------------------------
@@ -162,7 +162,7 @@ public:
 					 errorlogclass (void);
 					~errorlogclass (void);
 					
-	value			*listobjects (coresession *s, const statstring &pid);
+	value			*listObjects (coresession *s, const statstring &pid);
 };
 
 //  -------------------------------------------------------------------------
@@ -174,7 +174,7 @@ public:
 					 classlistclass (void);
 					~classlistclass (void);
 					
-	value			*listobjects (coresession *s, const statstring &pid);
+	value			*listObjects (coresession *s, const statstring &pid);
 };
 
 

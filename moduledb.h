@@ -50,7 +50,7 @@ public:
 						 /// \param parm The member data.
 						 /// \param err (out) Error text
 						 /// \return status_ok/status_failed/status_postponed
-	corestatus_t		 createobject (const statstring &ofclass,
+	corestatus_t		 createObject (const statstring &ofclass,
 									   const statstring &withid,
 									   const value &parm,
 									   string &err);
@@ -61,7 +61,7 @@ public:
 						 /// \param parm The new member data.
 						 /// \param err (out) Error text
 						 /// \return status_ok/status_failed/status_postponed
-	corestatus_t		 updateobject (const statstring &ofclass,
+	corestatus_t		 updateObject (const statstring &ofclass,
 									   const statstring &withid,
 									   const value &parm,
 									   string &err);
@@ -72,7 +72,7 @@ public:
 						 /// \param parm The new member data.
 						 /// \param err (out) Error text
 						 /// \return status_ok/status_failed/status_postponed
-	corestatus_t		 deleteobject (const statstring &ofclass,
+	corestatus_t		 deleteObject (const statstring &ofclass,
 									   const statstring &withid,
 									   const value &parm,
 									   string &err);
@@ -290,7 +290,7 @@ public:
 	
 						 /// If a class is defined with dynamic=true in
 						 /// its module.xml file, the module will be
-						 /// called with the 'listobjects' command.
+						 /// called with the 'listObjects' command.
 						 /// The resulting data (put in /objects of the
 						 /// module-result xml) is returned.
 						 /// \param parentid The parent-id (nokey for root).
@@ -300,7 +300,7 @@ public:
 						 /// \param offset Offset in the result set.
 						 /// \param err Output parameter for error.
 						 /// \return Data in this format:
-						 /// \verbinclude db_listobjects.format
+						 /// \verbinclude db_listObjects.format
 	value				*listdynamicobjects (const statstring &parentid,
 											 const statstring &mparentid,
 											 const statstring &ofclass,
@@ -373,22 +373,22 @@ public:
 protected:
 						 /// Helper function for init.
 	void				 loadmodule (const string &mname, value &cache,
-									 class dbmanager &db);
+									 class DBManager &db);
 
 						 /// Helper function for handling modules we see
 						 /// for the first time.
 	void				 handlegetconfig (const string &mname, value &cache,
-										  class dbmanager &db,
+										  class DBManager &db,
 										  coremodule *m);
 
 	bool				 checkcache (const string &mname, value &cache,
 									 coremodule *m);
 	
-	void				 registerclasses (const string &mname, value &cache,
-										  class dbmanager &db, coremodule *m);
+	void				 registerClasses (const string &mname, value &cache,
+										  class DBManager &db, coremodule *m);
 
 	void				 loaddependencies (const string &mname, value &cache,
-										   class dbmanager &db, coremodule *m);
+										   class DBManager &db, coremodule *m);
 
 	void				 registerquotas (coremodule *m);
 	

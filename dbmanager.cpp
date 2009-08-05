@@ -49,7 +49,7 @@ void _dbmanager_sqlite3_trace_rcvr(void *ignore, const char *query)
 	CORE->log (log::debug, "dbmgr", "sqlite3_trace: %s", query);
 }
 
-dbmanager::dbmanager (void)
+DBManager::DBManager (void)
 {
 	lasterror = "";
 	errorcode = 0;
@@ -57,12 +57,12 @@ dbmanager::dbmanager (void)
 	userid = -1;
 }
 
-dbmanager::~dbmanager (void)
+DBManager::~DBManager (void)
 {
 	// does nothing right now, don't forget to call deinit!
 }
 
-bool dbmanager::init (char *dbfile)
+bool DBManager::init (char *dbfile)
 {
     exclusivesection (dbhandle)
     {
@@ -93,26 +93,26 @@ bool dbmanager::init (char *dbfile)
     return true;
 }
 
-void dbmanager::deinit ()
+void DBManager::deinit ()
 {
 	// close dbhandle, free associated resources
     // sqlite3_close(dbhandle);
 }
 
-string *dbmanager::findparent (const statstring &uuid)
+string *DBManager::findParent (const statstring &uuid)
 {
 	returnclass (string) res retain;
 
-	string query = "SELECT /* findparent */ parent FROM objects WHERE ";
+	string query = "SELECT /* findParent */ parent FROM objects WHERE ";
 	value where;
 	where["uuid"]=uuid;
     where["wanted"]=1;
 	query.strcat(escapeforsql("=", " AND ", where));
 	value dbres = dosqlite(query);
-	CORE->log(log::debug, "dbmgr", "findparent SQL: %s" %format (query));
+	CORE->log(log::debug, "dbmgr", "findParent SQL: %s" %format (query));
 	if(!dbres["rows"].count())
 	{
-		lasterror = "Object not found in findparent";
+		lasterror = "Object not found in findParent";
 		errorcode = ERR_DBMANAGER_NOTFOUND;
 		res.clear();
 		return &res;
@@ -126,7 +126,7 @@ string *dbmanager::findparent (const statstring &uuid)
         return &res;
     }
 	query = "";
-	query.printf("SELECT /* findparent */ uuid FROM objects WHERE id=%d", dbres["rows"][0]["parent"].ival());
+	query.printf("SELECT /* findParent */ uuid FROM objects WHERE id=%d", dbres["rows"][0]["parent"].ival());
 	dbres=dosqlite(query);
 	if(!dbres["rows"].count())
 	{
@@ -140,19 +140,19 @@ string *dbmanager::findparent (const statstring &uuid)
 	return &res;
 }
 
-int dbmanager::findobjectdeletedversion (int uc, const statstring &withmetaid)
+int DBManager::findObjectDeletedVersion (int uc, const statstring &withmetaid)
 {
 	string query;
 	value where;
 
-	query="SELECT /* findobjectdeletedversion */ id,version,deleted FROM objects WHERE ";
+	query="SELECT /* findObjectDeletedVersion */ id,version,deleted FROM objects WHERE ";
 	where["uniquecontext"]=uc;
 	where["metaid"]=withmetaid;
 	
 	query.strcat(escapeforsql("=", " AND ", where));
 	query.strcat(" ORDER BY version DESC LIMIT 1");
 	value v = dosqlite(query);
-	DEBUG.storefile("dbmgr", "dbres", v, "findobjectdeletedversion");
+	DEBUG.storefile("dbmgr", "dbres", v, "findObjectDeletedVersion");
 	
 	if(v["rows"].count() == 0)
 	{
@@ -163,21 +163,21 @@ int dbmanager::findobjectdeletedversion (int uc, const statstring &withmetaid)
 	{
 		lasterror = "An object with this id already exists";
 		errorcode = ERR_DBMANAGER_EXISTS;
-		DEBUG.storefile("dbmgr","errorcontext", v, "findobjectdeletedversion");
+		DEBUG.storefile("dbmgr","errorcontext", v, "findObjectDeletedVersion");
 		return -1;
 	}
 
 	return v["rows"][0]["version"].ival();
 }
 
-string *dbmanager::findobject (const statstring &parent, const statstring &ofclass, const statstring &withuuid, const statstring &withmetaid)
+string *DBManager::findObject (const statstring &parent, const statstring &ofclass, const statstring &withuuid, const statstring &withmetaid)
 {
 	returnclass (string) res retain;
 	string query;
 	value where;
 	int classid;
 	
-	CORE->log(log::debug, "dbmgr", "findobject(parent=%s, ofclass=%s, "
+	CORE->log(log::debug, "dbmgr", "findObject(parent=%s, ofclass=%s, "
 			  "withuuid=%s, withmetaid=%s)" %format (parent, ofclass,
 			   withuuid, withmetaid));
 
@@ -190,7 +190,7 @@ string *dbmanager::findobject (const statstring &parent, const statstring &ofcla
 		return &res;
 	}
 
-	query="SELECT /* findobject */ id, uuid FROM objects WHERE ";
+	query="SELECT /* findObject */ id, uuid FROM objects WHERE ";
 	if(classid)
 		where["class"]=classid;
 	// FIXME: this bool, bool, compare to "" stuff is retarded
@@ -209,9 +209,9 @@ string *dbmanager::findobject (const statstring &parent, const statstring &ofcla
     where["wanted"]=1;
 	query.strcat(escapeforsql("=", " AND ", where));
 	query.strcat(" ORDER BY version DESC LIMIT 1");
-	CORE->log(log::debug, "dbmgr", "findobject: classid: %d" %format (classid));
+	CORE->log(log::debug, "dbmgr", "findObject: classid: %d" %format (classid));
 	value v = dosqlite(query);
-	DEBUG.storefile("dbmgr", "dbres", v, "findobject");
+	DEBUG.storefile("dbmgr", "dbres", v, "findObject");
 	
 	// query="SELECT objects.id,version,classes.name,reality,wanted FROM objects,classes WHERE objects.class=classes.id AND ";
 	// where["parent"]=contextid;
@@ -246,7 +246,7 @@ string *dbmanager::findobject (const statstring &parent, const statstring &ofcla
 	return &res;
 }
 
-bool dbmanager::listrecursively (value &into, const statstring &uuid)
+bool DBManager::listObjectTree (value &into, const statstring &uuid)
 {
 	int localid;
 	
@@ -261,7 +261,7 @@ bool dbmanager::listrecursively (value &into, const statstring &uuid)
         return false;
 	}
 
-	if(!_listrecursively(into, localid))
+	if(!_listObjectTree(into, localid))
 		return false;
 
 	into.newval() = uuid;
@@ -269,7 +269,7 @@ bool dbmanager::listrecursively (value &into, const statstring &uuid)
 }
 
 
-bool dbmanager::_listrecursively (value &into, int localid)
+bool DBManager::_listObjectTree (value &into, int localid)
 {
 	string query;
 	
@@ -279,14 +279,14 @@ bool dbmanager::_listrecursively (value &into, int localid)
 		errorcode = ERR_DBMANAGER_INVAL;
 		return false;
 	}
-	query.printf("SELECT /* _listrecursively */ id, uuid FROM objects WHERE (parent=%d OR owner=%d) AND wanted=1 AND deleted=0", localid, localid);
+	query.printf("SELECT /* _listObjectTree */ id, uuid FROM objects WHERE (parent=%d OR owner=%d) AND wanted=1 AND deleted=0", localid, localid);
 	value qres = dosqlite(query);
 	if(!qres)
 		return false;
 
 	foreach(row, qres["rows"])
 	{
-		if(!_listrecursively(into, row["id"].ival()))
+		if(!_listObjectTree(into, row["id"].ival()))
 			return false;
 		
 		into.newval() = row["uuid"];
@@ -295,7 +295,7 @@ bool dbmanager::_listrecursively (value &into, int localid)
 	return true;
 }
 
-bool dbmanager::listobjects (value &into, const statstring &parent, const value &ofclass, bool formodule, int count, int offset)
+bool DBManager::listObjects (value &into, const statstring &parent, const value &ofclass, bool formodule, int count, int offset)
 {
 	value where;
 
@@ -317,7 +317,7 @@ bool dbmanager::listobjects (value &into, const statstring &parent, const value 
         where["p.powerid"]=userid;
 
     // TODO: check that this doesn't return objects more than once, like getquotausage did before opencore@3c2367c81cb6
-	string query="SELECT /* listobjects */ o.id id, o.class class, o.content content, o.metaid metaid, o.uuid uuid, o.owner ownerid, o2.uuid parentuuid, o3.uuid owneruuid FROM powermirror p, objects o LEFT JOIN objects o2 ON o.parent=o2.id LEFT JOIN objects o3 ON o.owner=o3.id WHERE (o.owner=p.userid OR o.id=p.powerid) AND ";
+	string query="SELECT /* listObjects */ o.id id, o.class class, o.content content, o.metaid metaid, o.uuid uuid, o.owner ownerid, o2.uuid parentuuid, o3.uuid owneruuid FROM powermirror p, objects o LEFT JOIN objects o2 ON o.parent=o2.id LEFT JOIN objects o3 ON o.owner=o3.id WHERE (o.owner=p.userid OR o.id=p.powerid) AND ";
 	query.strcat(escapeforsql("=", " AND ", where));
 	if (ofclass != nokey)
     {
@@ -342,7 +342,7 @@ bool dbmanager::listobjects (value &into, const statstring &parent, const value 
     // value childclasses;
     // if(!formodule)
     // {
-    //  query="SELECT /* listobjects */ o.id id, o3.metaid childclass FROM powermirror p, objects o, objects o2, objects o3 WHERE o.id=o2.parent AND o2.class=o3.id AND ";
+    //  query="SELECT /* listObjects */ o.id id, o3.metaid childclass FROM powermirror p, objects o, objects o2, objects o3 WHERE o.id=o2.parent AND o2.class=o3.id AND ";
     //         where.rmval("p.powerid");
     //  query.strcat(escapeforsql("=", " AND ", where));
     //  value ccres = dosqlite(query);
@@ -367,7 +367,7 @@ bool dbmanager::listobjects (value &into, const statstring &parent, const value 
         // }
         // else
         // {
-        //  CORE->log(log::debug, "dbmgr", "(%s) listobjects: not owner or no class rights, skipping object %d", DEBUG.uuid().cval(), row["id"].ival());
+        //  CORE->log(log::debug, "dbmgr", "(%s) listObjects: not owner or no class rights, skipping object %d", DEBUG.uuid().cval(), row["id"].ival());
         //  continue;
         // }
 
@@ -393,7 +393,7 @@ bool dbmanager::listobjects (value &into, const statstring &parent, const value 
 		}
 		
 		resrow("type")="object";
-		resrow["class"]=_findclassname(row["class"]); // FIXME: handle failure
+		resrow["class"]=_classNameFromUUID(row["class"]); // FIXME: handle failure
 		resrow["uuid"]=row["uuid"];
 		if(row["parentuuid"].sval().strlen())
 			resrow["parentid"]=row["parentuuid"];
@@ -419,10 +419,10 @@ bool dbmanager::listobjects (value &into, const statstring &parent, const value 
 		
 		if(formodule && classhasattrib(row["class"].ival(), "allchildren"))
 		{	
-			CORE->log(log::debug, "dbmgr", "listobjects: doing "
+			CORE->log(log::debug, "dbmgr", "listObjects: doing "
 					  "allchildren (%s)" %format (row["uuid"]));
 			value mergev;
-			if(listobjects(mergev, row["uuid"], nokey, formodule))
+			if(listObjects(mergev, row["uuid"], nokey, formodule))
 			{
 				into[resrow["class"]][resrow["id"]] << mergev;
 			}
@@ -434,10 +434,10 @@ bool dbmanager::listobjects (value &into, const statstring &parent, const value 
 		if(formodule && classhasattrib(row["class"].ival(), "childrendep"))
 		{	
 			string depclass = classgetattrib(row["class"].ival(), "childrendep");
-			CORE->log(log::debug, "dbmgr", "listobjects: doing childrendep "
+			CORE->log(log::debug, "dbmgr", "listObjects: doing childrendep "
 					  "(%s, %s)" %format (depclass, row["uuid"]));
 			value mergev;
-			if(listobjects(mergev, row["uuid"], $(depclass), formodule))
+			if(listObjects(mergev, row["uuid"], $(depclass), formodule))
 			{
 				into[resrow["class"]][resrow["id"]] << mergev;
 			}
@@ -448,16 +448,16 @@ bool dbmanager::listobjects (value &into, const statstring &parent, const value 
 		}
 	}
 	
-	DEBUG.storefile("dbmgr", "res", into, "listobjects");
+	DEBUG.storefile("dbmgr", "res", into, "listObjects");
 	
 	return true;
 }
 
-statstring *dbmanager::findclassname(const statstring &uuid)
+statstring *DBManager::classNameFromUUID(const statstring &uuid)
 {
 	returnclass (statstring) res retain;
 	
-	string query="SELECT /* findclassname */ class,metaid FROM objects WHERE ";
+	string query="SELECT /* classNameFromUUID */ class,metaid FROM objects WHERE ";
 	value where;
 	where["uuid"]=uuid;
 	query.strcat(escapeforsql("=", " AND ", where));
@@ -470,7 +470,7 @@ statstring *dbmanager::findclassname(const statstring &uuid)
 	
 	if(!dbres["rows"].count())
 	{
-		lasterror = "Object not found in findclassname";
+		lasterror = "Object not found in classNameFromUUID";
 		errorcode = ERR_DBMANAGER_NOTFOUND;
 		res.clear();
 		return &res;
@@ -482,7 +482,7 @@ statstring *dbmanager::findclassname(const statstring &uuid)
 	}
 	else
 	{
-		res = _findclassname(dbres["rows"][0]["class"].ival());
+		res = _classNameFromUUID(dbres["rows"][0]["class"].ival());
 	}
 	
 	return &res;
@@ -491,11 +491,11 @@ statstring *dbmanager::findclassname(const statstring &uuid)
 // process:
 // 1. stick requested object in output tree
 // 2. recurse upwards wherever class says 'requires', stick object in output tree (at root)
-// 3. when we encounter allchildren, stick a listobjects -inside- the current object
+// 3. when we encounter allchildren, stick a listObjects -inside- the current object
 // done!
 // NOTE: coresession absolutely relies on into[0] being the object the request
 // actually pointed to
-bool dbmanager::fetchobject (value &into, const statstring &uuid, bool formodule)
+bool DBManager::fetchObject (value &into, const statstring &uuid, bool formodule)
 {
 	int localid;
 	string module="";
@@ -503,7 +503,7 @@ bool dbmanager::fetchobject (value &into, const statstring &uuid, bool formodule
 	
 	localid=findlocalid(uuid);
 
-	if(!god && !haspower(localid, userid) && !classhasattrib(findclassid(findclassname(uuid)), "worldreadable") && !formodule)
+	if(!god && !haspower(localid, userid) && !classhasattrib(findclassid(classNameFromUUID(uuid)), "worldreadable") && !formodule)
 	{
 		lasterror = "Permission denied for object %s" %format (uuid);
 		errorcode = ERR_DBMANAGER_NOPERM;
@@ -516,7 +516,7 @@ bool dbmanager::fetchobject (value &into, const statstring &uuid, bool formodule
 		// if this object's class has a required-attribute, recurse upwards
 		// and check it.
 		string query;
-		query.printf("SELECT /* fetchobject */ o.class class, o.parent parent, o.content content, o.metaid metaid, o.uuid uuid, o.version version, o.owner owner, o.deleted deleted, o2.uuid parentuuid, o3.uuid owneruuid FROM objects o LEFT JOIN objects o2 ON o.parent=o2.id LEFT JOIN objects o3 ON o.owner=o3.id WHERE o.id=%d", localid);
+		query.printf("SELECT /* fetchObject */ o.class class, o.parent parent, o.content content, o.metaid metaid, o.uuid uuid, o.version version, o.owner owner, o.deleted deleted, o2.uuid parentuuid, o3.uuid owneruuid FROM objects o LEFT JOIN objects o2 ON o.parent=o2.id LEFT JOIN objects o3 ON o.owner=o3.id WHERE o.id=%d", localid);
 
 		value dbres = dosqlite(query);
 		if(!dbres["rows"].count())
@@ -528,9 +528,9 @@ bool dbmanager::fetchobject (value &into, const statstring &uuid, bool formodule
 			return false;
 		}
 		value row=dbres["rows"][0];
-		DEBUG.storefile("dbmgr", "objectrow", row, "fetchobject");
+		DEBUG.storefile("dbmgr", "objectrow", row, "fetchObject");
 
-		string id = _findclassname(row["class"]);
+		string id = _classNameFromUUID(row["class"]);
 		
 		if(reqclass && reqclass != id)
 		{
@@ -541,12 +541,12 @@ bool dbmanager::fetchobject (value &into, const statstring &uuid, bool formodule
 		}
 
 		// query.crop();
-		// query.printf("SELECT /* fetchobject */ content FROM objects WHERE id=%d", row["class"].ival());
+		// query.printf("SELECT /* fetchObject */ content FROM objects WHERE id=%d", row["class"].ival());
 		// value classdbres = dosqlite(query);
 		// value classdata;
 		// classdata.fromxml(classdbres["rows"][0]["content"].sval());
 		value classdata = getclassdata(row["class"].ival());
-		DEBUG.storefile("dbmgr", "classdata", classdata, "fetchobject");
+		DEBUG.storefile("dbmgr", "classdata", classdata, "fetchObject");
 		
 		// stick it to me!
 		// because class A cannot require class B, indexing on classname
@@ -582,7 +582,7 @@ bool dbmanager::fetchobject (value &into, const statstring &uuid, bool formodule
 				{
 					string tmp;
 					tmp=lasterror;
-					lasterror = "fetchobject (!inmodule, formodule) deref -> ";
+					lasterror = "fetchObject (!inmodule, formodule) deref -> ";
 					lasterror.strcat(tmp);
 					into.clear();
 					return false;
@@ -634,11 +634,11 @@ bool dbmanager::fetchobject (value &into, const statstring &uuid, bool formodule
 		
 		if(formodule && classdata.attribexists("allchildren") && module == classdata("modulename").sval())
 		{	
-			CORE->log(log::debug, "dbmgr", "fetchobject: doing "
+			CORE->log(log::debug, "dbmgr", "fetchObject: doing "
 					  "allchildren (%s)" %format (row["uuid"]));
 					  
 			value mergev;
-			if(listobjects(mergev, row["uuid"], nokey, formodule))
+			if(listObjects(mergev, row["uuid"], nokey, formodule))
 			{
 				into[id] << mergev;
 			}
@@ -649,12 +649,12 @@ bool dbmanager::fetchobject (value &into, const statstring &uuid, bool formodule
 		}
 		if(formodule && classdata.attribexists("childrendep"))
 		{	
-			DEBUG.storefile("dbmgr", "childrendep", classdata, "fetchobject");
-			CORE->log(log::debug, "dbmgr", "fetchobject: doing childrendep "
+			DEBUG.storefile("dbmgr", "childrendep", classdata, "fetchObject");
+			CORE->log(log::debug, "dbmgr", "fetchObject: doing childrendep "
 					 "(%s, %s)" %format (classdata("childrendep"), row["uuid"]));
 					 
 			value mergev;
-			if(listobjects(mergev, row["uuid"], $(classdata("childrendep")), formodule))
+			if(listObjects(mergev, row["uuid"], $(classdata("childrendep")), formodule))
 			{
 				into[id] << mergev;
 			}
@@ -667,7 +667,7 @@ bool dbmanager::fetchobject (value &into, const statstring &uuid, bool formodule
         //          {   
         //                  value childclasses;
         //                  query.crop();
-        //                  query.printf("SELECT /* fetchobject */ o.id id, o3.metaid childclass FROM objects o, objects o2, objects o3 WHERE o.id=o2.parent AND o2.class=o3.id AND o.id=%d", localid);
+        //                  query.printf("SELECT /* fetchObject */ o.id id, o3.metaid childclass FROM objects o, objects o2, objects o3 WHERE o.id=o2.parent AND o2.class=o3.id AND o.id=%d", localid);
         //              value ccres = dosqlite(query);
         //              foreach(row, ccres["rows"])
         //              {
@@ -676,21 +676,21 @@ bool dbmanager::fetchobject (value &into, const statstring &uuid, bool formodule
         //          }
 		if(!formodule || !classdata.attribexists("requires") || !row["parent"].ival())
 		{
-			CORE->log(log::debug, "dbmgr", "fetchobject: NOT recursing "
+			CORE->log(log::debug, "dbmgr", "fetchObject: NOT recursing "
 					 "upward from %d" %format(localid));
 			break;
 		}
-		CORE->log(log::debug, "dbmgr", "fetchobject: recursing upward "
+		CORE->log(log::debug, "dbmgr", "fetchObject: recursing upward "
 				  "from %i to %i" %format (localid, row["parent"]));
 		localid = row["parent"].ival();
 	}
 	
-	DEBUG.storefile("dbmgr", "result", into, "fetchobject");
+	DEBUG.storefile("dbmgr", "result", into, "fetchObject");
 	
 	return true;
 }
 
-bool dbmanager::userisgone()
+bool DBManager::userisgone()
 {
     value where;
     string q;
@@ -714,7 +714,7 @@ bool dbmanager::userisgone()
     return false;
 }
 
-string *dbmanager::createobject(const statstring &parent, const value &withmembers, const statstring &ofclass, const statstring &metaid, bool permcheck, bool immediate)
+string *DBManager::createObject(const statstring &parent, const value &withmembers, const statstring &ofclass, const statstring &metaid, bool permcheck, bool immediate)
 {
 	returnclass (string) res retain;
 	value v;
@@ -736,9 +736,9 @@ string *dbmanager::createobject(const statstring &parent, const value &withmembe
 
 	members = withmembers;
 	
-	CORE->log(log::debug, "dbmgr", "createobject(parent=%s, [members], "
+	CORE->log(log::debug, "dbmgr", "createObject(parent=%s, [members], "
 			 "ofclass=%s, metaid=%s)" %format (parent, ofclass, metaid));
-	DEBUG.storefile("dbmgr", "members", withmembers, "createobject");
+	DEBUG.storefile("dbmgr", "members", withmembers, "createObject");
 	
 	classid=findclassid(ofclass);  // FIXME: handle failure
 	
@@ -747,7 +747,7 @@ string *dbmanager::createobject(const statstring &parent, const value &withmembe
 		return &res;
 	}
 
-	string classuuid = findobject("", "Class", nokey, ofclass);
+	string classuuid = findObject("", "Class", nokey, ofclass);
 	// TODO: check user quota 
 
   value classdata = getclassdata(classid);
@@ -755,7 +755,7 @@ string *dbmanager::createobject(const statstring &parent, const value &withmembe
 	if(parent)
 	{
 		string q;
-		q.printf("SELECT /* createobject parentid */ id,owner FROM objects WHERE ");
+		q.printf("SELECT /* createObject parentid */ id,owner FROM objects WHERE ");
 		value where;
 		where["uuid"]=parent;
 		where["wanted"]=1;
@@ -795,16 +795,16 @@ string *dbmanager::createobject(const statstring &parent, const value &withmembe
 	// check whether the metaid has been used previously, fix the versionnumber accordingly
 	if(classdata.attribexists("uniquein"))
 	{
-		oldv = findobjectdeletedversion(v["uniquecontext"].ival(), metaid);
+		oldv = findObjectDeletedVersion(v["uniquecontext"].ival(), metaid);
 		if(oldv==-1)
 		{
-			// findobjectdeletedversion has set lasterror for us
+			// findObjectDeletedVersion has set lasterror for us
 			res.clear();
 			return &res;
 		}
 	}	
 
-	// move to protected function to share code with updateobject
+	// move to protected function to share code with updateObject
 	v["version"]=oldv+1;
 	v["content"]=serialize(members);
 	v["class"]=classid;
@@ -830,7 +830,7 @@ string *dbmanager::createobject(const statstring &parent, const value &withmembe
 	
     int currentusage;
     int currentquota;
-    currentquota = getuserquota(ofclass, "", &currentusage);
+    currentquota = getUserQuota(ofclass, "", &currentusage);
     if (!god && currentquota != -1 && currentusage >= currentquota)
     {
         lasterror.crop();
@@ -863,7 +863,7 @@ string *dbmanager::createobject(const statstring &parent, const value &withmembe
 	// check requires-conformity
 	if(classdata.attribexists("requires"))
 	{
-		statstring parentclass = findclassname(parent);
+		statstring parentclass = classNameFromUUID(parent);
 		if(classdata("requires").sval() != parentclass)
 		{
 			errorcode = ERR_DBMANAGER_INVAL;
@@ -926,7 +926,7 @@ string *dbmanager::createobject(const statstring &parent, const value &withmembe
 		string proto, protoid;
         proto = classdata("prototype").str();
 		protoid.printf("%s%s%s", classdata("magicdelimiter").str(), classdata("prototype").str(), classdata("magicdelimiter").str());
-		string query = "SELECT /* createobject prototype */ id FROM objects WHERE ";
+		string query = "SELECT /* createObject prototype */ id FROM objects WHERE ";
 		value where;
 		where["metaid"]=protoid;
 		where["class"]=classid;
@@ -941,7 +941,7 @@ string *dbmanager::createobject(const statstring &parent, const value &withmembe
 			res=copyprototype(dbres["rows"][0]["id"], parentid, ownerid, replacements, true, members);
             if (immediate)
             {
-                reportsuccess(res);
+                reportSuccess(res);
             }
             
 			return &res;
@@ -951,19 +951,19 @@ string *dbmanager::createobject(const statstring &parent, const value &withmembe
   exclusivesection (dbhandle)
   {
     value qres, disposeme;
-    qres=_dosqlite("BEGIN TRANSACTION /* createobject */");
+    qres=_dosqlite("BEGIN TRANSACTION /* createObject */");
     if(!qres)
     {
-      goto createobject_rollbackandbreak;
+      goto createObject_rollbackandbreak;
     }
 
-  	query="INSERT /* createobject */ INTO objects ";
+  	query="INSERT /* createObject */ INTO objects ";
   	query.strcat(escapeforinsert(v));
   	qres = _dosqlite(query); // FIXME: handle errors
 	
   	if(!qres)
   	{
-      goto createobject_rollbackandbreak; // dosqlite has set a message for us
+      goto createObject_rollbackandbreak; // dosqlite has set a message for us
   					 // TODO: replace with nicer message
   	}
 	
@@ -971,7 +971,7 @@ string *dbmanager::createobject(const statstring &parent, const value &withmembe
   	{
   		if(!_setpowermirror(qres["insertid"].ival()))
   		{
-        goto createobject_rollbackandbreak;
+        goto createObject_rollbackandbreak;
   		}
   		if(userid == 0)
   		{
@@ -982,49 +982,49 @@ string *dbmanager::createobject(const statstring &parent, const value &withmembe
   			value qres = _dosqlite(query);
   			if(!qres)
   			{
-          goto createobject_rollbackandbreak;
+          goto createObject_rollbackandbreak;
   			}
   		}
   	}
 	
     query.crop();
-  	query.printf("UPDATE /* createobject markcolumn */ objects SET wanted=(CASE WHEN version!=%d THEN 0 WHEN version=%d THEN 1 END) WHERE uuid='%s'", 
+  	query.printf("UPDATE /* createObject markcolumn */ objects SET wanted=(CASE WHEN version!=%d THEN 0 WHEN version=%d THEN 1 END) WHERE uuid='%s'", 
                  v["version"].ival(), v["version"].ival(), v["uuid"].str());
     qres=_dosqlite(query);
     if(!qres)
 		{
-      goto createobject_rollbackandbreak;
+      goto createObject_rollbackandbreak;
 		}
   	res=v["uuid"].sval();
 
     if (immediate)
     {
-        bool rsres = _reportsuccess(res);
+        bool rsres = _reportSuccess(res);
         if (!rsres)
         {
-          goto createobject_rollbackandbreak;
+          goto createObject_rollbackandbreak;
         }
     }
 
-    qres = _dosqlite("COMMIT TRANSACTION /* createobject */");
+    qres = _dosqlite("COMMIT TRANSACTION /* createObject */");
     if (!qres)
     {
-      goto createobject_rollbackandbreak;
+      goto createObject_rollbackandbreak;
     }
     
-    goto createobject_success;
+    goto createObject_success;
     
-createobject_rollbackandbreak:
-    disposeme = _dosqlite("ROLLBACK TRANSACTION /* createobject */");
+createObject_rollbackandbreak:
+    disposeme = _dosqlite("ROLLBACK TRANSACTION /* createObject */");
     res.clear();
     // fallthrough
-createobject_success:
+createObject_success:
     breaksection return &res;
   }
   // return &res;
 }
 
-string *dbmanager::copyprototype(int fromid, int parentid, int ownerid, value &repl, bool rootobj, const value &members)
+string *DBManager::copyprototype(int fromid, int parentid, int ownerid, value &repl, bool rootobj, const value &members)
 {
 	returnclass (string) res retain;
 
@@ -1108,10 +1108,10 @@ string *dbmanager::copyprototype(int fromid, int parentid, int ownerid, value &r
 	// check whether the metaid has been used previously, fix the versionnumber accordingly
 	if(classdata.attribexists("uniquein"))
 	{
-		oldv = findobjectdeletedversion(v["uniquecontext"].ival(), v["metaid"]);
+		oldv = findObjectDeletedVersion(v["uniquecontext"].ival(), v["metaid"]);
 		if(oldv==-1)
 		{
-			// findobjectdeletedversion has set lasterror for us
+			// findObjectDeletedVersion has set lasterror for us
 			res.clear();
 			return &res;
 		}
@@ -1170,7 +1170,7 @@ string *dbmanager::copyprototype(int fromid, int parentid, int ownerid, value &r
 	return &res;
 }
 
-bool dbmanager::_checkdomainsuffix(const string &child, const string &parent, const char sep)
+bool DBManager::_checkdomainsuffix(const string &child, const string &parent, const char sep)
 {
 	// short-circuit equality approval
 	if(child.strcasecmp(parent) == 0)
@@ -1194,7 +1194,7 @@ bool dbmanager::_checkdomainsuffix(const string &child, const string &parent, co
 	return false;
 }
 
-bool dbmanager::setpowermirror(int uid)
+bool DBManager::setpowermirror(int uid)
 {
 	string query;
 	
@@ -1225,7 +1225,7 @@ bool dbmanager::setpowermirror(int uid)
 	return true;
 }
 
-bool dbmanager::_setpowermirror(int uid)
+bool DBManager::_setpowermirror(int uid)
 {
 	string query;
 	
@@ -1256,21 +1256,21 @@ bool dbmanager::_setpowermirror(int uid)
 	return true;
 }
 
-bool dbmanager::candelete(const statstring &uuid)
+bool DBManager::isDeleteable(const statstring &uuid)
 {
 	// FIXME: implement
 	return true;
 }
 
-bool dbmanager::deleteobject(const statstring &uuid, bool immediate, bool asgod)
+bool DBManager::deleteObject(const statstring &uuid, bool immediate, bool asgod)
 {
-	CORE->log(log::debug, "dbmgr", "deleteobject(uuid=%s)" %format (uuid));
+	CORE->log(log::debug, "dbmgr", "deleteObject(uuid=%s)" %format (uuid));
 	
 	value empty;
-	return updateobject(empty, uuid, immediate, true, asgod);
+	return updateObject(empty, uuid, immediate, true, asgod);
 }
 
-bool dbmanager::updateobject(const value &withmembers, const statstring &uuid, bool immediate, bool deleted, bool asgod)
+bool DBManager::updateObject(const value &withmembers, const statstring &uuid, bool immediate, bool deleted, bool asgod)
 {
 	value v;
     int localid;
@@ -1279,7 +1279,7 @@ bool dbmanager::updateobject(const value &withmembers, const statstring &uuid, b
 	
 	members=withmembers;
 	
-	CORE->log(log::debug, "dbmgr", "updateobject([members], uuid=%s, "
+	CORE->log(log::debug, "dbmgr", "updateObject([members], uuid=%s, "
 			  "deleted=%d)" %format (uuid, deleted ? 1 : 0));
 	
     localid=findlocalid(uuid);
@@ -1287,7 +1287,7 @@ bool dbmanager::updateobject(const value &withmembers, const statstring &uuid, b
     if(!localid)
     {
         // object is already gone. huzzah!
-        // TODO: are we sure this is the cleanest thing to do? right now listrecursively does depend on it.
+        // TODO: are we sure this is the cleanest thing to do? right now listObjectTree does depend on it.
         return true;
     }
 
@@ -1309,7 +1309,7 @@ bool dbmanager::updateobject(const value &withmembers, const statstring &uuid, b
 	}
         // check that the object to be deleted is not the owner of anything
         query.crop();
-        query.printf("SELECT /* updateobject deleting owner? */ COUNT(id) FROM objects WHERE owner=%d AND wanted=1 AND deleted=0", localid);
+        query.printf("SELECT /* updateObject deleting owner? */ COUNT(id) FROM objects WHERE owner=%d AND wanted=1 AND deleted=0", localid);
         value dbres = dosqlite(query);
         if(dbres["rows"][0][0].ival())
         {
@@ -1319,7 +1319,7 @@ bool dbmanager::updateobject(const value &withmembers, const statstring &uuid, b
         }
     }
 
-    query="SELECT /* updateobject */ id, content, class, version, metaid, uniquecontext, parent, wanted, reality, owner FROM objects WHERE ";
+    query="SELECT /* updateObject */ id, content, class, version, metaid, uniquecontext, parent, wanted, reality, owner FROM objects WHERE ";
 	value where;
 	where["id"]=localid;
 	query.strcat(escapeforsql("=", " AND ", where));
@@ -1344,7 +1344,7 @@ bool dbmanager::updateobject(const value &withmembers, const statstring &uuid, b
         return false;
 	}
     
-	int updatedclassid = findclassid(_findclassname(fetched["class"]));
+	int updatedclassid = findclassid(_classNameFromUUID(fetched["class"]));
 	
 	if(!checkfieldlist(members, updatedclassid))
 	{
@@ -1368,7 +1368,7 @@ bool dbmanager::updateobject(const value &withmembers, const statstring &uuid, b
 	v["deleted"]=deleted ? 1 : 0;
 	v["owner"]=fetched["owner"];
 	
-	query="INSERT /* updateobject */ INTO objects ";
+	query="INSERT /* updateObject */ INTO objects ";
 	query.strcat(escapeforinsert(v));
 	value qres = dosqlite(query); // FIXME: handle errors
 	
@@ -1385,7 +1385,7 @@ bool dbmanager::updateobject(const value &withmembers, const statstring &uuid, b
 	// }
 	string updatechildrenquery;
 
-	updatechildrenquery.printf("UPDATE /* updateobject */ objects SET parent=%d WHERE parent=%d", qres["insertid"].ival(), fetched["id"].ival());
+	updatechildrenquery.printf("UPDATE /* updateObject */ objects SET parent=%d WHERE parent=%d", qres["insertid"].ival(), fetched["id"].ival());
 	value childdbres = dosqlite(updatechildrenquery);
 	if(!childdbres)
 	{
@@ -1397,7 +1397,7 @@ bool dbmanager::updateobject(const value &withmembers, const statstring &uuid, b
     return true;	
 }
 
-int dbmanager::findclassid(const statstring &classname)
+int DBManager::findclassid(const statstring &classname)
 {
 	string query;
 	value v;
@@ -1417,35 +1417,35 @@ int dbmanager::findclassid(const statstring &classname)
     return v["rows"][0]["id"].ival(); // FIXME: check if it's there?
 }
 
-string *dbmanager::_findclassname(const int classid)
+string *DBManager::_classNameFromUUID(const int classid)
 {
-	static lock<value> cache_findclassname;
+	static lock<value> cache_classNameFromUUID;
 	string idstring;
 	returnclass (string) res retain;
 	value v;
 	string query;
 	
 	idstring.printf("%i", classid);
-	sharedsection(cache_findclassname)
+	sharedsection(cache_classNameFromUUID)
 	{
-		if(cache_findclassname.exists(idstring))
+		if(cache_classNameFromUUID.exists(idstring))
 		{
-			res=cache_findclassname[idstring];
+			res=cache_classNameFromUUID[idstring];
 			breaksection return &res;
 		}
 	}
 	// query.printf("SELECT id FROM objects WHERE class=0 AND metaid='%S\'", classname.cval());
-	query.printf("SELECT /* _findclassname */ metaid FROM objects WHERE class=1 AND id=%d", classid);
+	query.printf("SELECT /* _classNameFromUUID */ metaid FROM objects WHERE class=1 AND id=%d", classid);
 	v = dosqlite(query);
     res=v["rows"][0]["metaid"].sval();
-	exclusivesection(cache_findclassname)
+	exclusivesection(cache_classNameFromUUID)
 	{
-		cache_findclassname[idstring]=res;
+		cache_classNameFromUUID[idstring]=res;
 	}
 	return &res; // FIXME: check if it's there?
 }
 
-string *dbmanager::_findmetaid(const int id)
+string *DBManager::_findmetaid(const int id)
 {
 	returnclass (string) res retain;
 	value v;
@@ -1457,7 +1457,7 @@ string *dbmanager::_findmetaid(const int id)
 	return &res; // FIXME: check if it's there?
 }
 
-value *dbmanager::dosqlite (const statstring &query)
+value *DBManager::dosqlite (const statstring &query)
 {
     returnclass (value) res retain;
 	
@@ -1469,7 +1469,7 @@ value *dbmanager::dosqlite (const statstring &query)
     return &res;
 }
 
-value *dbmanager::_dosqlite (const statstring &query)
+value *DBManager::_dosqlite (const statstring &query)
 {
 	returnclass (value) res retain;
 	sqlite3_stmt *qhandle;
@@ -1538,7 +1538,7 @@ value *dbmanager::_dosqlite (const statstring &query)
 		// we should never get here!
 		// FIXME: rant and rave harder
 		lasterror.crop();
-		lasterror.printf("dbmanager::dosqlite(%s): pigs fly :(", query.cval());
+		lasterror.printf("DBManager::dosqlite(%s): pigs fly :(", query.cval());
 		errorcode = ERR_DBMANAGER_FAILURE;
 		res.clear();
 		return &res;
@@ -1562,13 +1562,13 @@ value *dbmanager::_dosqlite (const statstring &query)
 	return &res;
 }
 
-bool dbmanager::checkschema (void)
+bool DBManager::checkschema (void)
 {
 	return true; // FIXME: do actual check
 }
 
 // HACK: removed const so that sval() for the classid int works
-string *dbmanager::escapeforsql (const statstring &glue, const statstring &sep, value &vars)
+string *DBManager::escapeforsql (const statstring &glue, const statstring &sep, value &vars)
 {
 	returnclass (string) res retain;
 	bool firstiter = true;
@@ -1599,7 +1599,7 @@ string *dbmanager::escapeforsql (const statstring &glue, const statstring &sep, 
 	return &res;
 }
 
-string *dbmanager::escapeforinsert (const value &vars)
+string *DBManager::escapeforinsert (const value &vars)
 {
 	returnclass (string) res retain;
 	string res2;
@@ -1636,7 +1636,7 @@ string *dbmanager::escapeforinsert (const value &vars)
 	return &res;
 }
 
-string *dbmanager::serialize(const value &members)
+string *DBManager::serialize(const value &members)
 {
 	returnclass (string) res retain;
 	
@@ -1645,7 +1645,7 @@ string *dbmanager::serialize(const value &members)
 	return &res;
 }
 
-value *dbmanager::deserialize(const string &content)
+value *DBManager::deserialize(const string &content)
 {
 	returnclass (value) res retain;
 	
@@ -1656,7 +1656,7 @@ value *dbmanager::deserialize(const string &content)
 
 // we're in a raincoat that has four sleeves
 // gets us through all kind of stormy weather
-bool dbmanager::deref(value &members, int localclassid)
+bool DBManager::deref(value &members, int localclassid)
 {
 	string query;
 	query.printf("SELECT /* deref */ uuid,metaid,content FROM objects WHERE id=%d", localclassid);
@@ -1729,7 +1729,7 @@ bool dbmanager::deref(value &members, int localclassid)
 	return true;
 }
 
-value *dbmanager::filter(const value &members, int localclassid)
+value *DBManager::filter(const value &members, int localclassid)
 {
 	returnclass (value) res retain;
 	
@@ -1757,7 +1757,7 @@ value *dbmanager::filter(const value &members, int localclassid)
 	return &res;
 }
 
-value *dbmanager::hidepasswords(const value &members, int localclassid, bool tagonly)
+value *DBManager::hidepasswords(const value &members, int localclassid, bool tagonly)
 {
 	returnclass (value) res retain;
 	
@@ -1794,7 +1794,7 @@ value *dbmanager::hidepasswords(const value &members, int localclassid, bool tag
 	return &res;
 }
 
-bool dbmanager::fieldwhitel(value &objs, value &whitel)
+bool DBManager::applyFieldWhiteLabel(value &objs, value &whitel)
 {
 	value blackl, classdata;
 	valueindex whitelv;
@@ -1831,7 +1831,7 @@ bool dbmanager::fieldwhitel(value &objs, value &whitel)
 	return true;
 }
 
-string *dbmanager::sqlstringescape(const string &s)
+string *DBManager::sqlstringescape(const string &s)
 {
 	returnclass (string) res retain;
 	
@@ -1846,7 +1846,7 @@ string *dbmanager::sqlstringescape(const string &s)
 	return &res;
 }
 
-bool dbmanager::login(const statstring &username, const statstring &password)
+bool DBManager::login(const statstring &username, const statstring &password)
 {	
 	md5checksum csum;
 	string query;
@@ -1885,20 +1885,20 @@ bool dbmanager::login(const statstring &username, const statstring &password)
 	return false;
 }
 
-void dbmanager::getcredentials(value &creds)
+void DBManager::getCredentials(value &creds)
 {
     creds["userid"]=userid;
 }
 
-void dbmanager::setcredentials(const value &creds)
+void DBManager::setCredentials(const value &creds)
 {
     userid=creds["userid"];
 }
 
-bool dbmanager::userlogin(const statstring &username)
+bool DBManager::userLogin(const statstring &username)
 {	
 	string query;
-	query = "SELECT /* userlogin */ id FROM objects WHERE ";
+	query = "SELECT /* userLogin */ id FROM objects WHERE ";
 	value where;
 	where["metaid"]=username;
 	where["class"]=findclassid("User");
@@ -1926,13 +1926,13 @@ bool dbmanager::userlogin(const statstring &username)
 	return false;
 }
 
-void dbmanager::logout(void)
+void DBManager::logout(void)
 {
 	userid=-1;
 }
 
 #if 0
-bool dbmanager::copyrelation(int P, int Q)
+bool DBManager::copyrelation(int P, int Q)
 {
 	value qres;
 	string query;
@@ -1982,17 +1982,17 @@ bool dbmanager::copyrelation(int P, int Q)
 }
 #endif
 
-string &dbmanager::getlasterror(void)
+string &DBManager::getLastError(void)
 {
 	return lasterror;
 }
 
-int dbmanager::getlasterrorcode(void)
+int DBManager::getLastErrorCode(void)
 {
 	return errorcode;
 }
 
-bool dbmanager::markcolumn(const statstring &column, const statstring &uuid, int version)
+bool DBManager::markcolumn(const statstring &column, const statstring &uuid, int version)
 {
 	value qres;
 	string query;
@@ -2005,7 +2005,7 @@ bool dbmanager::markcolumn(const statstring &column, const statstring &uuid, int
 	return true; // TODO: handle failure
 }
 
-int dbmanager::findlocalid(const statstring &uuid)
+int DBManager::findlocalid(const statstring &uuid)
 {
 	string query="SELECT /* findlocalid */ id FROM objects WHERE ";
 	value where;
@@ -2025,16 +2025,16 @@ int dbmanager::findlocalid(const statstring &uuid)
 // only return false on real errors; 'we already have this class/version'
 // is not an error condition!
 // FIXME: do something useful with modulename
-bool dbmanager::registerclass(const value &classdata)
+bool DBManager::registerClass(const value &classdata)
 {
 	string query;
 	value v;
 	string tmp;
 	
 	string debug;
-	DEBUG.storefile("dbmgr", "parm", classdata, "registerclass");
+	DEBUG.storefile("dbmgr", "parm", classdata, "registerClass");
 
-	CORE->log(log::debug, "dbmgr", "registerclass UUID: %S", classdata("uuid").cval());
+	CORE->log(log::debug, "dbmgr", "registerClass UUID: %S", classdata("uuid").cval());
 	if(!classdata.attribexists("uuid"))
 	{
 		lasterror = "Class needs a UUID";
@@ -2053,7 +2053,7 @@ bool dbmanager::registerclass(const value &classdata)
 		return false;
 	} 
 
-	CORE->log(log::debug, "dbmgr", "registerclass ID: [%S]", classdata("name").cval());
+	CORE->log(log::debug, "dbmgr", "registerClass ID: [%S]", classdata("name").cval());
 	
 	if(! classdata("name").sval().strlen())
 	{
@@ -2061,14 +2061,14 @@ bool dbmanager::registerclass(const value &classdata)
 		return false;
 	}
 
-	query="SELECT /* registerclass */ id,uuid,version FROM objects WHERE ";
+	query="SELECT /* registerClass */ id,uuid,version FROM objects WHERE ";
 	value where;
 	where["class"]=1;
 	where["metaid"]=classdata ("name");
 	query.strcat(escapeforsql("=", " AND ", where));
 	query.strcat(" ORDER BY version DESC LIMIT 1");
 	value dbres = dosqlite(query);
-	DEBUG.storefile("dbmgr", "dbres", dbres, "registerclass");
+	DEBUG.storefile("dbmgr", "dbres", dbres, "registerClass");
 	if(dbres["rows"].count()) // zero rows means this class is new
 	{	
 		value row = dbres["rows"][0];
@@ -2096,7 +2096,7 @@ bool dbmanager::registerclass(const value &classdata)
 	
 	// apparently this class is new to us!
 	
-	query="INSERT /* registerclass */ INTO objects ";
+	query="INSERT /* registerClass */ INTO objects ";
 	v["uuid"]=classdata("uuid");
 	v["version"]=classdata("version");
 	v["metaid"]=classdata("name");
@@ -2114,7 +2114,7 @@ bool dbmanager::registerclass(const value &classdata)
     if (oldid != 1)
     {
         query.crop();
-        query.printf("UPDATE /* registerclass */ objects SET class=%d WHERE class=%d", qres["insertid"].ival(), oldid);
+        query.printf("UPDATE /* registerClass */ objects SET class=%d WHERE class=%d", qres["insertid"].ival(), oldid);
         qres = dosqlite(query);
         if(! qres)
         {
@@ -2131,47 +2131,47 @@ bool dbmanager::registerclass(const value &classdata)
 	return true;
 }
 
-bool dbmanager::reportsuccess(const statstring &uuid)
+bool DBManager::reportSuccess(const statstring &uuid)
 {
   bool res;
   value qres;
     
   exclusivesection (dbhandle)
   {
-    qres=_dosqlite("BEGIN TRANSACTION /* reportsuccess */");
+    qres=_dosqlite("BEGIN TRANSACTION /* reportSuccess */");
   	if(!qres)
   	{
-  		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportsuccess */");
+  		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportSuccess */");
   		breaksection return false;
   	}
   	
-    res = _reportsuccess(uuid);
+    res = _reportSuccess(uuid);
     
     if(res)
     {
-      qres=_dosqlite("COMMIT TRANSACTION /* _reportsuccess */");
+      qres=_dosqlite("COMMIT TRANSACTION /* _reportSuccess */");
     	if(!qres)
     	{
-    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* _reportsuccess */");
+    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* _reportSuccess */");
     		return false;
     	}
     }
     else
     {
-      value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportsuccess */");
+      value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportSuccess */");
     }
   }
   
   return res;
 }
   
-bool dbmanager::_reportsuccess(const statstring &uuid)
+bool DBManager::_reportSuccess(const statstring &uuid)
 {
   string query;
 	value where;
 	int oldid, newid;
 
-	query = "SELECT /* _reportsuccess */ id FROM objects WHERE ";
+	query = "SELECT /* _reportSuccess */ id FROM objects WHERE ";
 	where.clear();
 	where["uuid"]=uuid;
 	where["reality"]=1;
@@ -2186,7 +2186,7 @@ bool dbmanager::_reportsuccess(const statstring &uuid)
 	else
 		oldid=0;	
 
-	query = "SELECT /* _reportsuccess */ id FROM objects WHERE ";
+	query = "SELECT /* _reportSuccess */ id FROM objects WHERE ";
 	where.clear();
 	where["uuid"]=uuid;
 	where["wanted"]=1;
@@ -2199,7 +2199,7 @@ bool dbmanager::_reportsuccess(const statstring &uuid)
 	newid=qres["rows"][0]["id"].ival();
 
 	query.crop();
-	query.printf("UPDATE /* _reportsuccess */ objects SET reality=(CASE WHEN (deleted=0 AND id=%d) THEN 1 ELSE 0 END), wanted=(CASE WHEN (deleted=0 AND id=%d) THEN 1 ELSE 0 END) WHERE ", newid, newid);
+	query.printf("UPDATE /* _reportSuccess */ objects SET reality=(CASE WHEN (deleted=0 AND id=%d) THEN 1 ELSE 0 END), wanted=(CASE WHEN (deleted=0 AND id=%d) THEN 1 ELSE 0 END) WHERE ", newid, newid);
 	where.clear();
 	where["uuid"]=uuid;
 	query.strcat(escapeforsql("=", " AND ", where));
@@ -2212,7 +2212,7 @@ bool dbmanager::_reportsuccess(const statstring &uuid)
 	if(oldid)
 	{	
 		query.crop();
-		query.printf("UPDATE /* _reportsuccess */ objects SET parent=%d WHERE parent=%d", newid, oldid);
+		query.printf("UPDATE /* _reportSuccess */ objects SET parent=%d WHERE parent=%d", newid, oldid);
 		qres = _dosqlite(query);
 		if(! qres)
 		{
@@ -2220,7 +2220,7 @@ bool dbmanager::_reportsuccess(const statstring &uuid)
 		}
 
 		query.crop();
-		query.printf("UPDATE /* _reportsuccess */ objects SET owner=%d WHERE owner=%d", newid, oldid);
+		query.printf("UPDATE /* _reportSuccess */ objects SET owner=%d WHERE owner=%d", newid, oldid);
 		qres = _dosqlite(query);
 		if(! qres)
 		{
@@ -2228,7 +2228,7 @@ bool dbmanager::_reportsuccess(const statstring &uuid)
 		}	
 
 		query.crop();
-		query.printf("UPDATE /* _reportsuccess */ classquota SET userid=%d WHERE userid=%d", newid, oldid);
+		query.printf("UPDATE /* _reportSuccess */ classquota SET userid=%d WHERE userid=%d", newid, oldid);
 		qres = _dosqlite(query);
 		if(! qres)
 		{
@@ -2236,7 +2236,7 @@ bool dbmanager::_reportsuccess(const statstring &uuid)
 		}	
 
 		query.crop();
-		query.printf("UPDATE /* _reportsuccess */ specialquota SET userid=%d WHERE userid=%d", newid, oldid);
+		query.printf("UPDATE /* _reportSuccess */ specialquota SET userid=%d WHERE userid=%d", newid, oldid);
 		qres = _dosqlite(query);
 		if(! qres)
 		{
@@ -2244,7 +2244,7 @@ bool dbmanager::_reportsuccess(const statstring &uuid)
 		}	
 
 		query.crop();
-		query.printf("UPDATE /* _reportsuccess */ specialquotausage SET userid=%d WHERE userid=%d", newid, oldid);
+		query.printf("UPDATE /* _reportSuccess */ specialquotausage SET userid=%d WHERE userid=%d", newid, oldid);
 		qres = _dosqlite(query);
 		if(! qres)
 		{
@@ -2252,7 +2252,7 @@ bool dbmanager::_reportsuccess(const statstring &uuid)
 		}	
 
 		query.crop();
-		query.printf("UPDATE /* _reportsuccess */ powermirror SET userid=%d WHERE userid=%d", newid, oldid);
+		query.printf("UPDATE /* _reportSuccess */ powermirror SET userid=%d WHERE userid=%d", newid, oldid);
 		qres = _dosqlite(query);
 		if(! qres)
 		{
@@ -2260,7 +2260,7 @@ bool dbmanager::_reportsuccess(const statstring &uuid)
 		}
 
 		query.crop();
-		query.printf("UPDATE /* _reportsuccess */ powermirror SET powerid=%d WHERE powerid=%d", newid, oldid);
+		query.printf("UPDATE /* _reportSuccess */ powermirror SET powerid=%d WHERE powerid=%d", newid, oldid);
 		qres = _dosqlite(query);
 		if(! qres)
 		{
@@ -2276,7 +2276,7 @@ bool dbmanager::_reportsuccess(const statstring &uuid)
 
 // TODO: if version 1 fails, recursively clean all children too, for
 // prototype copying
-bool dbmanager::reportfailure(const statstring &uuid)
+bool DBManager::reportFailure(const statstring &uuid)
 {
 	value qres, where;
 	string query;
@@ -2284,14 +2284,14 @@ bool dbmanager::reportfailure(const statstring &uuid)
 	
 	exclusivesection (dbhandle)
     {	
-    	qres=_dosqlite("BEGIN TRANSACTION /* reportfailure */");
+    	qres=_dosqlite("BEGIN TRANSACTION /* reportFailure */");
     	if(!qres)
     	{
-    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportfailure */");
+    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
     		breaksection return false;
     	}
 		
-    	query = "SELECT /* reportfailure */ id FROM objects WHERE ";
+    	query = "SELECT /* reportFailure */ id FROM objects WHERE ";
     	where.clear();
     	where["uuid"]=uuid;
     	where["wanted"]=1;
@@ -2299,19 +2299,19 @@ bool dbmanager::reportfailure(const statstring &uuid)
     	qres=_dosqlite(query);
     	if(!qres)
     	{
-    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportfailure */");
+    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
     		breaksection return false;
     	}
     	if(!qres["rows"].count())
     	{
-    		lasterror = "Object not found in deleteobject";
-    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportfailure */");
+    		lasterror = "Object not found in deleteObject";
+    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
     		breaksection return false;
     	}
 
     	failedid=qres["rows"][0]["id"].ival();
 
-    	query = "SELECT /* reportfailure */ id FROM objects WHERE ";
+    	query = "SELECT /* reportFailure */ id FROM objects WHERE ";
     	where.clear();
     	where["uuid"]=uuid;
     	where["reality"]=1;
@@ -2319,7 +2319,7 @@ bool dbmanager::reportfailure(const statstring &uuid)
     	qres=_dosqlite(query);
     	if(!qres)
     	{
-    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportfailure */");
+    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
     		breaksection return false;
     	}
     	if(qres["rows"].count())
@@ -2327,43 +2327,43 @@ bool dbmanager::reportfailure(const statstring &uuid)
     	else
     		gotoid=0;
 	
-    	query = "DELETE /* reportfailure */ FROM objects WHERE ";
+    	query = "DELETE /* reportFailure */ FROM objects WHERE ";
     	where.clear();
     	where["id"]=failedid;
     	query.strcat(escapeforsql("=", " AND ", where));
     	qres = _dosqlite(query);
     	if(!qres)
     	{
-    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportfailure */");
+    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
     		breaksection return false;
     	}
 
     	if(gotoid)
     	{
-    		query = "UPDATE /* reportfailure */ objects SET wanted=1 WHERE ";
+    		query = "UPDATE /* reportFailure */ objects SET wanted=1 WHERE ";
     		where.clear();
     		where["id"]=gotoid;
     		query.strcat(escapeforsql("=", " AND ", where));
     		qres = _dosqlite(query);
     		if(!qres)
     		{
-    			value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportfailure */");
+    			value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
     			breaksection return false;
     		}
     	}	
     	query.crop();
-    	query.printf("UPDATE /* reportfailure */ objects SET parent=%d WHERE parent=%d", gotoid, failedid);
+    	query.printf("UPDATE /* reportFailure */ objects SET parent=%d WHERE parent=%d", gotoid, failedid);
     	qres = _dosqlite(query);
     	if(!qres)
     	{
-    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportfailure */");
+    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
     		breaksection return false;
     	}
 
-    	qres=_dosqlite("COMMIT TRANSACTION /* reportfailure */");
+    	qres=_dosqlite("COMMIT TRANSACTION /* reportFailure */");
     	if(!qres)
     	{
-    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportfailure */");
+    		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
     		breaksection return false;
     	}
 
@@ -2374,7 +2374,7 @@ bool dbmanager::reportfailure(const statstring &uuid)
 // we iterate upwards from our logged-in user to find all
 // applying limits. a smaller limit overrides a bigger one,
 // any limit overrides infinity, infinity never overrides any limit
-int dbmanager::getuserquota(const statstring &ofclass, const statstring &useruuid, int *usage)
+int DBManager::getUserQuota(const statstring &ofclass, const statstring &useruuid, int *usage)
 {
     int lookupid, localid, quota, realuserid;
     string q;
@@ -2407,7 +2407,7 @@ int dbmanager::getuserquota(const statstring &ofclass, const statstring &useruui
 	{
 		int thisquota;
         q.crop();
-		q.printf("SELECT /* getuserquota */ quota FROM classquota WHERE userid=%d AND classid=%d", lookupid, localid);
+		q.printf("SELECT /* getUserQuota */ quota FROM classquota WHERE userid=%d AND classid=%d", lookupid, localid);
 		value dbres = dosqlite(q);
 		if(!dbres["rows"].count())
 		{
@@ -2424,7 +2424,7 @@ int dbmanager::getuserquota(const statstring &ofclass, const statstring &useruui
 			quota=thisquota;
 			
 		q.crop();
-		q.printf("SELECT /* getuserquota */ owner FROM objects WHERE id=%d AND wanted=1", lookupid);
+		q.printf("SELECT /* getUserQuota */ owner FROM objects WHERE id=%d AND wanted=1", lookupid);
 		dbres = dosqlite(q);
 		if(!dbres["rows"].count() || dbres["rows"][0]["owner"].ival() == 0)
 		{
@@ -2437,17 +2437,17 @@ int dbmanager::getuserquota(const statstring &ofclass, const statstring &useruui
     {
     	// calculate usage
         q.crop();
-        q.printf("SELECT /* getuserquota */ COUNT(DISTINCT(o.id)) FROM objects o, powermirror p WHERE class=%d AND wanted=1 AND o.owner=p.userid AND p.powerid=%d", localid, realuserid);
+        q.printf("SELECT /* getUserQuota */ COUNT(DISTINCT(o.id)) FROM objects o, powermirror p WHERE class=%d AND wanted=1 AND o.owner=p.userid AND p.powerid=%d", localid, realuserid);
         value dbres = dosqlite(q);
         *usage = dbres["rows"][0][0].ival();
 
-    	CORE->log(log::debug, "dbmgr", "getuserquota: usage: %d out of %d allowed", *usage, quota);
+    	CORE->log(log::debug, "dbmgr", "getUserQuota: usage: %d out of %d allowed", *usage, quota);
 	}
 
 	return quota;
 }
 
-bool dbmanager::setuserquota(const statstring &ofclass, int count, const statstring &useruuid)
+bool DBManager::setUserQuota(const statstring &ofclass, int count, const statstring &useruuid)
 {
 	int uid,classid;
 	string q;
@@ -2464,13 +2464,13 @@ bool dbmanager::setuserquota(const statstring &ofclass, int count, const statstr
         return false;
 	}
 	classid=findclassid(ofclass);
-	q.printf("REPLACE /* setuserquota */ INTO classquota (userid,classid,quota) VALUES(%d,%d,%d)", uid, classid, count);
+	q.printf("REPLACE /* setUserQuota */ INTO classquota (userid,classid,quota) VALUES(%d,%d,%d)", uid, classid, count);
 	value dbres = dosqlite(q);
 	
 	return (bool) dbres;
 }
 
-bool dbmanager::haspower(int oid, int uid)
+bool DBManager::haspower(int oid, int uid)
 {
 	int owner;
 
@@ -2499,7 +2499,7 @@ bool dbmanager::haspower(int oid, int uid)
 	return true;
 }
 
-void dbmanager::iamgod(void)
+void DBManager::enableGodMode(void)
 {
 	int classid;
 	string q;
@@ -2508,7 +2508,7 @@ void dbmanager::iamgod(void)
 	god=true;
 }
 
-value *dbmanager::getclassdata(int classid)
+value *DBManager::getclassdata(int classid)
 {
 	static lock<value> cache_getclassdata;
 	string idstring;
@@ -2542,7 +2542,7 @@ value *dbmanager::getclassdata(int classid)
 	return &res;
 }
 
-bool dbmanager::classhasattrib(int classid, const statstring attrib)
+bool DBManager::classhasattrib(int classid, const statstring attrib)
 {	
 	value classdata;
 	
@@ -2550,7 +2550,7 @@ bool dbmanager::classhasattrib(int classid, const statstring attrib)
 	return classdata.attribexists(attrib);
 }
 
-string *dbmanager::classgetattrib(int classid, const statstring attrib)
+string *DBManager::classgetattrib(int classid, const statstring attrib)
 {	
 	value classdata;
 	returnclass (string) res retain;
@@ -2561,7 +2561,7 @@ string *dbmanager::classgetattrib(int classid, const statstring attrib)
 	return &res;
 }
 
-bool dbmanager::chown(const statstring &objectuuid, const statstring &useruuid)
+bool DBManager::chown(const statstring &objectuuid, const statstring &useruuid)
 {
 	// TODO: update powermirror
 
@@ -2614,7 +2614,7 @@ bool dbmanager::chown(const statstring &objectuuid, const statstring &useruuid)
     return true;
 }
 
-bool dbmanager::checkfieldlist(value &members, int classid)
+bool DBManager::checkfieldlist(value &members, int classid)
 {
 	value classdata;
 	string fid;
@@ -2632,7 +2632,7 @@ bool dbmanager::checkfieldlist(value &members, int classid)
 				if(!findlocalid(field))
 				{
 					string uuid;
-					uuid = findobject("", classdata[field.id()]("refclass"), "", field);
+					uuid = findObject("", classdata[field.id()]("refclass"), "", field);
 					if(!uuid.strlen())
 					{
 						lasterror="Reference %s (%s) not found" %format (field, field.id());
@@ -2664,7 +2664,7 @@ bool dbmanager::checkfieldlist(value &members, int classid)
 	members.rmval("id");
 	members.rmval("uuid");
 	members.rmval("metaid");
-	// TODO: remove version from fetchobject/findobject again; change createobject
+	// TODO: remove version from fetchObject/findObject again; change createObject
 	// to find the version through a separate method, then this here can go.
 	members.rmval("version");
 	
@@ -2672,7 +2672,7 @@ bool dbmanager::checkfieldlist(value &members, int classid)
 }
 
 /// Get a non-object quota number for a specific tag/user.					
-int dbmanager::getspecialquota (const statstring &tag, const statstring &useruuid)
+int DBManager::getSpecialQuota (const statstring &tag, const statstring &useruuid)
 {
     int uid;
 	string q;
@@ -2685,7 +2685,7 @@ int dbmanager::getspecialquota (const statstring &tag, const statstring &useruui
         return -2;
 	}
 	
-    q=("SELECT /* getspecialquota */ quota FROM specialquota WHERE ");
+    q=("SELECT /* getSpecialQuota */ quota FROM specialquota WHERE ");
     v["tag"]=tag;
     v["userid"]=uid;
     q.strcat(escapeforsql("=", " AND ", v));
@@ -2695,7 +2695,7 @@ int dbmanager::getspecialquota (const statstring &tag, const statstring &useruui
 }
 
 /// Get recursively accumulated usage for a specific tag/user.
-int dbmanager::getspecialquotausage (const statstring &tag, const statstring &useruuid)
+int DBManager::getSpecialQuotaUsage (const statstring &tag, const statstring &useruuid)
 {
     // probably easily done with a left join to powermirror, a WHERE on class, and a SUM
     int lookupid;
@@ -2716,7 +2716,7 @@ int dbmanager::getspecialquotausage (const statstring &tag, const statstring &us
 
 	// calculate usage
 	
-    q="SELECT /* getuserquota */ SUM(squ.usage) FROM specialquotausage squ LEFT JOIN powermirror p ON squ.userid=p.userid WHERE ";
+    q="SELECT /* getUserQuota */ SUM(squ.usage) FROM specialquotausage squ LEFT JOIN powermirror p ON squ.userid=p.userid WHERE ";
     value where;
     where["p.powerid"]=lookupid;
     where["squ.tag"]=tag;
@@ -2727,7 +2727,7 @@ int dbmanager::getspecialquotausage (const statstring &tag, const statstring &us
 }
 
 /// Get the quota warning level for a specific tag/user.
-int dbmanager::getspecialquotawarning (const statstring &tag, const statstring &useruuid)
+int DBManager::getSpecialQuotaWarning (const statstring &tag, const statstring &useruuid)
 {
     int uid;
 	string q;
@@ -2739,7 +2739,7 @@ int dbmanager::getspecialquotawarning (const statstring &tag, const statstring &
         lasterror = "permission denied";
         return -2;
 	}
-    q=("SELECT /* getspecialquotawarning */ warning FROM specialquota WHERE ");
+    q=("SELECT /* getSpecialQuotaWarning */ warning FROM specialquota WHERE ");
     v["tag"]=tag;
     v["userid"]=uid;
     q.strcat(escapeforsql("=", " AND ", v));
@@ -2749,7 +2749,7 @@ int dbmanager::getspecialquotawarning (const statstring &tag, const statstring &
 }
 
 /// Set a non-object quota number for a specific tag/user.
-bool dbmanager::setspecialquota (const statstring &tag, const statstring &useruuid, int quota, int warning, value &phys)
+bool DBManager::setSpecialQuota (const statstring &tag, const statstring &useruuid, int quota, int warning, value &phys)
 {
     int uid;
 	string q;
@@ -2776,7 +2776,7 @@ bool dbmanager::setspecialquota (const statstring &tag, const statstring &useruu
 	{
 	    int subassigned, ownquota;
         
-        q="SELECT /* setspecialquota */ owner FROM objects WHERE ";
+        q="SELECT /* setSpecialQuota */ owner FROM objects WHERE ";
         value where;
         where["id"]=lookupid;
     	q.strcat(escapeforsql("=", " AND ", where));
@@ -2788,7 +2788,7 @@ bool dbmanager::setspecialquota (const statstring &tag, const statstring &useruu
         
         lookupid = dbres["rows"][0]["owner"].ival();
     
-        q="SELECT s.q FROM (SELECT /* setspecialquota */ sq.quota q FROM specialquota sq JOIN powermirror p ON sq.userid=p.userid WHERE ";
+        q="SELECT s.q FROM (SELECT /* setSpecialQuota */ sq.quota q FROM specialquota sq JOIN powermirror p ON sq.userid=p.userid WHERE ";
         where.clear();
         where["p.powerid"]=lookupid;
         where["sq.tag"]=tag;
@@ -2798,7 +2798,7 @@ bool dbmanager::setspecialquota (const statstring &tag, const statstring &useruu
 
         subassigned=dbres["rows"][0][0].ival();
         
-        q="SELECT /* setspecialquota */ sq.quota FROM specialquota sq WHERE ";
+        q="SELECT /* setSpecialQuota */ sq.quota FROM specialquota sq WHERE ";
         where.clear();
         where["sq.userid"]=lookupid;
         where["sq.tag"]=tag;
@@ -2819,7 +2819,7 @@ bool dbmanager::setspecialquota (const statstring &tag, const statstring &useruu
 	    }
 	}
 	
-    q=("REPLACE /* setspecialquota */ INTO specialquota");
+    q=("REPLACE /* setSpecialQuota */ INTO specialquota");
     v["tag"]=tag;
     v["userid"]=uid;
     v["quota"]=quota;
@@ -2827,12 +2827,12 @@ bool dbmanager::setspecialquota (const statstring &tag, const statstring &useruu
     q.strcat(escapeforinsert(v));
     
 	value dbres = dosqlite(q);
-	DEBUG.storefile("dbmgr", "phys", phys, "setspecialquota");
+	DEBUG.storefile("dbmgr", "phys", phys, "setSpecialQuota");
 	return (bool) dbres;
 }
 
 /// Set non-recursive(!) usage for a specific tag/user.
-bool dbmanager::setspecialquotausage (const statstring &tag, const statstring &useruuid, int amt)
+bool DBManager::setSpecialQuotaUsage (const statstring &tag, const statstring &useruuid, int amt)
 {
     int uid;
 	string q;
@@ -2845,7 +2845,7 @@ bool dbmanager::setspecialquotausage (const statstring &tag, const statstring &u
     }
 
 	uid=findlocalid(useruuid);
-    q=("REPLACE /* setspecialquotausage */ INTO specialquotausage");
+    q=("REPLACE /* setSpecialQuotaUsage */ INTO specialquotausage");
     v["tag"]=tag;
     v["userid"]=uid;
     v["usage"]=amt;
@@ -2856,7 +2856,7 @@ bool dbmanager::setspecialquotausage (const statstring &tag, const statstring &u
 	return (bool) dbres;
 }
 
-value *dbmanager::listspecialquota()
+value *DBManager::listSpecialQuota()
 {
  	returnclass (value) res retain;
    

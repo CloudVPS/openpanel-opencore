@@ -27,13 +27,13 @@ void _dbmanager_sqlite3_trace_rcvr(void *ignore, const char *query); // namespac
 /// pertaining to classes, objects and versioning of same. Currently
 /// employs SQLite for backend storage.
 //  -------------------------------------------------------------------------
-class dbmanager
+class DBManager
 {
 public:
 					/// Constructor
-                     dbmanager (void);
+                     DBManager (void);
 					/// Destructor; closes sqlite database
-                    ~dbmanager (void);
+                    ~DBManager (void);
 
 					/// opens sqlite database etc.
 					bool init (char *dbfile = PATH_DB);
@@ -45,43 +45,43 @@ public:
 					bool login(const statstring &username, const statstring &password);
 					
 					/// log in user based on externally verified credentials
-					bool userlogin(const statstring &username);
+					bool userLogin(const statstring &username);
 					
 					/// deauthenticate, take all permissions away
 					void logout(void);
 					
 					/// fetch reason for last error return
-					string &getlasterror(void);
+					string &getLastError(void);
 
 					/// fetch numeric code for last error return
-					int getlasterrorcode(void);
+					int getLastErrorCode(void);
 					
 		// NON-TRANSACTION METHODS
 					/// find an object, returns uuid
-					string *findobject(const statstring &parent,
+					string *findObject(const statstring &parent,
 					                   const statstring &ofclass = nokey,
 					                   const statstring &withuuid = nokey,
 					                   const statstring &withmetaid = nokey);
 					
 					/// return uuid of parent based on child uuid
-					string *findparent(const statstring &uuid);
+					string *findParent(const statstring &uuid);
 					
 					/// list objects (of a certain class), within the current context
-					/// \verbinclude db_listobjects.format
-					bool listobjects(value &into, const statstring &parent=nokey, const value &ofclass=nokey, bool formodule = false, int count=-1, int offset=0);
+					/// \verbinclude db_listObjects.format
+					bool listObjects(value &into, const statstring &parent=nokey, const value &ofclass=nokey, bool formodule = false, int count=-1, int offset=0);
 					
 					/// list a whole object subtree, leaf-first
-					bool listrecursively (value &into, const statstring &uuid);
+					bool listObjectTree (value &into, const statstring &uuid);
 
-					/// filter a listobjects resultset according to a whitelist
-					bool fieldwhitel (value &objs, value &whitel);
+					/// filter a listObjects resultset according to a whitelist
+					bool applyFieldWhiteLabel (value &objs, value &whitel);
 					
 					/// fetch an object by uuid
-					bool fetchobject(value &into, const statstring &uuid, bool formodule=false);
+					bool fetchObject(value &into, const statstring &uuid, bool formodule=false);
 
 					/// create object, possibly in the current uniqueness context
 					/// returns value with items "uuid" and "version"
-					string *createobject(const statstring &parent,
+					string *createObject(const statstring &parent,
 					                    const value &withmembers,
 					                    const statstring &ofclass,
 					                    const statstring &metaid = nokey,
@@ -89,65 +89,65 @@ public:
 					                    bool immediate = false);
 					                    
 					/// determine whether an object can be deleted.
-					bool candelete(const statstring &uuid);
+					bool isDeleteable(const statstring &uuid);
 
 					/// mark object deleted
-					bool deleteobject(const statstring &uuid, bool immediate=false, bool asgod=false);
+					bool deleteObject(const statstring &uuid, bool immediate=false, bool asgod=false);
 
 					/// update an object - ALL members are replaced.
 					/// uuid is mandatory
-					bool updateobject(const value &withmembers, const statstring &uuid, bool immediate=false, bool deleted=false, bool asgod=false);
+					bool updateObject(const value &withmembers, const statstring &uuid, bool immediate=false, bool deleted=false, bool asgod=false);
 					
 					/// checks quota for logged-in user or another user
 					/// returns -2 for failure, -1 for unlimited, 0..MAXINT for actual limit
-					int getuserquota(const statstring &ofclass, const statstring &useruuid=nokey, int *usage=NULL);
+					int getUserQuota(const statstring &ofclass, const statstring &useruuid=nokey, int *usage=NULL);
 					
 					/// sets quota for a user
-					bool setuserquota(const statstring &ofclass, int count, const statstring &useruuid=nokey);
+					bool setUserQuota(const statstring &ofclass, int count, const statstring &useruuid=nokey);
 					
 					/// change owner of object
 					bool chown(const statstring &objectuuid, const statstring &useruuid);
 
 					/// find the class, given the UUID of the class or an instance of it
-					statstring *findclassname(const statstring &uuid);
+					statstring *classNameFromUUID(const statstring &uuid);
 					
 					/// mark object as reality
-					bool reportsuccess(const statstring &uuid);
+					bool reportSuccess(const statstring &uuid);
 					
 					/// delete pending object (this is realtime and interactive for the user)
-					bool reportfailure(const statstring &uuid);
+					bool reportFailure(const statstring &uuid);
 					
 					/// mark object as postponed, with reason (asynchronous!)
 					// TODO: implement
-					bool reportpostponed(const statstring &uuid, const string &reason);
+					bool reportPostponed(const statstring &uuid, const string &reason);
 					
 					/// register a class from a module
 					/// details like uuid, name and version are all in the &classdata
-					bool registerclass(const value &classdata);
+					bool registerClass(const value &classdata);
 
 					/// Get a non-object quota number for a specific tag/user.					
-					int getspecialquota (const statstring &tag, const statstring &useruuid);
+					int getSpecialQuota (const statstring &tag, const statstring &useruuid);
 
 					/// Get recursively accumulated usage for a specific tag/user.
-					int getspecialquotausage (const statstring &tag, const statstring &useruuid);
+					int getSpecialQuotaUsage (const statstring &tag, const statstring &useruuid);
 					
 					/// Get the quota warning level for a specific tag/user.
-					int getspecialquotawarning (const statstring &tag, const statstring &useruuid);
+					int getSpecialQuotaWarning (const statstring &tag, const statstring &useruuid);
 				
 					/// Set a non-object quota number for a specific tag/user.
-					bool setspecialquota (const statstring &tag, const statstring &useruuid, int quota, int warning, value &phys);
+					bool setSpecialQuota (const statstring &tag, const statstring &useruuid, int quota, int warning, value &phys);
 					
 					/// Set non-recursive(!) usage for a specific tag/user.
-					bool setspecialquotausage (const statstring &tag, const statstring &useruuid, int amt);
+					bool setSpecialQuotaUsage (const statstring &tag, const statstring &useruuid, int amt);
 					
 					/// Return a list of tags that are in use
-                    value *listspecialquota();
+                    value *listSpecialQuota();
 					
 					/// crush you like windshield!
-					void iamgod(void);
+					void enableGodMode(void);
 					
-                    void getcredentials(value &creds);
-                    void setcredentials(const value &creds);
+                    void getCredentials(value &creds);
+                    void setCredentials(const value &creds);
 protected:
           /// did someone delete/change our user while we were logged in?
           bool userisgone();
@@ -174,13 +174,13 @@ protected:
 					value *_dosqlite (const statstring &query);
 
 					/// find version of previous metaid use
-					int findobjectdeletedversion (int uc, const statstring &withmetaid);
+					int findObjectDeletedVersion (int uc, const statstring &withmetaid);
 					
 					/// find local ID for a class, -1 if not found (because Class itself is 0)
 					int findclassid(const statstring &classname);
 					
 					/// list a subtree recursively leaf-first
-					bool _listrecursively (value &into, int localid);
+					bool _listObjectTree (value &into, int localid);
 					
 					/// insert a relation between A and B
 					bool relate(int A, const statstring &relation, int B);
@@ -189,7 +189,7 @@ protected:
 					bool copyrelation(int P, int Q);
 					
 					/// find full classname from a local class id
-					string *_findclassname(const int classid);
+					string *_classNameFromUUID(const int classid);
 					
 					/// find metaid for a local object id
 					string *_findmetaid(const int id);
@@ -252,7 +252,7 @@ protected:
 					bool _checkdomainsuffix(const string &child, const string &parent, const char sep);
 					
 					/// mark object as reality
-					bool _reportsuccess(const statstring &uuid);
+					bool _reportSuccess(const statstring &uuid);
 
 					/// copy tree from prototype, return uuid of copy root
 					string *copyprototype(int fromid, int parentid, int ownerid, value &repl, bool rootobj = true, const value &members = emptyvalue);
