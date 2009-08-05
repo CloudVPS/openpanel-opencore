@@ -21,7 +21,7 @@ InternalClass::~InternalClass (void)
 // ==========================================================================
 // METHOD InternalClass::listObjects
 // ==========================================================================
-value *InternalClass::listObjects (coresession *s, const statstring &parentid)
+value *InternalClass::listObjects (CoreSession *s, const statstring &parentid)
 {
 	CORE->log (log::error, "iclass", "Listobjects on base class");
 	setError ("List not implemented");
@@ -31,7 +31,7 @@ value *InternalClass::listObjects (coresession *s, const statstring &parentid)
 // ==========================================================================
 // METHOD InternalClass::getObject
 // ==========================================================================
-value *InternalClass::getObject (coresession *s, const statstring &parentid,
+value *InternalClass::getObject (CoreSession *s, const statstring &parentid,
 								 const statstring &id)
 {
 	returnclass (value) res retain;
@@ -43,7 +43,7 @@ value *InternalClass::getObject (coresession *s, const statstring &parentid,
 // ==========================================================================
 // METHOD InternalClass::createObject
 // ==========================================================================
-string *InternalClass::createObject (coresession *s,
+string *InternalClass::createObject (CoreSession *s,
 									 const statstring &parentid,
 									 const value &withparam,
 									 const statstring &withid)
@@ -55,7 +55,7 @@ string *InternalClass::createObject (coresession *s,
 // ==========================================================================
 // METHOD InternalClass::deleteObject
 // ==========================================================================
-bool InternalClass::deleteObject (coresession *s,
+bool InternalClass::deleteObject (CoreSession *s,
 								  const statstring &parentid,
 								  const statstring &witid)
 {
@@ -66,7 +66,7 @@ bool InternalClass::deleteObject (coresession *s,
 // ==========================================================================
 // METHOD InternalClass::updateObject
 // ==========================================================================
-bool InternalClass::updateObject (coresession *s,
+bool InternalClass::updateObject (CoreSession *s,
 								  const statstring &parentid,
 								  const statstring &withid,
 								  const value &withparam)
@@ -137,7 +137,7 @@ QuotaClass::~QuotaClass (void)
 // ==========================================================================
 // METHOD QuotaClass::listObjects
 // ==========================================================================
-value *QuotaClass::listObjects (coresession *s,
+value *QuotaClass::listObjects (CoreSession *s,
 								const statstring &parentid)
 {
 	returnclass (value) res retain;
@@ -204,7 +204,7 @@ value *QuotaClass::listObjects (coresession *s,
 // ==========================================================================
 // METHOD QuotaClass::getObject
 // ==========================================================================
-value *QuotaClass::getObject (coresession *s,
+value *QuotaClass::getObject (CoreSession *s,
 							  const statstring &parentid,
 							  const statstring &withid)
 {
@@ -269,7 +269,7 @@ value *QuotaClass::getObject (coresession *s,
 // ==========================================================================
 // METHOD QuotaClass::updateObject
 // ==========================================================================
-bool QuotaClass::updateObject (coresession *s,
+bool QuotaClass::updateObject (CoreSession *s,
 							   const statstring &_parentid,
 							   const statstring &withid,
 							   const value &withparam)
@@ -288,7 +288,7 @@ bool QuotaClass::updateObject (coresession *s,
         mid = withid;
     }
 
-	statstring parentmeta = s->uuidtometa (parentid);
+	statstring parentmeta = s->resolveMetaID (parentid);
 	
 	if (parentmeta == s->meta["user"])
 	{
@@ -371,7 +371,7 @@ SessionListClass::~SessionListClass (void)
 // ==========================================================================
 // METHOD sesionlistclass::listObjects
 // ==========================================================================
-value *SessionListClass::listObjects (coresession *s, const statstring &pid)
+value *SessionListClass::listObjects (CoreSession *s, const statstring &pid)
 {
 	//if (s->meta["user"] != "openadmin") return NULL;
 	
@@ -410,7 +410,7 @@ ErrorLogClass::~ErrorLogClass (void)
 // ==========================================================================
 // METHOD ErrorLogClass::listObjects
 // ==========================================================================
-value *ErrorLogClass::listObjects (coresession *s, const statstring &pid)
+value *ErrorLogClass::listObjects (CoreSession *s, const statstring &pid)
 {
 	returnclass (value) res retain;
 	value &qres = res["OpenCORE:ErrorLog"];
@@ -448,7 +448,7 @@ CoreSystemClass::~CoreSystemClass (void)
 // ==========================================================================
 // METHOD CoreSystemClass::listObjects
 // ==========================================================================
-value *CoreSystemClass::listObjects (coresession *s, const statstring &pid)
+value *CoreSystemClass::listObjects (CoreSession *s, const statstring &pid)
 {
 	return $("OpenCORE:System",
 				$("system",
@@ -481,7 +481,7 @@ ClassListClass::~ClassListClass (void)
 // ==========================================================================
 // METHOD ClassListClass::listObjects
 // ==========================================================================
-value *ClassListClass::listObjects (coresession *s, const statstring &pid)
+value *ClassListClass::listObjects (CoreSession *s, const statstring &pid)
 {
 	returnclass (value) res retain;
 	

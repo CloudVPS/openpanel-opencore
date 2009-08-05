@@ -26,7 +26,7 @@
 //	=========================================================================
 ///	Constructor
 //	=========================================================================
-OpenCoreRPC::OpenCoreRPC (sessiondb *sdb, OpenCoreApp *papp)
+OpenCoreRPC::OpenCoreRPC (SessionDB *sdb, OpenCoreApp *papp)
 {
 	pdb	= sdb;	///< Session db pointer
 	app	= papp;	///< Application pointer

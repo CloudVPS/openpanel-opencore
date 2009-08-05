@@ -208,7 +208,7 @@ typedef dictionary<CoreClass> classdict;
 //  -------------------------------------------------------------------------
 /// Regulates access to a core module as it exists on disk.
 /// The ModuleDB class should wrap up the context to send to
-/// the module, together with the coresession object involved.
+/// the module, together with the CoreSession object involved.
 //  -------------------------------------------------------------------------
 class CoreModule
 {

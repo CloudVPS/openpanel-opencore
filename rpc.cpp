@@ -7,7 +7,7 @@
 // ==========================================================================
 // CONSTRUCTOR RPCHandler
 // ==========================================================================
-RPCHandler::RPCHandler (sessiondb *s) : handler (this), sdb (*s)
+RPCHandler::RPCHandler (SessionDB *s) : handler (this), sdb (*s)
 {
 	#define AddCommand(foo) handler.setcmd ( #foo, &RPCHandler:: foo )
 	#define BindCommand(foo,bar) handler.setcmd (#foo, &RPCHandler:: bar )
@@ -68,7 +68,7 @@ value *RPCHandler::handle (const value &v, uid_t uid, const string &origin)
 						   $("error", "No session provided"));
 	}
 	
-	coresession *cs = sdb.get (sessid);
+	CoreSession *cs = sdb.get (sessid);
 	if (! cs)
 	{
 		return $("header", $("errorid", ERR_SESSION_INVALID) ->
@@ -92,7 +92,7 @@ value *RPCHandler::handle (const value &v, uid_t uid, const string &origin)
 // METHOD RPCHandler::call
 // ==========================================================================
 value *RPCHandler::call (const statstring &cmd, const value &v,
-						 coresession &cs)
+						 CoreSession &cs)
 {
 	if (! handler.exists (cmd))
 	{
@@ -112,7 +112,7 @@ value *RPCHandler::call (const statstring &cmd, const value &v,
 value *RPCHandler::bind (const value &v, uid_t uid, const string &origin)
 {
 	const value &vbody = v["body"];
-	coresession *cs = NULL;
+	CoreSession *cs = NULL;
 	value meta = $("origin", origin);
 	
 	// Create a session object
@@ -160,7 +160,7 @@ value *RPCHandler::bind (const value &v, uid_t uid, const string &origin)
 		
 		if (username == "root") username = "openadmin"; // FIXME: HAX
 		
-		if (cs->userlogin (username))
+		if (cs->userLogin (username))
 		{
 			string sid = cs->id;
 			sdb.release (cs);
@@ -175,7 +175,7 @@ value *RPCHandler::bind (const value &v, uid_t uid, const string &origin)
 		}
 	}
 	
-	// It definitely didn't happen. Propagate the coresession error.
+	// It definitely didn't happen. Propagate the CoreSession error.
 	returnclass (value) res retain;
 	copySessionError (*cs, res);
 	sdb.remove (cs);
@@ -187,7 +187,7 @@ value *RPCHandler::bind (const value &v, uid_t uid, const string &origin)
 // ==========================================================================
 value *RPCHandler::getLanguages (const value &v)
 {
-	coresession *cs = NULL;
+	CoreSession *cs = NULL;
 	value meta;
 	
 	// Create a session object
@@ -221,7 +221,7 @@ value *RPCHandler::getLanguages (const value &v)
 // ==========================================================================
 // METHOD RPCHandler::ping
 // ==========================================================================
-value *RPCHandler::ping (const value &v, coresession &cs)
+value *RPCHandler::ping (const value &v, CoreSession &cs)
 {
 	RPCRETURN (res);
 	return &res;
@@ -230,7 +230,7 @@ value *RPCHandler::ping (const value &v, coresession &cs)
 // ==========================================================================
 // METHOD RPCHandler::createObject
 // ==========================================================================
-value *RPCHandler::createObject (const value &v, coresession &cs)
+value *RPCHandler::createObject (const value &v, CoreSession &cs)
 {
 	RPCRETURN (res);
 	const value &vbody = v["body"];
@@ -258,7 +258,7 @@ value *RPCHandler::createObject (const value &v, coresession &cs)
 // ==========================================================================
 // METHOD RPCHandler::deleteObject
 // ==========================================================================
-value *RPCHandler::deleteObject (const value &v, coresession &cs)
+value *RPCHandler::deleteObject (const value &v, CoreSession &cs)
 {
 	RPCRETURN (res);
 	statstring in_class = v["body"]["classid"];
@@ -280,7 +280,7 @@ value *RPCHandler::deleteObject (const value &v, coresession &cs)
 // ==========================================================================
 // METHOD RPCHandler::updateObject
 // ==========================================================================
-value *RPCHandler::updateObject (const value &v, coresession &cs)
+value *RPCHandler::updateObject (const value &v, CoreSession &cs)
 {
 	RPCRETURN (res);
 	const value &vbody = v["body"];
@@ -304,7 +304,7 @@ value *RPCHandler::updateObject (const value &v, coresession &cs)
 // ==========================================================================
 // METHOD RPCHandler::chown
 // ==========================================================================
-value *RPCHandler::chown (const value &v, coresession &cs)
+value *RPCHandler::chown (const value &v, CoreSession &cs)
 {
 	RPCRETURN (res);
 	statstring in_object = v["body"]["objectid"];
@@ -324,7 +324,7 @@ value *RPCHandler::chown (const value &v, coresession &cs)
 // ==========================================================================
 // METHOD RPCHandler::classInfo
 // ==========================================================================
-value *RPCHandler::classInfo (const value &v, coresession &cs)
+value *RPCHandler::classInfo (const value &v, CoreSession &cs)
 {
 	RPCRETURN (res);
 	statstring in_classid = v["body"]["classid"];
@@ -349,7 +349,7 @@ value *RPCHandler::classInfo (const value &v, coresession &cs)
 // ==========================================================================
 // METHOD RPCHandler::classXML
 // ==========================================================================
-value *RPCHandler::classXML (const value &v, coresession &cs)
+value *RPCHandler::classXML (const value &v, CoreSession &cs)
 {
 	RPCRETURN (res);
 	statstring in_classid = v["body"]["classid"];
@@ -369,7 +369,7 @@ value *RPCHandler::classXML (const value &v, coresession &cs)
 // ==========================================================================
 // METHOD RPCHandler::callmethod
 // ==========================================================================
-value *RPCHandler::callMethod (const value &v, coresession &cs)
+value *RPCHandler::callMethod (const value &v, CoreSession &cs)
 {
 	RPCRETURN (res);
 	const value &vbody = v["body"];
@@ -391,7 +391,7 @@ value *RPCHandler::callMethod (const value &v, coresession &cs)
 // ==========================================================================
 // METHOD RPCHandler::getRecord
 // ==========================================================================
-value *RPCHandler::getRecord (const value &v, coresession &cs)
+value *RPCHandler::getRecord (const value &v, CoreSession &cs)
 {
 	RPCRETURN (res);
 	const value &vbody = v["body"];
@@ -415,7 +415,7 @@ value *RPCHandler::getRecord (const value &v, coresession &cs)
 // ==========================================================================
 // METHOD RPCHandler::getRecords
 // ==========================================================================
-value *RPCHandler::getRecords (const value &v, coresession &cs)
+value *RPCHandler::getRecords (const value &v, CoreSession &cs)
 {
 	RPCRETURN (res);
 	const value &vbody = v["body"];
@@ -448,14 +448,14 @@ value *RPCHandler::getRecords (const value &v, coresession &cs)
 // ==========================================================================
 // METHOD RPCHandler::getParent
 // ==========================================================================
-value *RPCHandler::getParent (const value &v, coresession &cs)
+value *RPCHandler::getParent (const value &v, CoreSession &cs)
 {
 	RPCRETURN (res);
 	statstring in_objectid = v["body"]["objectid"];
 	statstring resid;
 	
 	cs.mlockr ();
-		resid = cs.upcontext (in_objectid);
+		resid = cs.findParent (in_objectid);
 	cs.munlock ();
 	
 	res["body"]["data"]["newparent"] = resid;
@@ -465,7 +465,7 @@ value *RPCHandler::getParent (const value &v, coresession &cs)
 // ==========================================================================
 // METHOD RPCHandler::getWorld
 // ==========================================================================
-value *RPCHandler::getWorld (const value &v, coresession &cs)
+value *RPCHandler::getWorld (const value &v, CoreSession &cs)
 {
 	RPCRETURN (res);
 	cs.mlockr ();
@@ -480,7 +480,7 @@ value *RPCHandler::getWorld (const value &v, coresession &cs)
 // ==========================================================================
 // METHOD RPCHandler::listParamsForMethod
 // ==========================================================================
-value *RPCHandler::listParamsForMethod (const value &v, coresession &cs)
+value *RPCHandler::listParamsForMethod (const value &v, CoreSession &cs)
 {
 	RPCRETURN (res);
 	const value &vbody = v["body"];
@@ -501,7 +501,7 @@ value *RPCHandler::listParamsForMethod (const value &v, coresession &cs)
 // ==========================================================================
 // METHOD RPCHandler::listModules
 // ==========================================================================
-value *RPCHandler::listModules (const value &v, coresession &cs)
+value *RPCHandler::listModules (const value &v, CoreSession &cs)
 {
 	RPCRETURN (res);
 	res["body"]["data"]["modules"] = cs.listModules ();
@@ -511,7 +511,7 @@ value *RPCHandler::listModules (const value &v, coresession &cs)
 // ==========================================================================
 // METHOD RPCHandler::listClasses
 // ==========================================================================
-value *RPCHandler::listClasses (const value &v, coresession &cs)
+value *RPCHandler::listClasses (const value &v, CoreSession &cs)
 {
 	RPCRETURN (res);
 	res["body"]["data"]["classes"] = cs.listClasses ();
@@ -521,7 +521,7 @@ value *RPCHandler::listClasses (const value &v, coresession &cs)
 // ==========================================================================
 // METHOD RPCHandler::copySessionError
 // ==========================================================================
-void RPCHandler::copySessionError (coresession &cs, value &into)
+void RPCHandler::copySessionError (CoreSession &cs, value &into)
 {
 	string txt = "(%[code]04i) %[message]s" %format (cs.error());
 	into["header"] = $("errorid", cs.error()["code"]) ->

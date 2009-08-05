@@ -24,9 +24,9 @@ const char *MD5SALT_VALID = "./abcdefghijklmnopqrstuvwxyz"
 							"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 // ==========================================================================
-// CONSTRUCTOR sessiondb
+// CONSTRUCTOR SessionDB
 // ==========================================================================
-sessiondb::sessiondb (ModuleDB &pmdb)
+SessionDB::SessionDB (ModuleDB &pmdb)
 	: mdb (pmdb)
 {
 	first = last = NULL;
@@ -34,18 +34,18 @@ sessiondb::sessiondb (ModuleDB &pmdb)
 }
 
 // ==========================================================================
-// DESTRUCTOR sessiondb
+// DESTRUCTOR SessionDB
 // ==========================================================================
-sessiondb::~sessiondb (void)
+SessionDB::~SessionDB (void)
 {
 }
 
 // ==========================================================================
-// METHOD sessiondb::get
+// METHOD SessionDB::get
 // ==========================================================================
-coresession *sessiondb::get (const statstring &id)
+CoreSession *SessionDB::get (const statstring &id)
 {
-	coresession *res;
+	CoreSession *res;
 	
 	sharedsection (lck)
 	{
@@ -59,11 +59,11 @@ coresession *sessiondb::get (const statstring &id)
 }
 
 // ==========================================================================
-// METHOD sessiondb::create
+// METHOD SessionDB::create
 // ==========================================================================
-coresession *sessiondb::create (const value &meta)
+CoreSession *SessionDB::create (const value &meta)
 {
-	coresession *s;
+	CoreSession *s;
 	statstring id = strutil::uuid();
 	
 	exclusivesection (lck)
@@ -86,9 +86,9 @@ coresession *sessiondb::create (const value &meta)
 }
 
 // ==========================================================================
-// METHOD sessiondb::release
+// METHOD SessionDB::release
 // ==========================================================================
-void sessiondb::release (coresession *s)
+void SessionDB::release (CoreSession *s)
 {
 	sharedsection (lck)
 	{
@@ -101,9 +101,9 @@ void sessiondb::release (coresession *s)
 }
 
 // ==========================================================================
-// METHOD sessiondb::remove
+// METHOD SessionDB::remove
 // ==========================================================================
-void sessiondb::remove (coresession *s)
+void SessionDB::remove (CoreSession *s)
 {
 	if (! first) return;
 	
@@ -112,8 +112,8 @@ void sessiondb::remove (coresession *s)
 		try
 		{
 			lck = 1;
-			coresession *crsr = first;
-			coresession *parent = NULL;
+			CoreSession *crsr = first;
+			CoreSession *parent = NULL;
 			
 			log::write (log::debug, "session", "SDB Remove <%S>" %format (s->id));
 						
@@ -185,9 +185,9 @@ void sessiondb::remove (coresession *s)
 }
 
 // ==========================================================================
-// METHOD sessiondb::find
+// METHOD SessionDB::find
 // ==========================================================================
-coresession *sessiondb::find (const statstring &key, bool noreport)
+CoreSession *SessionDB::find (const statstring &key, bool noreport)
 {
 	if (! first)
 	{
@@ -200,7 +200,7 @@ coresession *sessiondb::find (const statstring &key, bool noreport)
 		log::write (log::warning, "session", "Find on empty key");
 	}
 	
-	coresession *crsr = first;
+	CoreSession *crsr = first;
 	while (crsr)
 	{
 		assert (crsr->lower != crsr);
@@ -220,11 +220,11 @@ coresession *sessiondb::find (const statstring &key, bool noreport)
 }
 
 // ==========================================================================
-// METHOD sessiondb::demand
+// METHOD SessionDB::demand
 // ==========================================================================
-coresession *sessiondb::demand (const statstring &key)
+CoreSession *SessionDB::demand (const statstring &key)
 {
-	coresession *res;
+	CoreSession *res;
 	
 	res = find (key, true);
 	if (res)
@@ -234,7 +234,7 @@ coresession *sessiondb::demand (const statstring &key)
 	}
 	else
 	{
-		res = new coresession (key, mdb);
+		res = new CoreSession (key, mdb);
 		if (! res)
 		{
 			return NULL;
@@ -258,12 +258,12 @@ coresession *sessiondb::demand (const statstring &key)
 }
 
 // ==========================================================================
-// METHOD sessiondb::link
+// METHOD SessionDB::link
 // ==========================================================================
-void sessiondb::link (coresession *cs)
+void SessionDB::link (CoreSession *cs)
 {
 	assert (lck.o == 1);
-	coresession *crsr = first;
+	CoreSession *crsr = first;
 	while (crsr)
 	{
 		assert (crsr != cs);
@@ -290,11 +290,11 @@ void sessiondb::link (coresession *cs)
 }
 
 // ==========================================================================
-// METHOD sessiondb::exists
+// METHOD SessionDB::exists
 // ==========================================================================
-bool sessiondb::exists (const statstring &id)
+bool SessionDB::exists (const statstring &id)
 {
-	coresession *s;
+	CoreSession *s;
 
 	sharedsection (lck)
 	{
@@ -307,16 +307,16 @@ bool sessiondb::exists (const statstring &id)
 }
 
 // ==========================================================================
-// METHOD sessiondb::list
+// METHOD SessionDB::list
 // ==========================================================================
-value *sessiondb::list (void)
+value *SessionDB::list (void)
 {
 	returnclass (value) res retain;
 	
 	sharedsection (lck)
 	{
 		lck = 0;
-		coresession *c = first;
+		CoreSession *c = first;
 		while (c)
 		{
 			res[c->id] = $("heartbeat", (unsigned int) c->heartbeat) ->
@@ -330,9 +330,9 @@ value *sessiondb::list (void)
 }
 
 // ==========================================================================
-// METHOD sessiondb::expire
+// METHOD SessionDB::expire
 // ==========================================================================
-int sessiondb::expire (void)
+int SessionDB::expire (void)
 {
 	int result = 0;
 	time_t cutoff = kernel.time.now() - 600;
@@ -341,7 +341,7 @@ int sessiondb::expire (void)
 		try
 		{
 			lck = 1;
-			coresession *s, *ns;
+			CoreSession *s, *ns;
 			s = first;
 			while (s)
 			{
@@ -374,9 +374,9 @@ int sessiondb::expire (void)
 }
 
 // ==========================================================================
-// CONSTRUCTOR coresession
+// CONSTRUCTOR CoreSession
 // ==========================================================================
-coresession::coresession (const statstring &myid, class ModuleDB &pmdb)
+CoreSession::CoreSession (const statstring &myid, class ModuleDB &pmdb)
 	: id (myid), mdb (pmdb)
 {
 	next = prev = higher = lower = NULL;
@@ -391,17 +391,17 @@ coresession::coresession (const statstring &myid, class ModuleDB &pmdb)
 }
 
 // ==========================================================================
-// DESTRUCTOR coresession
+// DESTRUCTOR CoreSession
 // ==========================================================================
-coresession::~coresession (void)
+CoreSession::~CoreSession (void)
 {
 	db.deinit();
 }
 
 // ==========================================================================
-/// METHOD coresession::login
+/// METHOD CoreSession::login
 // ==========================================================================
-bool coresession::login (const string &user, const string &pass, bool superuser)
+bool CoreSession::login (const string &user, const string &pass, bool superuser)
 {
 	bool res;
 	
@@ -435,25 +435,25 @@ bool coresession::login (const string &user, const string &pass, bool superuser)
 }
 
 // ==========================================================================
-/// METHOD coresession::getCredentials
+/// METHOD CoreSession::getCredentials
 // ==========================================================================
-void coresession::getCredentials (value &creds)
+void CoreSession::getCredentials (value &creds)
 {
     db.getCredentials (creds);
 }
 
 // ==========================================================================
-/// METHOD coresession::setCredentials
+/// METHOD CoreSession::setCredentials
 // ==========================================================================
-void coresession::setCredentials (const value &creds)
+void CoreSession::setCredentials (const value &creds)
 {
     db.setCredentials (creds);
 }
 
 // ==========================================================================
-/// METHOD coresession::userlogin
+/// METHOD CoreSession::userLogin
 // ==========================================================================
-bool coresession::userlogin (const string &user)
+bool CoreSession::userLogin (const string &user)
 {
 	bool res;
 	
@@ -477,9 +477,9 @@ bool coresession::userlogin (const string &user)
 }
 
 // ==========================================================================
-// METHOD coresession::createObject
+// METHOD CoreSession::createObject
 // ==========================================================================
-string *coresession::createObject (const statstring &parentid,
+string *CoreSession::createObject (const statstring &parentid,
 								   const statstring &ofclass,
 								   const value &_withparam,
 								   const statstring &_withid,
@@ -625,10 +625,10 @@ string *coresession::createObject (const statstring &parentid,
 	DEBUG.storeFile ("session", "normalize-post", withparam, "createObject");
 	
 	// Handle any module-bound crypting voodoo on the fields.
-	if (! handlecrypts (parentid, ofclass, withid, withparam))
+	if (! handleCrypts (parentid, ofclass, withid, withparam))
 	{
 		log::write (log::error, "session", "Create failed due to crypt error");
-		// handlecrypts already sets the error
+		// handleCrypts already sets the error
 		return NULL;
 	}
 
@@ -722,16 +722,16 @@ string *coresession::createObject (const statstring &parentid,
 
 	if (ofclass && mdb.getClass (ofclass).cascades)
 	{
-		handlecascade (parentid, ofclass, uuid);
+		handleCascade (parentid, ofclass, uuid);
 	}
 	
 	return new (memory::retainable::onstack) string (uuid);
 }
 
 // ==========================================================================
-// METHOD coresession::handlecrypts
+// METHOD CoreSession::handleCrypts
 // ==========================================================================
-bool coresession::handlecrypts (const statstring &parentid,
+bool CoreSession::handleCrypts (const statstring &parentid,
 								const statstring &ofclass, 
 								const statstring &withid,
 								value &param)
@@ -847,9 +847,9 @@ log::write (log::debug, "session", "Handlecrypt class=<%S>" %format (ofclass));
 }
 
 // ==========================================================================
-// METHOD coresession::updateObject
+// METHOD CoreSession::updateObject
 // ==========================================================================
-bool coresession::updateObject (const statstring &parentid,
+bool CoreSession::updateObject (const statstring &parentid,
 							    const statstring &ofclass,
 							    const statstring &withid,
 							    const value &withparam_,
@@ -881,7 +881,7 @@ bool coresession::updateObject (const statstring &parentid,
 	}
 	
 	// Handle any cryptable fields.
-	if (! handlecrypts (parentid, ofclass, withid, withparam))
+	if (! handleCrypts (parentid, ofclass, withid, withparam))
 	{
 		// Crypting failed. Bummer.
 		log::write (log::error, "session", "Update failed due to crypt error");
@@ -1030,16 +1030,16 @@ bool coresession::updateObject (const statstring &parentid,
 	
 	if (ofclass && mdb.getClass (ofclass).cascades)
 	{
-		handlecascade (parentid, ofclass, nuuid);
+		handleCascade (parentid, ofclass, nuuid);
 	}
 
 	return true;
 }
 
 // ==========================================================================
-// METHOD coresession::deleteObject
+// METHOD CoreSession::deleteObject
 // ==========================================================================
-bool coresession::deleteObject (const statstring &parentid,
+bool CoreSession::deleteObject (const statstring &parentid,
 							    const statstring &ofclass,
 							    const statstring &withid,
 							    bool immediate)
@@ -1176,16 +1176,16 @@ bool coresession::deleteObject (const statstring &parentid,
 	
 	if (ofclass && mdb.getClass (ofclass).cascades)
 	{
-		handlecascade (parentid, ofclass, uuidt);
+		handleCascade (parentid, ofclass, uuidt);
 	}
 
 	return true;
 }
 
 // ==========================================================================
-// METHOD coresession::getClassInfo
+// METHOD CoreSession::getClassInfo
 // ==========================================================================
-value *coresession::getClassInfo (const string &forclass)
+value *CoreSession::getClassInfo (const string &forclass)
 {
 	log::write (log::debug, "session", "getClassInfo <%S>" %format(forclass));
 	
@@ -1209,9 +1209,9 @@ value *coresession::getClassInfo (const string &forclass)
 }
 
 // ==========================================================================
-// METHOD coresession::getUserQuota
+// METHOD CoreSession::getUserQuota
 // ==========================================================================
-value *coresession::getUserQuota (const statstring &useruuid)
+value *CoreSession::getUserQuota (const statstring &useruuid)
 {
 	returnclass (value) res retain;
 	
@@ -1242,9 +1242,9 @@ value *coresession::getUserQuota (const statstring &useruuid)
 }
 
 // ==========================================================================
-// METHOD coresession::setUserQuota
+// METHOD CoreSession::setUserQuota
 // ==========================================================================
-bool coresession::setUserQuota (const statstring &ofclass,
+bool CoreSession::setUserQuota (const statstring &ofclass,
 								 int count,
 							     const statstring &useruuid)
 {
@@ -1257,9 +1257,9 @@ bool coresession::setUserQuota (const statstring &ofclass,
 }
 
 // ==========================================================================
-// METHOD coresession::chown
+// METHOD CoreSession::chown
 // ==========================================================================
-bool coresession::chown(const statstring &ofobject,
+bool CoreSession::chown(const statstring &ofobject,
 						const statstring &user)
 {
 	log::write (log::debug, "session", "chown <%S,%S>"
@@ -1275,9 +1275,9 @@ bool coresession::chown(const statstring &ofobject,
 }
 
 // ==========================================================================
-// METHOD coresession::callMethod
+// METHOD CoreSession::callMethod
 // ==========================================================================
-value *coresession::callMethod (const statstring &parentid,
+value *CoreSession::callMethod (const statstring &parentid,
 								const statstring &ofclass,
 								const statstring &withid,
 								const statstring &method,
@@ -1327,18 +1327,18 @@ value *coresession::callMethod (const statstring &parentid,
 }
 
 // ==========================================================================
-// METHOD coresession::setError
+// METHOD CoreSession::setError
 // ==========================================================================
-void coresession::setError (unsigned int code, const string &msg)
+void CoreSession::setError (unsigned int code, const string &msg)
 {
 	errors = $("code", code) ->
 			 $("message", msg);
 }
 
 // ==========================================================================
-// METHOD coresession::setError
+// METHOD CoreSession::setError
 // ==========================================================================
-void coresession::setError (unsigned int code)
+void CoreSession::setError (unsigned int code)
 {
     string mid = "0x%04x" %format (code);
 	
@@ -1347,9 +1347,9 @@ void coresession::setError (unsigned int code)
 }
 
 // ==========================================================================
-// METHOD coresession::upcontext
+// METHOD CoreSession::findParent
 // ==========================================================================
-statstring *coresession::upcontext (const statstring &parentid)
+statstring *CoreSession::findParent (const statstring &parentid)
 {
 	returnclass (statstring) res retain;
 	res = db.findParent (parentid);
@@ -1357,22 +1357,9 @@ statstring *coresession::upcontext (const statstring &parentid)
 }
 
 // ==========================================================================
-// METHOD coresession::bindcontext
+// METHOD CoreSession::getQuotaUUID
 // ==========================================================================
-statstring *coresession::bindcontext (const statstring &parentid,
-									  const statstring &bindclass,
-									  const statstring &bindid)
-{
-	returnclass (statstring) res retain;
-	res = db.findObject (parentid, bindclass, bindid, nokey);
-	if (! res) res = db.findObject (parentid, bindclass, nokey, bindid);
-	return &res;
-}
-
-// ==========================================================================
-// METHOD coresession::getquotauuid
-// ==========================================================================
-statstring *coresession::getquotauuid (const statstring &userid,
+statstring *CoreSession::getQuotaUUID (const statstring &userid,
 									   const statstring &name)
 {
 	returnclass (statstring) res retain;
@@ -1394,9 +1381,9 @@ statstring *coresession::getquotauuid (const statstring &userid,
 $exception (listObjectsInnerException, "");
 
 // ==========================================================================
-// METHOD coresession::listDynamicObjects
+// METHOD CoreSession::listDynamicObjects
 // ==========================================================================
-bool coresession::syncdynamicobjects (const statstring &parentid,
+bool CoreSession::syncDynamicObjects (const statstring &parentid,
 									  const statstring &ofclass,
 									  int offset, int count)
 {
@@ -1427,8 +1414,8 @@ bool coresession::syncdynamicobjects (const statstring &parentid,
 		olddb.clear();
 	}
 	
-	DEBUG.storeFile ("session","old", olddb, "syncdynamicobjects");
-	DEBUG.storeFile ("session","new", curdb, "syncdynamicobjects");
+	DEBUG.storeFile ("session","old", olddb, "syncDynamicObjects");
+	DEBUG.storeFile ("session","new", curdb, "syncDynamicObjects");
 	
 	value skipfields = $("uuid",true) ->
 					   $("parentid",true) ->
@@ -1519,9 +1506,9 @@ bool coresession::syncdynamicobjects (const statstring &parentid,
 }
 
 // ==========================================================================
-// METHOD coresession::listmeta
+// METHOD CoreSession::listMeta
 // ==========================================================================
-value *coresession::listmeta (const statstring &parentid,
+value *CoreSession::listMeta (const statstring &parentid,
 							  const statstring &ofclass,
 							  int offset, int count)
 {
@@ -1577,9 +1564,9 @@ value *coresession::listmeta (const statstring &parentid,
 }
 
 // ==========================================================================
-// METHOD coresession::listObjects
+// METHOD CoreSession::listObjects
 // ==========================================================================
-value *coresession::listObjects (const statstring &parentid,
+value *CoreSession::listObjects (const statstring &parentid,
 							     const statstring &ofclass,
 							     int offset, int count)
 {
@@ -1610,7 +1597,7 @@ value *coresession::listObjects (const statstring &parentid,
 	// Is the class a metaclass?
 	if (ofclass && mdb.classIsMetaBase (ofclass))
 	{
-		res = listmeta (parentid, ofclass, offset, count);
+		res = listMeta (parentid, ofclass, offset, count);
 		return &res;
 	}
 
@@ -1621,7 +1608,7 @@ value *coresession::listObjects (const statstring &parentid,
 		wasdynamic = true;
 		log::write (log::debug, "session", "Class is dynamic");
 		
-		if (! syncdynamicobjects (parentid, ofclass, offset, count))
+		if (! syncDynamicObjects (parentid, ofclass, offset, count))
 			return &res;
 	}
 	
@@ -1640,9 +1627,9 @@ value *coresession::listObjects (const statstring &parentid,
 }
 
 // ==========================================================================
-// METHOD coresession::applyFieldWhiteLabel
+// METHOD CoreSession::applyFieldWhiteLabel
 // ==========================================================================
-bool coresession::applyFieldWhiteLabel (value &objs, value &whitel)
+bool CoreSession::applyFieldWhiteLabel (value &objs, value &whitel)
 {	
 	log::write (log::debug, "session", "applyFieldWhiteLabel <(objs),(whitel)>");
 
@@ -1650,9 +1637,9 @@ bool coresession::applyFieldWhiteLabel (value &objs, value &whitel)
 }	
 
 // ==========================================================================
-// METHOD coresession::getObject
+// METHOD CoreSession::getObject
 // ==========================================================================
-value *coresession::getObject (const statstring &parentid,
+value *CoreSession::getObject (const statstring &parentid,
 							   const statstring &ofclass,
 							   const statstring &withid)
 {
@@ -1674,7 +1661,7 @@ value *coresession::getObject (const statstring &parentid,
 	{
 		log::write (log::debug, "session", "Class is dynamic");
 		
-		if (! syncdynamicobjects (parentid, ofclass, 0, -1))
+		if (! syncDynamicObjects (parentid, ofclass, 0, -1))
 			return &res;
 	}
 	
@@ -1721,17 +1708,17 @@ value *coresession::getObject (const statstring &parentid,
 }
 
 // ==========================================================================
-// METHOD coresession::getClass
+// METHOD CoreSession::getClass
 // ==========================================================================
-statstring *coresession::getClass (const statstring &parentid)
+statstring *CoreSession::getClass (const statstring &parentid)
 {
 	return db.classNameFromUUID (parentid);
 }
 
 // ==========================================================================
-// METHOD sessionexpire::run
+// METHOD SessionExpireThread::run
 // ==========================================================================
-void sessionexpire::run (void)
+void SessionExpireThread::run (void)
 {
 	log::write (log::info, "expire", "Thread started");
 	
@@ -1767,57 +1754,57 @@ void sessionexpire::run (void)
 }
 
 // ==========================================================================
-// METHOD coresession::getModuleForClass
+// METHOD CoreSession::getModuleForClass
 // ==========================================================================
-CoreModule *coresession::getModuleForClass (const statstring &cl)
+CoreModule *CoreSession::getModuleForClass (const statstring &cl)
 {
 	return mdb.getModuleForClass (cl);
 }
 
 // ==========================================================================
-// METHOD coresession::classExists
+// METHOD CoreSession::classExists
 // ==========================================================================
-bool coresession::classExists (const statstring &cl)
+bool CoreSession::classExists (const statstring &cl)
 {
 	return mdb.classExists (cl);
 }
 
 // ==========================================================================
-// METHOD coresession::getModuleByName
+// METHOD CoreSession::getModuleByName
 // ==========================================================================
-CoreModule *coresession::getModuleByName (const statstring &mname)
+CoreModule *CoreSession::getModuleByName (const statstring &mname)
 {
 	return mdb.getModuleByName (mname);
 }
 
 // ==========================================================================
-// METHOD coresession::getLanguages
+// METHOD CoreSession::getLanguages
 // ==========================================================================
-value *coresession::getLanguages (void)
+value *CoreSession::getLanguages (void)
 {
 	return mdb.getLanguages ();
 }
 
 // ==========================================================================
-// METHOD coresession::listModules
+// METHOD CoreSession::listModules
 // ==========================================================================
-value *coresession::listModules (void)
+value *CoreSession::listModules (void)
 {
 	return mdb.listModules ();
 }
 
 // ==========================================================================
-// METHOD coresession::listClasses
+// METHOD CoreSession::listClasses
 // ==========================================================================
-value *coresession::listClasses (void)
+value *CoreSession::listClasses (void)
 {
 	return mdb.listClasses ();
 }
 
 // ==========================================================================
-// METHOD coresession::getWorld
+// METHOD CoreSession::getWorld
 // ==========================================================================
-value *coresession::getWorld (void)
+value *CoreSession::getWorld (void)
 {
 	returnclass (value) res retain;
 	bool isadmin = meta["user"] == "openadmin";
@@ -1831,9 +1818,9 @@ value *coresession::getWorld (void)
 }
 
 // ==========================================================================
-// METHOD coresession::listParamsForMethod
+// METHOD CoreSession::listParamsForMethod
 // ==========================================================================
-value *coresession::listParamsForMethod (const statstring &parentid,
+value *CoreSession::listParamsForMethod (const statstring &parentid,
 										 const statstring &ofclass,
 										 const statstring &withid,
 										 const statstring &methodname)
@@ -1842,35 +1829,35 @@ value *coresession::listParamsForMethod (const statstring &parentid,
 }
 
 // ==========================================================================
-// METHOD coresession::mlockr
+// METHOD CoreSession::mlockr
 // ==========================================================================
-void coresession::mlockr (void)
+void CoreSession::mlockr (void)
 {
 	spinlock.lockr ();
 }
 
 // ==========================================================================
-// METHOD coresession::mlockw
+// METHOD CoreSession::mlockw
 // ==========================================================================
-void coresession::mlockw (const string &plocker)
+void CoreSession::mlockw (const string &plocker)
 {
 	spinlock.lockw ();
 	locker = plocker;
 }
 
 // ==========================================================================
-// METHOD coresession::munlock
+// METHOD CoreSession::munlock
 // ==========================================================================
-void coresession::munlock (void)
+void CoreSession::munlock (void)
 {
 	if (locker.strlen()) locker.crop ();
 	spinlock.unlock ();
 }
 
 // ==========================================================================
-// METHOD coresession::handlecascade
+// METHOD CoreSession::handleCascade
 // ==========================================================================
-void coresession::handlecascade (const statstring &parentid,
+void CoreSession::handleCascade (const statstring &parentid,
 								 const statstring &ofclass,
 								 const string &withid)
 {
@@ -1909,7 +1896,7 @@ void coresession::handlecascade (const statstring &parentid,
 							$("objectid", objectid.sval())
 						 );
 				
-				DEBUG.storeFile ("session", "data", tenv, "handlecascade");
+				DEBUG.storeFile ("session", "data", tenv, "handleCascade");
 				
 				string moderr;
 				mdb.updateObject (objectclass, objectid, tenv, moderr);
@@ -1919,9 +1906,9 @@ void coresession::handlecascade (const statstring &parentid,
 }
 
 // ==========================================================================
-// METHOD coresession::uuidtometa
+// METHOD CoreSession::resolveMetaID
 // ==========================================================================
-statstring *coresession::uuidtometa (const statstring &uuid)
+statstring *CoreSession::resolveMetaID (const statstring &uuid)
 {
 	returnclass (statstring) res retain;
 	value v;

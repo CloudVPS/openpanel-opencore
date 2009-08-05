@@ -23,11 +23,11 @@ $exception (sqliteInitException, "Error initializing sqlite");
 $exception (sessionUnlinkException, "Error unlinking session node");
 
 //  -------------------------------------------------------------------------
-/// Collection class for coresession objects.
+/// Collection class for CoreSession objects.
 /// This class is responsible for creating new sessions and giving
 /// access to sessions created earlier through their unique session-id.
 //  -------------------------------------------------------------------------
-class sessiondb
+class SessionDB
 {
 public:
 									 /// Constructor.
@@ -38,14 +38,14 @@ public:
 									 ///             objects.
 									 /// \param ptmdp Reference to the
 									 ///              template database.
-									 sessiondb (class ModuleDB &pmdb);
+									 SessionDB (class ModuleDB &pmdb);
 									 
 									 /// Destructor.
-									~sessiondb (void);
+									~SessionDB (void);
 
-									 /// Find a coresession by its
+									 /// Find a CoreSession by its
 									 /// session-id. A pointer is
-									 /// returned, but sessiondb remains
+									 /// returned, but SessionDB remains
 									 /// fully responsible for the
 									 /// allocation of any session
 									 /// objects. Before discarding
@@ -55,7 +55,7 @@ public:
 									 /// \param id The session-id (uuid)
 									 /// \return Pointer to the session
 									 ///         or NULL if not found.
-	class coresession				*get (const statstring &id);
+	class CoreSession				*get (const statstring &id);
 	
 									 /// Create a new session.
 									 /// The pointer returned should be
@@ -64,7 +64,7 @@ public:
 									 /// \param meta Any session metadata
 									 ///             that should be added.
 									 /// \return Pointer to the session.
-	class coresession 				*create (const value &meta);
+	class CoreSession 				*create (const value &meta);
 	
 									 /// Release a claim on a session.
 									 /// The session will be kept in
@@ -76,7 +76,7 @@ public:
 									 /// buy the session more time.
 									 /// \param s Pointer to the session
 									 ///          to release.
-	void							 release (class coresession *s);
+	void							 release (class CoreSession *s);
 	
 									 /// Permanently remove a session
 									 /// from the database. Should be
@@ -84,7 +84,7 @@ public:
 									 /// out.
 									 /// \param s Pointer to the session
 									 ///          to remove.
-	void							 remove (class coresession *s);
+	void							 remove (class CoreSession *s);
 	
 									 /// Expire any unlocked sessions that
 									 /// are past their due time, or
@@ -106,44 +106,44 @@ public:
 	value							*list (void);
 	
 protected:
-									 /// Find a coresession by id,
+									 /// Find a CoreSession by id,
 									 /// returns NULL if not found.
 									 /// \param id The session-id.
 									 /// \param noreport If true, don't
 									 ///        report an error on failure.
-	class coresession				*find (const statstring &id,
+	class CoreSession				*find (const statstring &id,
 										   bool noreport = false);
 	
-									 /// Find or create a coresession.
+									 /// Find or create a CoreSession.
 									 /// \param id The session-id.
-	class coresession				*demand (const statstring &id);
+	class CoreSession				*demand (const statstring &id);
 	
 									 /// Add a created session to the
 									 /// linked list.
-	void							 link (class coresession *);
+	void							 link (class CoreSession *);
 	lock<int>						 lck; //< Lock on the dictionary.
-	class coresession				*first; ///< Linked list
-	class coresession				*last; ///< Linked list.
+	class CoreSession				*first; ///< Linked list
+	class CoreSession				*last; ///< Linked list.
 	class ModuleDB					&mdb; ///< Reference to the global ModuleDB.
 };
 
 //  -------------------------------------------------------------------------
 /// A thread that does timed expires on the session database.
 //  -------------------------------------------------------------------------
-class sessionexpire : public thread
+class SessionExpireThread : public thread
 {
 public:
 				 /// Constructor.
-				 /// \param psdb The sessiondb to weed.
-				 sessionexpire (sessiondb *psdb)
-				 	: thread ("sessionexpire")
+				 /// \param psdb The SessionDB to weed.
+				 SessionExpireThread (SessionDB *psdb)
+				 	: thread ("SessionExpireThread")
 				 {
 				 	sdb = psdb;
 				 	spawn ();
 				 }
 				 
 				 /// Destructor.
-				~sessionexpire (void)
+				~SessionExpireThread (void)
 				 {
 				 }
 				 
@@ -160,7 +160,7 @@ public:
 				 }
 protected:
 	conditional	 shutdownCondition; ///< Will raise on thread shutdown.
-	sessiondb	*sdb; ///< Link back to the session database.
+	SessionDB	*sdb; ///< Link back to the session database.
 };
 
 //  -------------------------------------------------------------------------
@@ -171,28 +171,28 @@ protected:
 /// manipulating the opencore object space. It leans on the ModuleDB and
 /// dbmanager classes to perform the necessary tasks at the back end.
 ///
-/// Most calls to coresession need a parentid context. The parentid
+/// Most calls to CoreSession need a parentid context. The parentid
 /// acts as a cursor inside the object space. At the root level, parentid
 /// is set to nokey. To look at objects inside another object, you
 /// use its instance uuid as a parentid argument.
 //  -------------------------------------------------------------------------
-class coresession
+class CoreSession
 {
-friend class sessiondb;
+friend class SessionDB;
 friend class QuotaClass;
 friend class ClassListClass;
 public:
 						 /// Constructor. The session-id is generated
-						 /// by the sessiondb.
+						 /// by the SessionDB.
 						 /// \param myid The session-id (should be UUID).
 						 /// \param mdb Reference to the ModuleDB object
 						 ///            that we'll be using as a punch bag
 						 ///            for our calls.
-						 coresession (const statstring &myid,
+						 CoreSession (const statstring &myid,
 						 			  class ModuleDB &mdb);
 					 	
 					 	 /// Destructor.
-						~coresession (void);
+						~CoreSession (void);
 	
 						 /// Authenticate the session as a specific
 						 /// user.
@@ -213,29 +213,13 @@ public:
 						 /// pre-validated user.
 						 /// \param user The user name.
 						 /// \param pass The plaintext password.
-	bool				 userlogin (const string &user);
-	
-	
-						 /// Give new parent-id provided we bound
-						 /// to another context.
-						 /// \param parentid The original parentid, if
-						 ///                 applicable (nokey for root).
-						 /// \param ofclass The class of the object to bind
-						 ///                to.
-						 /// \param withkey The uuid or metaid of the object
-						 ///                to bind to.
-						 /// \return The new 'parentid' key to use if
-						 ///         switching context to this object, or
-						 ///         NULL/nokey if this is not possible.
-	statstring			*bindcontext (const statstring &parentid,
-									  const statstring &ofclass,
-									  const statstring &withkey);
+	bool				 userLogin (const string &user);
 	
 						 /// Back up a context-id.
 						 /// \param parentid The original parentid.
 						 /// \return The new parentid, or NULL/nokey if
 						 ///         this would move us to the root.
-	statstring			*upcontext (const statstring &parentid);
+	statstring			*findParent (const statstring &parentid);
 	
 						 /// Get a list of available object
 						 /// instances within the current
@@ -325,7 +309,7 @@ public:
 	void				 setError (unsigned int code);
 
 						 /// \return The number of errors.
-	int					 errorcount (void) { return errors.exists("code"); }
+	int					 errorCount (void) { return errors.exists("code"); }
 
                          /// Return error. The value object
                          /// contains three keys:
@@ -432,20 +416,20 @@ public:
 						 /// \param parentid The id of the object's parents.
 						 /// \param ofclass The class of the child.
 						 /// \param withid The uuid of the child.
-	void				 handlecascade (const statstring &parentid,
+	void				 handleCascade (const statstring &parentid,
 										const statstring &ofclass,
 										const string &withid);
 
 						 /// Resolve an object uuid to its metaid.
-	statstring			*uuidtometa (const statstring &uuid);
+	statstring			*resolveMetaID (const statstring &uuid);
 
 	statstring			 id; ///< The session-id
-	value				 meta; ///< Meta data from sessiondb::create.
+	value				 meta; ///< Meta data from SessionDB::create.
 
-	coresession			*next; ///< List link.
-	coresession			*prev; ///< List link.
-	coresession			*higher; ///< Hash link.
-	coresession			*lower; ///< Hash link.
+	CoreSession			*next; ///< List link.
+	CoreSession			*prev; ///< List link.
+	CoreSession			*higher; ///< Hash link.
+	CoreSession			*lower; ///< Hash link.
 	
 	void				 mlockr (void); ///< Lock module access.
 	void				 mlockw (const string &plocker); /// Write-lock module access.
@@ -461,7 +445,7 @@ protected:
 						 /// \param withid the object-id.
 						 /// \param param (in/out) object parameters.
 						 /// \return False on failure.
-	bool				 handlecrypts (const statstring &parentid,
+	bool				 handleCrypts (const statstring &parentid,
 									   const statstring &ofclass,
 									   const statstring &withid,
 									   value &param);
@@ -480,7 +464,7 @@ protected:
 						 /// \param ofclass The class name.
 						 /// \param offset Query offset (may be broken).
 						 /// \param count Max rows (may be broken).
-	bool				 syncdynamicobjects (const statstring &parentid,
+	bool				 syncDynamicObjects (const statstring &parentid,
 											 const statstring &ofclass,
 											 int offset, int count);
 
@@ -490,7 +474,7 @@ protected:
 						 /// \param ofclass The class name.
 						 /// \param offset Query offset (broken).
 						 /// \param count Max rows (broken).
-	value				*listmeta (const statstring &praentid,
+	value				*listMeta (const statstring &praentid,
 								   const statstring &ofmetaclass,
 								   int offset, int count);
 
@@ -499,7 +483,7 @@ protected:
 						 /// OpenCORE:Quota class is completely synthetic
 						 /// so we keep a cached map inside the quotamap
 						 /// variable connected to the session.
-	statstring			*getquotauuid (const statstring &userid,
+	statstring			*getQuotaUUID (const statstring &userid,
 									   const statstring &metaid);
 
 	class ModuleDB		&mdb; ///< Link to the ModuleDB.

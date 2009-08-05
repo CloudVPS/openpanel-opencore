@@ -493,7 +493,7 @@ statstring *DBManager::classNameFromUUID(const statstring &uuid)
 // 2. recurse upwards wherever class says 'requires', stick object in output tree (at root)
 // 3. when we encounter allchildren, stick a listObjects -inside- the current object
 // done!
-// NOTE: coresession absolutely relies on into[0] being the object the request
+// NOTE: CoreSession absolutely relies on into[0] being the object the request
 // actually pointed to
 bool DBManager::fetchObject (value &into, const statstring &uuid, bool formodule)
 {

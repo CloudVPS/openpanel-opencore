@@ -42,8 +42,8 @@ OpenCoreApp::~OpenCoreApp (void)
 }
 
 #define PRINTERR(x) ferr.printf (x ": (%04i) %s\n", \
-				s->errorcount() ? s->error(-1)["code"].ival() : 0, \
-				s->errorcount() ? s->error(-1)["message"].cval() : \
+				s->errorCount() ? s->error(-1)["code"].ival() : 0, \
+				s->errorCount() ? s->error(-1)["message"].cval() : \
 				"Unknown error")
 
 // Import from debug.cpp
@@ -141,7 +141,7 @@ int OpenCoreApp::main (void)
 
 	// Set up collection objects.
 	mdb = new ModuleDB;
-	sdb = new sessiondb (*mdb);
+	sdb = new SessionDB (*mdb);
 	rpc = NULL; // will be initialized by confRpc.
 		
 	// Add watcher value for event log. System will daemonize after
@@ -171,7 +171,7 @@ int OpenCoreApp::main (void)
 
 	// Set up alert and session expire threads.
 	ALERT = new AlertHandler (conf["alert"]);
-	sexp = new sessionexpire (sdb);
+	sexp = new SessionExpireThread (sdb);
 
 	// Get the list of modules that should be reinitialized through their
 	// getconfig.
@@ -379,7 +379,7 @@ int OpenCoreApp::cmdShowSession (const value &cmdata)
 		return 0;
 	}
 	
-	coresession *s;
+	CoreSession *s;
 	statstring sid;
 	
 	sid = cmdata[2].sval();

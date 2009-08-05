@@ -640,8 +640,8 @@ corestatus_t CoreModule::action (const statstring &command,
     	if (meta["implementation"]["wantsrpc"])
     	{
             value creds;
-            coresession *usersession;
-    	    coresession *modulesession = NULL;
+            CoreSession *usersession;
+    	    CoreSession *modulesession = NULL;
     	    
         	try
         	{

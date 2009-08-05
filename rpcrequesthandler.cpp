@@ -23,7 +23,7 @@
 /// Constructor
 //	=========================================================================
 RPCRequestHandler::RPCRequestHandler (class OpenCoreApp *papp, httpd &server, 
-					 	class sessiondb *db)
+					 	class SessionDB *db)
 						: httpdobject (server, "*/json")
 {
 	app		= papp;

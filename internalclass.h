@@ -33,34 +33,34 @@ public:
 					 /// Should return an object list keyed
 					 /// by uuid. All subclasses should override
 					 /// this.
-	virtual value	*listObjects (coresession *s,
+	virtual value	*listObjects (CoreSession *s,
 								  const statstring &parentid);
 
 					 /// Should return a specific object instance
-					 /// in the same format as coresession::getObject().
+					 /// in the same format as CoreSession::getObject().
 					 /// If you don't override this method, the base
 					 /// class will use your listObjects() and
 					 /// filter it for the specific id.
-	virtual value	*getObject (coresession *s,
+	virtual value	*getObject (CoreSession *s,
 								const statstring &parentid,
 								const statstring &id);
 					
 					 /// If your CoreClass implements it, override
 					 /// this method to handle a create event.
-	virtual string	*createObject (coresession *s,
+	virtual string	*createObject (CoreSession *s,
 								   const statstring &parentid,
 								   const value &withparam,
 								   const statstring &withid="");
 							   
 					 /// If your CoreClass implements it, override
 					 /// this method to handle a delete event.
-	virtual bool	 deleteObject (coresession *s,
+	virtual bool	 deleteObject (CoreSession *s,
 								   const statstring &parentid,
 								   const statstring &withid);
 	
 					 /// If your CoreClass implements it, override
 					 /// this method to handle an update event.
-	virtual bool	 updateObject (coresession *s,
+	virtual bool	 updateObject (CoreSession *s,
 								   const statstring &parentid,
 								   const statstring &withid,
 								   const value &withparam);
@@ -113,13 +113,13 @@ public:
 					 QuotaClass (void);
 					~QuotaClass (void);
 					
-	value			*listObjects (coresession *s, const statstring &pid);
+	value			*listObjects (CoreSession *s, const statstring &pid);
 	
-	value			*getObject (coresession *s,
+	value			*getObject (CoreSession *s,
 								const statstring &parentid,
 								const statstring &id);
 								
-	bool			 updateObject (coresession *s,
+	bool			 updateObject (CoreSession *s,
 								   const statstring &parentid,
 								   const statstring &withid,
 								   const value &withparam);
@@ -135,7 +135,7 @@ public:
 					 CoreSystemClass (void);
 					~CoreSystemClass (void);
 					
-	value			*listObjects (coresession *s, const statstring &pid);
+	value			*listObjects (CoreSession *s, const statstring &pid);
 
 protected:
 	string			 sysuuid;
@@ -150,7 +150,7 @@ public:
 					 SessionListClass (void);
 					~SessionListClass (void);
 					
-	value			*listObjects (coresession *s, const statstring &pid);
+	value			*listObjects (CoreSession *s, const statstring &pid);
 };
 
 //  -------------------------------------------------------------------------
@@ -162,7 +162,7 @@ public:
 					 ErrorLogClass (void);
 					~ErrorLogClass (void);
 					
-	value			*listObjects (coresession *s, const statstring &pid);
+	value			*listObjects (CoreSession *s, const statstring &pid);
 };
 
 //  -------------------------------------------------------------------------
@@ -174,7 +174,7 @@ public:
 					 ClassListClass (void);
 					~ClassListClass (void);
 					
-	value			*listObjects (coresession *s, const statstring &pid);
+	value			*listObjects (CoreSession *s, const statstring &pid);
 };
 
 

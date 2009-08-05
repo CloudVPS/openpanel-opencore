@@ -51,7 +51,7 @@ class OpenCoreRPC
 				 ///
 				 /// \param sdb Link to the session database.
 				 /// \param papp Link to the application object.
-				 OpenCoreRPC (class sessiondb *sdb,
+				 OpenCoreRPC (class SessionDB *sdb,
 				 			  class OpenCoreApp *papp);
 
 				 /// Destructor
@@ -75,7 +75,7 @@ class OpenCoreRPC
 				 httpd				 httpdUds;	///< HTTP Unix Domain Socket server
 				 httpd				 httpdTcp;	///< HTTP TCP Server
 				 
-		class	 sessiondb			*pdb; ///< Link to the session database.
+		class	 SessionDB			*pdb; ///< Link to the session database.
 		class	 OpenCoreApp		*app; ///< Link to the application.
 		class 	 RPCRequestHandler	*_huds; ///< Link to the unix domain http handler.
 		class	 RPCRequestHandler	*_htcp; ///< Link to http handler for tcp domain.

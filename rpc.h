@@ -22,7 +22,7 @@
 template <class base> class rpccmdlist
 {
 public:
-	typedef value *(base::*kmethod)(const value &, coresession &);
+	typedef value *(base::*kmethod)(const value &, CoreSession &);
 	
 	rpccmdlist (base *par)
 	{
@@ -46,7 +46,7 @@ public:
 	
 	bool exists (const statstring &cmd) { return methods.exists (cmd); }
 	
-	value *call (const statstring &cmd, const value &args, coresession &s)
+	value *call (const statstring &cmd, const value &args, CoreSession &s)
 	{
 		if (! methods.exists (cmd)) return NULL;
 		kmethod foo = methods[cmd];
@@ -64,35 +64,35 @@ protected:
 class RPCHandler
 {
 public:
-					 RPCHandler (sessiondb *s);
+					 RPCHandler (SessionDB *s);
 					~RPCHandler (void);
 
 	value			*handle (const value &v, uid_t uid, const string &origin);
 
-	value			*call (const statstring &c, const value &v, coresession &cs);
+	value			*call (const statstring &c, const value &v, CoreSession &cs);
 	value			*getLanguages (const value &v);
 	value			*bind (const value &v, uid_t uid, const string &origin);
 
-	value			*ping (const value &v, coresession &cs);
-	value			*createObject (const value &v, coresession &cs);
-	value			*deleteObject (const value &v, coresession &cs);
-	value			*updateObject (const value &v, coresession &cs);
-	value			*chown (const value &v, coresession &cs);
-	value			*classInfo (const value &v, coresession &cs);
-	value			*classXML (const value &v, coresession &cs);
-	value			*callMethod (const value &v, coresession &cs);
-	value			*getRecord (const value &v, coresession &cs);
-	value			*getRecords (const value &v, coresession &cs);
-	value			*getParent (const value &v, coresession &cs);
-	value			*getWorld (const value &v, coresession &cs);
-	value			*listParamsForMethod (const value &v, coresession &cs);
-	value			*listModules (const value &v, coresession &cs);
-	value			*listClasses (const value &v, coresession &cs);
+	value			*ping (const value &v, CoreSession &cs);
+	value			*createObject (const value &v, CoreSession &cs);
+	value			*deleteObject (const value &v, CoreSession &cs);
+	value			*updateObject (const value &v, CoreSession &cs);
+	value			*chown (const value &v, CoreSession &cs);
+	value			*classInfo (const value &v, CoreSession &cs);
+	value			*classXML (const value &v, CoreSession &cs);
+	value			*callMethod (const value &v, CoreSession &cs);
+	value			*getRecord (const value &v, CoreSession &cs);
+	value			*getRecords (const value &v, CoreSession &cs);
+	value			*getParent (const value &v, CoreSession &cs);
+	value			*getWorld (const value &v, CoreSession &cs);
+	value			*listParamsForMethod (const value &v, CoreSession &cs);
+	value			*listModules (const value &v, CoreSession &cs);
+	value			*listClasses (const value &v, CoreSession &cs);
 	
-	void			 copySessionError (coresession &cs, value &into);
+	void			 copySessionError (CoreSession &cs, value &into);
 	void			 setError (int errcode, value &into);
 	
 protected:
 	rpccmdlist<RPCHandler>	 handler;
-	sessiondb				&sdb;
+	SessionDB				&sdb;
 };

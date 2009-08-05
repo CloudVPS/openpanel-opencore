@@ -25,7 +25,7 @@ typedef dictionary<class CoreModule*> moduledict;
 //  -------------------------------------------------------------------------
 /// Represents the collection of loaded modules.
 /// Moderates access to the CoreModule objects through calls that
-/// will be made by a coresession.
+/// will be made by a CoreSession.
 //  -------------------------------------------------------------------------
 class ModuleDB
 {

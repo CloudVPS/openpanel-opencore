@@ -56,7 +56,7 @@ public:
 					 /// Register a new session for this thread. The
 					 /// session-id is a uuid created on the fly. Keep
 					 /// in mind that this has no relationship to the
-					 /// id of a coresession, rather most debugging
+					 /// id of a CoreSession, rather most debugging
 					 /// sessions will represent a single round of
 					 /// interaction stemming from an rpc command.
 	void			 newSession (void);

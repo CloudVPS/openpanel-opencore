@@ -106,10 +106,10 @@ protected:
 	appconfig			 conf; ///< Configuration database.
 public: // TODO: temporary hack for module session! FIXME!
 	ModuleDB			*mdb; ///< Module manager.
-	sessiondb			*sdb; ///< Session manager.
+	SessionDB			*sdb; ///< Session manager.
 protected:
 	OpenCoreRPC			*rpc; ///< RPC manager.
-	sessionexpire		*sexp; ///< Session expire thread.
+	SessionExpireThread		*sexp; ///< Session expire thread.
 	lock<value>			 errors; ///< Logged errors.
 	value				 debugfilter; ///< Filter for debug logging.
 	lock<value>			 regexpdb; /// < Regular expression class definitions.

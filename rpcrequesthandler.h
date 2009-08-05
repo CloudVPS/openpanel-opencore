@@ -30,11 +30,11 @@ public:
 			 /// Constructor
 			 /// \param papp Used for applications logging functionality
 			 /// \param server The http server object
-			 /// \param db Link to the sessiondb.
+			 /// \param db Link to the SessionDB.
 			 /// Note, this http object does listen to all uri's by default
 			 RPCRequestHandler (class OpenCoreApp *papp, 
 						 httpd &server, 
-						 class sessiondb *db);
+						 class SessionDB *db);
 			 
 			 /// Destructor
 			~RPCRequestHandler (void) {};
@@ -55,7 +55,7 @@ public:
 				  
 private:                      
 	class OpenCoreApp	*app; ///< Link back to application object.
-	class sessiondb		*sdb; ///< Link to session database.
+	class SessionDB		*sdb; ///< Link to session database.
 };
 
 //  -------------------------------------------------------------------------
