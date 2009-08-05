@@ -233,7 +233,6 @@ bool coreclass::normalizelayoutnode (value &p, value &mdata, string &error)
 				incaseof ("string") : mdata[p.id()] = p("default").sval(); break;
 				incaseof ("integer") : mdata[p.id()] = p("default").ival(); break;
 				incaseof ("bool") : mdata[p.id()] = p("default").bval(); break;
-				incaseof ("ref") : mdata[p.id()] = p("default").sval(); break;
 				incaseof ("enum") :
 					if (! checkenum (p.id(), p("default")))
 					{
@@ -267,14 +266,6 @@ value *coreclass::flattenparam (void)
 		value &p = res[pobj.id()];
 		p["description"] = pobj.sval();
 		p["type"] = pobj("type").sval();
-		if (p["type"] == "ref")
-		{
-			string tmpl, tmpr;
-			tmpr = pobj("ref").sval();
-			tmpl = tmpr.cutat ('/');
-			p["refclass"] = tmpl;
-			p["reflabel"] = tmpr;
-		}
 		if (pobj.attribexists ("clihide"))
 		{
 			p["clihide"] = (pobj("clihide") == "true");
