@@ -119,7 +119,7 @@ bool OpenCoreRPC::_confcreate (const value &conf, int update)
 		
 		// Initiate a new Unix domain socket handler
 		if (! update)
-			_huds = new rpcrequesthandler (app, httpdUds, pdb);
+			_huds = new RPCRequestHandler (app, httpdUds, pdb);
 			
 		// Start the server
 		httpdUds.start();
@@ -130,12 +130,12 @@ bool OpenCoreRPC::_confcreate (const value &conf, int update)
 		
 		if (! update)
 		{
-			_htcp = new rpcrequesthandler (app, httpdTcp, pdb);
+			_htcp = new RPCRequestHandler (app, httpdTcp, pdb);
 			httpdTcp.systempath ("/var/openpanel");
 			new httpdlogger (httpdTcp, "/var/opencore/log/opencore.access.log");
-			new iconrequesthandler (app, httpdTcp);
-			new itemiconrequesthandler (app, httpdTcp);
-			new emblemrequesthandler (app, httpdTcp);
+			new IconRequestHandler (app, httpdTcp);
+			new ItemIconRequestHandler (app, httpdTcp);
+			new EmblemRequestHandler (app, httpdTcp);
 			new ImagePreloader (app, httpdTcp);
 			new httpdfileshare (httpdTcp, "*", "/var/openpanel/http");
 		}

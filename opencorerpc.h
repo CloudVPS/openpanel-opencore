@@ -77,8 +77,8 @@ class OpenCoreRPC
 				 
 		class	 sessiondb			*pdb; ///< Link to the session database.
 		class	 OpenCoreApp		*app; ///< Link to the application.
-		class 	 rpcrequesthandler	*_huds; ///< Link to the unix domain http handler.
-		class	 rpcrequesthandler	*_htcp; ///< Link to http handler for tcp domain.
+		class 	 RPCRequestHandler	*_huds; ///< Link to the unix domain http handler.
+		class	 RPCRequestHandler	*_htcp; ///< Link to http handler for tcp domain.
 		
 				 /// Handle configuration information.
 		bool	 _confcreate (const value &conf, int update);

@@ -22,7 +22,7 @@
 //	=========================================================================
 /// Constructor
 //	=========================================================================
-rpcrequesthandler::rpcrequesthandler (class OpenCoreApp *papp, httpd &server, 
+RPCRequestHandler::RPCRequestHandler (class OpenCoreApp *papp, httpd &server, 
 					 	class sessiondb *db)
 						: httpdobject (server, "*/json")
 {
@@ -34,12 +34,12 @@ rpcrequesthandler::rpcrequesthandler (class OpenCoreApp *papp, httpd &server,
 //	=========================================================================
 /// Http request handler
 //	=========================================================================
-int rpcrequesthandler::run (string &uri, string &postbody, value &inhdr,
+int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
                      string &out, value &outhdr, value &env,
                      tcpsocket &s)
 {
 	static lock<value> peercache;
-	DEBUG.storeFile ("rpcrequesthandler","postbody", postbody, "run");
+	DEBUG.storeFile ("RPCRequestHandler","postbody", postbody, "run");
 	CORE->log (log::debug, "rpc", "handle: %S %!" %format (uri, inhdr));
 	value indata;
 	value res;
@@ -122,12 +122,12 @@ int rpcrequesthandler::run (string &uri, string &postbody, value &inhdr,
 }
 
 
-iconrequesthandler::iconrequesthandler (class OpenCoreApp *papp, httpd &serv)
+IconRequestHandler::IconRequestHandler (class OpenCoreApp *papp, httpd &serv)
 	: httpdobject (serv, "/images/icons/*"), app (papp)
 {
 }
 
-int iconrequesthandler::run (string &uri, string &postbody, value &inhdr,
+int IconRequestHandler::run (string &uri, string &postbody, value &inhdr,
 							 string &out, value &outhdr, value &env,
 							 tcpsocket &s)
 {
@@ -177,12 +177,12 @@ int iconrequesthandler::run (string &uri, string &postbody, value &inhdr,
 	return 200;
 }
 
-itemiconrequesthandler::itemiconrequesthandler (class OpenCoreApp *papp, httpd &serv)
+ItemIconRequestHandler::ItemIconRequestHandler (class OpenCoreApp *papp, httpd &serv)
 	: httpdobject (serv, "/images/itemicons/*"), app (papp)
 {
 }
 
-int itemiconrequesthandler::run (string &uri, string &postbody, value &inhdr,
+int ItemIconRequestHandler::run (string &uri, string &postbody, value &inhdr,
 							 string &out, value &outhdr, value &env,
 							 tcpsocket &s)
 {
@@ -217,12 +217,12 @@ int itemiconrequesthandler::run (string &uri, string &postbody, value &inhdr,
 	return 200;
 }
 
-emblemrequesthandler::emblemrequesthandler (class OpenCoreApp *papp, httpd &serv)
+EmblemRequestHandler::EmblemRequestHandler (class OpenCoreApp *papp, httpd &serv)
 	: httpdobject (serv, "/images/emblems/*"), app (papp)
 {
 }
 
-int emblemrequesthandler::run (string &uri, string &postbody, value &inhdr,
+int EmblemRequestHandler::run (string &uri, string &postbody, value &inhdr,
 							   string &out, value &outhdr, value &env,
 							   tcpsocket &s)
 {

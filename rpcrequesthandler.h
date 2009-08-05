@@ -23,7 +23,7 @@
 //  -------------------------------------------------------------------------
 /// Handler for http-rpc requests coming in over the unix domain socket.
 //  -------------------------------------------------------------------------
-class rpcrequesthandler : public httpdobject
+class RPCRequestHandler : public httpdobject
 {
 public:
 
@@ -32,12 +32,12 @@ public:
 			 /// \param server The http server object
 			 /// \param db Link to the sessiondb.
 			 /// Note, this http object does listen to all uri's by default
-			 rpcrequesthandler (class OpenCoreApp *papp, 
+			 RPCRequestHandler (class OpenCoreApp *papp, 
 						 httpd &server, 
 						 class sessiondb *db);
 			 
 			 /// Destructor
-			~rpcrequesthandler (void) {};
+			~RPCRequestHandler (void) {};
 
 
 			 /// Httpd Run, This function is called when receiving
@@ -62,13 +62,13 @@ private:
 /// Handler for http requests in the /icon/ directory. Loads an
 /// icon from outside the module directory by class uuid.
 //  -------------------------------------------------------------------------
-class iconrequesthandler : public httpdobject
+class IconRequestHandler : public httpdobject
 {
 public:
-			 iconrequesthandler (class OpenCoreApp *papp,
+			 IconRequestHandler (class OpenCoreApp *papp,
 			 					 httpd &server);
 			 
-			~iconrequesthandler (void) {}
+			~IconRequestHandler (void) {}
 			
 	int      run (string &uri, string &postbody, value &inhdr,
 				  string &out, value &outhdr, value &env,
@@ -82,12 +82,12 @@ private:
 /// Handler for http requests in the /itemicon/ directory. Loads an
 /// icon from outside the module directory by class uuid.
 //  -------------------------------------------------------------------------
-class itemiconrequesthandler : public httpdobject
+class ItemIconRequestHandler : public httpdobject
 {
 public:
-			 itemiconrequesthandler (class OpenCoreApp *papp,
+			 ItemIconRequestHandler (class OpenCoreApp *papp,
 									 httpd &server);
-			~itemiconrequesthandler (void) {}
+			~ItemIconRequestHandler (void) {}
 	int      run (string &uri, string &postbody, value &inhdr,
 				  string &out, value &outhdr, value &env,
 				  tcpsocket &s);
@@ -98,16 +98,16 @@ private:
 			
 
 //  -------------------------------------------------------------------------
-/// Like iconrequesthandler, but for the 128x128 'emblem' version of
+/// Like IconRequestHandler, but for the 128x128 'emblem' version of
 /// the icons.
 //  -------------------------------------------------------------------------
-class emblemrequesthandler : public httpdobject
+class EmblemRequestHandler : public httpdobject
 {
 public:
-			 emblemrequesthandler (class OpenCoreApp *papp,
+			 EmblemRequestHandler (class OpenCoreApp *papp,
 			 					   httpd &server);
 			
-			~emblemrequesthandler (void) {}
+			~EmblemRequestHandler (void) {}
 			
 	int		 run (string &uri, string &postbody, value &inhdr,
 				  string &out, value &outhdr, value &env,
