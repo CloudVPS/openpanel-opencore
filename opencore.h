@@ -20,7 +20,7 @@
 #include "moduledb.h"
 #include "session.h"
 #include "dbmanager.h"
-#include "OpenCoreRPC.h"
+#include "opencorerpc.h"
 
 //  -------------------------------------------------------------------------
 /// Implementation template for application config.

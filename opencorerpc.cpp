@@ -12,7 +12,7 @@
 // --------------------------------------------------------------------------
 
 // Class header
-#include "OpenCoreRPC.h"
+#include "opencorerpc.h"
 
 // Application
 #include "opencore.h"
