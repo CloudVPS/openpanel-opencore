@@ -23,19 +23,19 @@
 /// Picks up alerts as events and sends them forward to either an SMTP
 /// or a HTTP server.
 //  -------------------------------------------------------------------------
-class alerthandler : public thread
+class AlertHandler : public thread
 {
 public:
 				 /// Constructor.
 				 /// \param pconf The configuration tree under /alerts.
-				 alerthandler (const value &pconf) : thread ("alerthandler")
+				 AlertHandler (const value &pconf) : thread ("AlertHandler")
 				 {
 				 	conf = pconf;
 				 	spawn ();
 				 }
 
 				 /// Destructor.
-				~alerthandler (void)
+				~AlertHandler (void)
 				 {
 				 }
 	
@@ -67,7 +67,7 @@ protected:
 				 /// Forard an alert to a back-end system. Determines
 				 /// the delivery type and hands off the data to the
 				 /// apropriate method.
-	bool		 sendalert (const value &alertdata);
+	bool		 sendAlert (const value &alertdata);
 	
 				 /// Routes an alert message to an SMTP server. The
 				 /// following configuration parameters are kept
@@ -76,7 +76,7 @@ protected:
 				 /// - /smtp/subject
 				 /// - /smtp/to
 				 /// - /smtp/from
-	bool		 sendsmtp (const value &alertdata);
+	bool		 sendSMTP (const value &alertdata);
 	
 				 /// Routes an alert message to an HTTP server. The
 				 /// /http/url configuration parameter determines
@@ -84,10 +84,10 @@ protected:
 				 /// a content-type of application/xml, with the
 				 /// message inside the /message part of a gracexml
 				 /// body.
-	bool		 sendhttp (const value &alertdata);
+	bool		 sendHTTP (const value &alertdata);
 };
 
-/// Global alerthandler instance.
-extern alerthandler *ALERT;
+/// Global AlertHandler instance.
+extern AlertHandler *ALERT;
 
 #endif

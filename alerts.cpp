@@ -19,9 +19,9 @@
 #include <grace/http.h>
 
 // ==========================================================================
-// METHOD alerthandler::alert
+// METHOD AlertHandler::alert
 // ==========================================================================
-void alerthandler::alert (const string &alertstr)
+void AlertHandler::alert (const string &alertstr)
 {
 	value ev;
 	ev["cmd"] = "alert";
@@ -30,9 +30,9 @@ void alerthandler::alert (const string &alertstr)
 }
 
 // ==========================================================================
-// METHOD alerthandler::run
+// METHOD AlertHandler::run
 // ==========================================================================
-void alerthandler::run (void)
+void AlertHandler::run (void)
 {
 	q.loadshox (PATH_ALERTQ);
 	CORE->log (log::info, "alerthdl", "Starting thread, %i alerts in queue"
@@ -43,7 +43,7 @@ void alerthandler::run (void)
 	{
 		while (q.count())
 		{
-			if (sendalert (q[0]))
+			if (sendAlert (q[0]))
 			{
 				q.rmindex (0);
 			}
@@ -87,18 +87,18 @@ void alerthandler::run (void)
 */
 
 // ==========================================================================
-// METHOD alerthandler::sendalert
+// METHOD AlertHandler::sendAlert
 // ==========================================================================
-bool alerthandler::sendalert (const value &alertdata)
+bool AlertHandler::sendAlert (const value &alertdata)
 {
 	caseselector (conf["routing"])
 	{
 		incaseof ("smtp") :
-			return sendsmtp (alertdata);
+			return sendSMTP (alertdata);
 			break;
 		
 		incaseof ("http") :
-			return sendhttp (alertdata);
+			return sendHTTP (alertdata);
 			break;
 			
 		defaultcase :
@@ -107,9 +107,9 @@ bool alerthandler::sendalert (const value &alertdata)
 }
 
 // ==========================================================================
-// METHOD alerthandler::sendsmtp
+// METHOD AlertHandler::sendSMTP
 // ==========================================================================
-bool alerthandler::sendsmtp (const value &alertdata)
+bool AlertHandler::sendSMTP (const value &alertdata)
 {
 	string smtphost = conf["smtp"]["server"];
 	string subject = conf["smtp"]["subject"];
@@ -127,9 +127,9 @@ bool alerthandler::sendsmtp (const value &alertdata)
 }
 
 // ==========================================================================
-// METHOD alerthandler::sendhttp
+// METHOD AlertHandler::sendHTTP
 // ==========================================================================
-bool alerthandler::sendhttp (const value &alertdata)
+bool AlertHandler::sendHTTP (const value &alertdata)
 {
 	value out;
 	string outxml;
@@ -147,4 +147,4 @@ bool alerthandler::sendhttp (const value &alertdata)
 	return false;
 }
 
-alerthandler *ALERT = NULL;
+AlertHandler *ALERT = NULL;

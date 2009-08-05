@@ -170,7 +170,7 @@ int opencoreApp::main (void)
 	}
 
 	// Set up alert and session expire threads.
-	ALERT = new alerthandler (conf["alert"]);
+	ALERT = new AlertHandler (conf["alert"]);
 	sexp = new sessionexpire (sdb);
 
 	// Get the list of modules that should be reinitialized through their
