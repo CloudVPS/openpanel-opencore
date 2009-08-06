@@ -243,7 +243,8 @@ value *RPCHandler::createObject (const value &v, CoreSession &cs)
 
 	cs.mlockw ("createObject");
 
-		objid = cs.createObject (in_parent, in_class, in_data, in_id, in_immediate);
+		objid = cs.createObject (in_parent, in_class, in_data,
+								 in_id, in_immediate);
 		
 		if (! objid)
 		{

@@ -17,11 +17,17 @@
 
 bool DISABLE_DEBUGGING = false;
 
+// ==========================================================================
+// CONSTRUCTOR Debugger
+// ==========================================================================
 Debugger::Debugger (void)
 {
 	first = last = NULL;
 }
 
+// ==========================================================================
+// DESTRUCTOR Debugger
+// ==========================================================================
 Debugger::~Debugger (void)
 {
 	ThreadUUID *c, *nc;
@@ -35,6 +41,9 @@ Debugger::~Debugger (void)
 	}
 }
 
+// ==========================================================================
+// METHOD Debugger::newSession
+// ==========================================================================
 void Debugger::newSession (void)
 {
 	ThreadUUID *c = getNode();
@@ -46,6 +55,9 @@ void Debugger::newSession (void)
 			   c->uuid.str());
 }
 
+// ==========================================================================
+// METHOD Debugger::uuid
+// ==========================================================================
 const string &Debugger::uuid (void)
 {
 	static string nothing;
@@ -54,11 +66,17 @@ const string &Debugger::uuid (void)
 	return nothing;
 }
 
+// ==========================================================================
+// METHOD Debugger::setFilter
+// ==========================================================================
 void Debugger::setFilter (const value &filterlist)
 {
 	filter = filterlist;
 }
 
+// ==========================================================================
+// METHOD Debugger::storeFile
+// ==========================================================================
 void Debugger::storeFile (const string &subsystem, const string &action,
 						  const value &idata, const string &function)
 {
@@ -104,6 +122,9 @@ void Debugger::storeFile (const string &subsystem, const string &action,
 	fs.save (fname, data);
 }
 
+// ==========================================================================
+// METHOD Debugger::getNode
+// ==========================================================================
 ThreadUUID *Debugger::getNode (void)
 {
 	pthread_t me = pthread_self();

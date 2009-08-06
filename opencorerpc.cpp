@@ -184,16 +184,25 @@ bool OpenCoreRPC::confupdate (const value &conf)
 	return true;
 }
 
+// ==========================================================================
+// CONSTRUCTOR ImagePreloader
+// ==========================================================================
 ImagePreloader::ImagePreloader (OpenCoreApp *papp, httpd &x)
 	: httpdobject (x, "*/preloader.js")
 {
 	app = papp;
 }
 
+// ==========================================================================
+// DESTRUCTOR ImagePreloader
+// ==========================================================================
 ImagePreloader::~ImagePreloader (void)
 {
 }
 
+// ==========================================================================
+// METHOD ImagePreloader::run
+// ==========================================================================
 int ImagePreloader::run (string &uri, string &postbody, value &inhdr,
 						 string &out, value &outhdr, value &env,
 						 tcpsocket &s)
