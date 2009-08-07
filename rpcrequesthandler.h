@@ -116,4 +116,21 @@ public:
 private:
 	class OpenCoreApp *app;
 };
+
+//  -------------------------------------------------------------------------
+/// Generate javascript code for preloading images.
+//  -------------------------------------------------------------------------
+class ImagePreloader : public httpdobject
+{
+public:
+				 ImagePreloader (class OpenCoreApp *papp, httpd &x);
+				~ImagePreloader (void);
+				
+	int			 run (string &uri, string &postbody, value &inhdr,
+					  string &out, value &outhdr, value &env, tcpsocket &s);
+					  
+	class OpenCoreApp *app;
+};
+
+
 #endif

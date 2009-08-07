@@ -122,11 +122,17 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 }
 
 
+// ==========================================================================
+// CONSTRUCTOR IconRequestHandler
+// ==========================================================================
 IconRequestHandler::IconRequestHandler (class OpenCoreApp *papp, httpd &serv)
 	: httpdobject (serv, "/images/icons/*"), app (papp)
 {
 }
 
+// ==========================================================================
+// METHOD IconRequestHandler::run
+// ==========================================================================
 int IconRequestHandler::run (string &uri, string &postbody, value &inhdr,
 							 string &out, value &outhdr, value &env,
 							 tcpsocket &s)
@@ -177,11 +183,17 @@ int IconRequestHandler::run (string &uri, string &postbody, value &inhdr,
 	return 200;
 }
 
+// ==========================================================================
+// CONSTRUCTOR ItemIconRequestHandler
+// ==========================================================================
 ItemIconRequestHandler::ItemIconRequestHandler (class OpenCoreApp *papp, httpd &serv)
 	: httpdobject (serv, "/images/itemicons/*"), app (papp)
 {
 }
 
+// ==========================================================================
+// METHOD ItemIconRequestHandler::run
+// ==========================================================================
 int ItemIconRequestHandler::run (string &uri, string &postbody, value &inhdr,
 							 string &out, value &outhdr, value &env,
 							 tcpsocket &s)
@@ -217,11 +229,17 @@ int ItemIconRequestHandler::run (string &uri, string &postbody, value &inhdr,
 	return 200;
 }
 
+// ==========================================================================
+// CONSTRUCTOR EmblemRequestHandler
+// ==========================================================================
 EmblemRequestHandler::EmblemRequestHandler (class OpenCoreApp *papp, httpd &serv)
 	: httpdobject (serv, "/images/emblems/*"), app (papp)
 {
 }
 
+// ==========================================================================
+// METHOD EmblemRequestHandler::run
+// ==========================================================================
 int EmblemRequestHandler::run (string &uri, string &postbody, value &inhdr,
 							   string &out, value &outhdr, value &env,
 							   tcpsocket &s)
@@ -241,5 +259,47 @@ int EmblemRequestHandler::run (string &uri, string &postbody, value &inhdr,
 	
 	outhdr["Content-type"] = "image/png";
 	out = fs.load (path);
+	return 200;
+}
+
+// ==========================================================================
+// CONSTRUCTOR ImagePreloader
+// ==========================================================================
+ImagePreloader::ImagePreloader (OpenCoreApp *papp, httpd &x)
+	: httpdobject (x, "*/preloader.js")
+{
+	app = papp;
+}
+
+// ==========================================================================
+// DESTRUCTOR ImagePreloader
+// ==========================================================================
+ImagePreloader::~ImagePreloader (void)
+{
+}
+
+// ==========================================================================
+// METHOD ImagePreloader::run
+// ==========================================================================
+int ImagePreloader::run (string &uri, string &postbody, value &inhdr,
+						 string &out, value &outhdr, value &env,
+						 tcpsocket &s)
+{
+	out = "function preloadImages () {\n"
+		  "preloadedGUIImages = new Array();\n";
+	value dir = fs.dir ("/var/openpanel/http/images/gui");
+	foreach (img, dir)
+	{
+		string ext = img.sval().copyafterlast('.');
+		if ((ext != "png")&&(ext!="jpg")&&(ext!="gif")) continue;
+		
+		out += "preloadedGUIImages[\"%{0}s\"] = new Image(32,32);\n"
+			   "preloadedGUIImages[\"%{0}s\"].src = \"/images/gui/%{0}s\";\n"
+			   %format (img.id());
+	}
+	
+	out += "}\n";
+	
+	outhdr["Content-type"] = "text/javascript";
 	return 200;
 }
