@@ -19,9 +19,9 @@
 #include "rpc.h"
 #include <zlib.h>
 
-//	=========================================================================
-/// Constructor
-//	=========================================================================
+// ==========================================================================
+// CONSTRUCTOR RPCRequestHandler
+// ==========================================================================
 RPCRequestHandler::RPCRequestHandler (class OpenCoreApp *papp, httpd &server, 
 					 	class SessionDB *db)
 						: httpdobject (server, "*/json")
@@ -30,10 +30,9 @@ RPCRequestHandler::RPCRequestHandler (class OpenCoreApp *papp, httpd &server,
 	sdb		= db;
 }
 
-
-//	=========================================================================
-/// Http request handler
-//	=========================================================================
+// ==========================================================================
+// METHOD RPCRequestHandler::run
+// ==========================================================================
 int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
                      string &out, value &outhdr, value &env,
                      tcpsocket &s)
