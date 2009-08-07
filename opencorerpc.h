@@ -19,18 +19,6 @@
 #include <grace/value.h>
 #include <grace/filesystem.h>
 
-class ImagePreloader : public httpdobject
-{
-public:
-				 ImagePreloader (class OpenCoreApp *papp, httpd &x);
-				~ImagePreloader (void);
-				
-	int			 run (string &uri, string &postbody, value &inhdr,
-					  string &out, value &outhdr, value &env, tcpsocket &s);
-					  
-	class OpenCoreApp *app;
-};
-
 //  -------------------------------------------------------------------------
 /// This class provides basic handling for all
 /// listening sockets
