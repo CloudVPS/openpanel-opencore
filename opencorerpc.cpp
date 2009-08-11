@@ -114,7 +114,7 @@ bool OpenCoreRPC::_confcreate (const value &conf, int update)
 		httpdUds.minthreads (conf["unixsocket"]["minthreads"].ival());
 		httpdUds.maxthreads (conf["unixsocket"]["maxthreads"].ival());
 
-		CORE->log (log::info, "rpc", "Setting up unix-rpc at <%s>",
+		CORE->log (log::info, "RPC", "Setting up unix-rpc at <%s>",
 				   PATH_RPCSOCK);
 		
 		// Initiate a new Unix domain socket handler
@@ -126,7 +126,7 @@ bool OpenCoreRPC::_confcreate (const value &conf, int update)
 		fs.chmod (PATH_RPCSOCK, 0666);
 		
 		httpdTcp.listento (4088);
-		CORE->log (log::info, "rpc", "Setting up tcp-rpc on port 4088");
+		CORE->log (log::info, "RPC", "Setting up tcp-rpc on port 4088");
 		
 		if (! update)
 		{
@@ -144,7 +144,7 @@ bool OpenCoreRPC::_confcreate (const value &conf, int update)
 	}
 	catch (exception e)
 	{
-		CORE->log (log::critical, "rpc", "Exception setting up unix-rpc: %s",
+		CORE->log (log::critical, "RPC", "Exception setting up unix-rpc: %s",
 				   e.description);
 		error = "Fatal exception during setup of UnixDomainSocket";
 			

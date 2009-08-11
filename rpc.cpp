@@ -51,7 +51,7 @@ RPCHandler::~RPCHandler (void)
 value *RPCHandler::handle (const value &v, uid_t uid, const string &origin)
 {
 	DEBUG.newSession ();
-	DEBUG.storeFile ("rpc","in", v);
+	DEBUG.storeFile ("RPC","in", v);
 	statstring cmd = v["header"]["command"];
 	statstring sessid = v["header"]["session_id"];
 	
@@ -84,7 +84,7 @@ value *RPCHandler::handle (const value &v, uid_t uid, const string &origin)
 	value *res = call (cmd, v, *cs);
 	sdb.release (cs);
 	
-	DEBUG.storeFile ("rpc","out", *res);
+	DEBUG.storeFile ("RPC","out", *res);
 	return res;
 }
 
@@ -122,7 +122,7 @@ value *RPCHandler::bind (const value &v, uid_t uid, const string &origin)
 	}
 	catch (exception e)
 	{
-		CORE->log (log::error, "rpc", "Exception caught while trying to "
+		CORE->log (log::error, "RPC", "Exception caught while trying to "
 				   "bind session: %S" %format (e.description));
 				   
 		return $("header",
@@ -140,7 +140,7 @@ value *RPCHandler::bind (const value &v, uid_t uid, const string &origin)
 	{
 		string sid = cs->id;
 		sdb.release (cs);
-		CORE->log (log::debug, "rpc", "Login: success");
+		CORE->log (log::debug, "RPC", "Login: success");
 		
 		return $("header",
 					$("session_id", sid) ->
@@ -155,7 +155,7 @@ value *RPCHandler::bind (const value &v, uid_t uid, const string &origin)
 	{
 		string username = pw["username"];
 		
-		CORE->log (log::info, "rpc", "Login with pre-validated user %u "
+		CORE->log (log::info, "RPC", "Login with pre-validated user %u "
 				   "(%s)" %format ((unsigned int) uid, username));
 		
 		if (username == "root") username = "openadmin"; // FIXME: HAX
@@ -165,7 +165,7 @@ value *RPCHandler::bind (const value &v, uid_t uid, const string &origin)
 			string sid = cs->id;
 			sdb.release (cs);
 			DEBUG.newSession ();
-			CORE->log (log::debug, "rpc", "Login: success");
+			CORE->log (log::debug, "RPC", "Login: success");
 			
 			return $("header",
 						$("session_id", sid) ->
@@ -197,7 +197,7 @@ value *RPCHandler::getLanguages (const value &v)
 	}
 	catch (exception e)
 	{
-		CORE->log (log::error, "rpc", "Exception caught while trying to "
+		CORE->log (log::error, "RPC", "Exception caught while trying to "
 				   "get languages: %S" %format (e.description));
 				   
 		return $("header",

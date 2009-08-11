@@ -39,10 +39,10 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 {
 	static lock<value> peercache;
 	DEBUG.storeFile ("RPCRequestHandler","postbody", postbody, "run");
-	CORE->log (log::debug, "rpc", "handle: %S %!" %format (uri, inhdr));
+	CORE->log (log::debug, "RPC", "handle: %S %!" %format (uri, inhdr));
 	value indata;
 	value res;
-	string origin = "ipc";
+	string origin = "IPC";
 	uid_t uid = 0;
 	RPCHandler hdl (sdb);
 
@@ -52,11 +52,11 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 		origin = inhdr["X-OpenCORE-Origin"];
 	}
 	
-	CORE->log (log::debug, "rpc", "body: %!" %format (indata));
+	CORE->log (log::debug, "RPC", "body: %!" %format (indata));
 	
 	// Set up credentials if available
 	s.getcredentials();
-	CORE->log (log::debug, "rpc", "credentials: %d %d %d", s.peer_uid,
+	CORE->log (log::debug, "RPC", "credentials: %d %d %d", s.peer_uid,
 													s.peer_gid, s.peer_pid);
 	if (s.peer_pid == 0)
 	{
@@ -88,7 +88,7 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 		}
 			
 		if (origin.strchr ('/') >0) origin = origin.cutat ('/');
-		if (! origin) origin = "rpc";
+		if (! origin) origin = "RPC";
 		origin.strcat ("/src=%s" %format (peer_name));
 	}
 
@@ -111,7 +111,7 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 			}
 			else
 			{
-				log::write (log::warning, "rpc", "Compress error");
+				log::write (log::warning, "RPC", "Compress error");
 			}
 		}
 	}
