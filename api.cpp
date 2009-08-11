@@ -43,6 +43,9 @@ int API::execute (const string &mname, const statstring &apitype,
 	}
 }
 
+// ==========================================================================
+// METHOD API::makeShellEnvironment
+// ==========================================================================
 void API::makeShellEnvironment (value &env, const string &pfx, const value &src)
 {
 	value subst = $("_", "_usc_") ->
