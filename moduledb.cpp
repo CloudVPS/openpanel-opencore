@@ -845,7 +845,7 @@ value *ModuleDB::listDynamicObjects (const statstring &parentid,
 	err = "";
 
 	value returnp;
-	value outp = $("OpenCORE:Command", "listObjects") ->
+	value outp = $("OpenCORE:Command", "listobjects") ->
 				 $("OpenCORE:Session",
 				 		$("parentid", parentid) ->
 				 		$("parentmetaid", mparentid) ->
@@ -855,7 +855,7 @@ value *ModuleDB::listDynamicObjects (const statstring &parentid,
 				  );
 	
 	corestatus_t rez = status_failed;
-	rez = m->action ("listObjects", ofclass, outp, returnp);
+	rez = m->action ("listobjects", ofclass, outp, returnp);
 	
 	if (rez != status_ok)
 	{
