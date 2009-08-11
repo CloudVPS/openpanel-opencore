@@ -749,7 +749,8 @@ bool CoreSession::handleCrypts (const statstring &parentid,
 	// Get a reference to the CoreClass object.
 	CoreClass &C = mdb.getClass (ofclass);
 	
-log::write (log::debug, "session", "Handlecrypt class=<%S>" %format (ofclass));
+	log::write (log::debug, "session", "Handlecrypt class=<%S>"
+					%format (ofclass));
 	
 	foreach (opt, C.param)
 	{
