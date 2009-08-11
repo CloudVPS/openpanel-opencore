@@ -158,14 +158,14 @@ int OpenCoreApp::main (void)
 		return 1;
 	}
 
-	log (log::info, "main", "Application starting");
+	log (log::info, "Main", "Application starting");
 	
 	exclusivesection (regexpdb)
 	{
 		regexpdb.loadxml ("rsrc:regexpclass.rsrc.xml");
 		if (! regexpdb.count())
 		{
-			log (log::warning, "main", "regexpclass.rsrc.xml load failed");
+			log (log::warning, "Main", "regexpclass.rsrc.xml load failed");
 		}
 	}
 
@@ -191,9 +191,9 @@ int OpenCoreApp::main (void)
 	else
 	{
 		// Detach if we're not using the debugging console.
-		log (log::debug, "main", "Detaching parent");
+		log (log::debug, "Main", "Detaching parent");
 		delayedexitok ();
-		log (log::info, "main", "All subsystems initialized");
+		log (log::info, "Main", "All subsystems initialized");
 
 		APP_SHOULDRUN = true;
 		while (APP_SHOULDRUN)
@@ -203,7 +203,7 @@ int OpenCoreApp::main (void)
 		}
 	}
 	
-	log (log::info, "main", "Shutting down");
+	log (log::info, "Main", "Shutting down");
 
 	sexp->shutdown();
 	ALERT->shutdown();

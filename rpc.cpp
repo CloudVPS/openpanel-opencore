@@ -51,7 +51,7 @@ RPCHandler::~RPCHandler (void)
 value *RPCHandler::handle (const value &v, uid_t uid, const string &origin)
 {
 	DEBUG.newSession ();
-	DEBUG.storeFile ("RPC","in", v);
+	DEBUG.storeFile ("RPCHandler","in", v,"handle");
 	statstring cmd = v["header"]["command"];
 	statstring sessid = v["header"]["session_id"];
 	
@@ -84,7 +84,7 @@ value *RPCHandler::handle (const value &v, uid_t uid, const string &origin)
 	value *res = call (cmd, v, *cs);
 	sdb.release (cs);
 	
-	DEBUG.storeFile ("RPC","out", *res);
+	DEBUG.storeFile ("RPCHandler","out", *res, "handle");
 	return res;
 }
 

@@ -448,7 +448,7 @@ void ModuleDB::handleGetConfig (const string &mname, value &cache,
 			}
 		}
 		
-		DEBUG.storeFile ("ModuleDB","getconfig-tree", out, "handlenewmodule");
+		DEBUG.storeFile ("ModuleDB","getconfig-tree", out, "handleGetConfig");
 		
 		// Iterate over the flattened out array
 		foreach (obj, out)
@@ -513,7 +513,7 @@ void ModuleDB::handleGetConfig (const string &mname, value &cache,
 						   $("class", oclass) ->
 						   $("metaid", metaid);
 			
-			DEBUG.storeFile ("ModuleDB","dbman-args", vdebug, "handlenewmodule");
+			DEBUG.storeFile ("ModuleDB","dbman-args", vdebug, "handleGetConfig");
 			
 			// Henny penny the sky is falling!
 			if (! uuid)
@@ -531,7 +531,7 @@ void ModuleDB::handleGetConfig (const string &mname, value &cache,
 			}
 		}
 		
-		DEBUG.storeFile ("ModuleDB","getconfig-uuids", uuids, "handlenewmodule");
+		DEBUG.storeFile ("ModuleDB","getconfig-uuids", uuids, "handleGetConfig");
 	}
 }
 

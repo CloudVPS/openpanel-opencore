@@ -23,7 +23,7 @@ InternalClass::~InternalClass (void)
 // ==========================================================================
 value *InternalClass::listObjects (CoreSession *s, const statstring &parentid)
 {
-	CORE->log (log::error, "iclass", "Listobjects on base class");
+	CORE->log (log::error, "IntClass", "Listobjects on base class");
 	setError ("List not implemented");
 	return NULL;
 }

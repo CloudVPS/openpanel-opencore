@@ -502,7 +502,7 @@ string *CoreSession::createObject (const statstring &parentid,
 	
 	if (withid) withparam["id"] = withid;
 	
-	DEBUG.storeFile ("Session", "create-param", withparam);
+	DEBUG.storeFile ("Session", "create-param", withparam, "createObject");
 
 	// Catch internal classes.
 	if (mdb.isInternalClass (ofclass))
@@ -1205,7 +1205,7 @@ value *CoreSession::getClassInfo (const string &forclass)
 	returnclass (value) res retain;
 	res = mdb.getClassInfo (forclass, meta["user"] == "openadmin");
 	if (! res) return &res;
-	DEBUG.storeFile ("Session", "res", res, "classinfo");
+	DEBUG.storeFile ("Session", "res", res, "classInfo");
 	return &res;
 }
 
