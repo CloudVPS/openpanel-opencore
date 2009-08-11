@@ -1524,6 +1524,8 @@ value *CoreSession::listMeta (const statstring &parentid,
 		
 		foreach (dclass, dlist)
 		{
+			if (! mdb.classExists (dclass)) continue;
+			
 			CoreClass &realclass = mdb.getClass (dclass);
 			value tres;
 			if (! db.listObjects (tres, parentid, $(dclass), false))
