@@ -1226,5 +1226,13 @@ void ModuleDB::registerMetaSubClass (const statstring &derivedid,
 // ==========================================================================
 const value &ModuleDB::getMetaClassChildren (const statstring &baseid)
 {
+	static value none;
+	if (! metachildren.exists (baseid))
+	{
+		log::write (log::error, "ModuleDB", "No implementations found for "
+					"alleged meta-class <%S>" %format (baseid);
+		DEBUG.storeFile ("ModuleDB", "metachildren", metachildren, "getMetaClassChildren");
+		return none;
+	}
 	return metachildren[baseid];
 }
