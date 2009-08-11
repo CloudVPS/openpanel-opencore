@@ -1102,7 +1102,10 @@ value *ModuleDB::getClassInfo (const statstring &classname, bool foradmin)
 	// If we found something, process it.
 	if (m)
 	{
-		res = m->classes[classname].makeClassInfo ();
+		// Resolve the class to a CoreClass object
+		CoreClass &C = m->classes[classname];
+		
+		res = C.makeClassInfo ();
 		if (! res)
 		{
 			log::write (log::warning, "ModuleDB", "Empty result data "
@@ -1110,9 +1113,6 @@ value *ModuleDB::getClassInfo (const statstring &classname, bool foradmin)
 					   
 			return &res;
 		}
-		
-		// Resolve the class to a CoreClass object
-		CoreClass &C = m->classes[classname];
 		
 		// Read the requirement
 		statstring pclass = C.requires;
@@ -1144,6 +1144,7 @@ value *ModuleDB::getClassInfo (const statstring &classname, bool foradmin)
 	// Look at any possible child classes.
 	foreach (cclass, byparent[classname])
 	{
+		// Don't show 'admin' classes to ordinary users.
 		if (isAdminClass (cclass) && (! foradmin)) continue;
 		// Resolve the child class to a module.
 		CoreModule *mm = getModuleForClass (cclass.sval());
