@@ -163,7 +163,7 @@ bool CoreClass::normalize (value &mdata, string &error)
 		$("mdata", mdata) ->
 		$("param", param);
 
-	DEBUG.storeFile ("class", "gathered", dbug, "normalize");
+	DEBUG.storeFile ("Class", "gathered", dbug, "normalize");
 	
 	foreach (p, param)
 	{
@@ -189,7 +189,7 @@ bool CoreClass::checkEnum (const statstring &id, const string &val)
 	
 	foreach (num, enums[id])
 	{
-        log::write (log::debug, "module", "checkEnum comparing: <%S> <%S>"
+        log::write (log::debug, "Module", "checkEnum comparing: <%S> <%S>"
         			%format(num.id(), val));
 		if (num.id() == val) return true;
 	}
@@ -212,12 +212,12 @@ bool CoreClass::normalizeLayoutNode (value &p, value &mdata, string &error)
 		
 		string nm;
 		nm = "field-%s.%s" %format (name, p.id());
-		DEBUG.storeFile ("class", nm, p, "normalizeLayoutNode");
+		DEBUG.storeFile ("Class", nm, p, "normalizeLayoutNode");
 
 		bool exists = mdata.exists (p.id()) && mdata[p.id()].sval();
 		if ((! exists) && (! p("default").sval()))
 		{
-			DEBUG.storeFile ("class","req-no-default", p, "normalizeLayoutNode");
+			DEBUG.storeFile ("Class","req-no-default", p, "normalizeLayoutNode");
 			error = "Required element with no default: %s" %format (p.id());
 			return false;
 		}
@@ -455,7 +455,7 @@ value *CoreClass::makeClassInfo (void)
 				$("indexing", manualindex ? "manual" : "auto")
 			);
 
-	DEBUG.storeFile ("class","res", res, "makeClassInfo");
+	DEBUG.storeFile ("Class","res", res, "makeClassInfo");
 	
 	return &res;
 }
@@ -515,7 +515,7 @@ CoreModule::CoreModule (const string &mpath, const string &mname,
 	
 	#define CRIT_FAILURE(foo) { \
 			string err = foo; \
-			CORE->log (log::critical, "module", err); \
+			CORE->log (log::critical, "Module", err); \
 			CORE->delayedexiterror (err); \
 			sleep (2); exit (1); \
 		}
@@ -608,7 +608,7 @@ bool CoreModule::verify (void)
 			errstr = tmpb;
 		}
 		errstr = strutil::regexp (errstr, "s/\n$//;s/\n/ -- /g");
-		log::write (log::error, "module", "Verify failed for '%s': %s"
+		log::write (log::error, "Module", "Verify failed for '%s': %s"
 				    %format (path, errstr));
 		return false;
 	}
@@ -625,10 +625,10 @@ corestatus_t CoreModule::action (const statstring &command,
 {
 	int result;
 	value vin = param;
-	log::write (log::info, "module", "Action class=<%S> "
+	log::write (log::info, "Module", "Action class=<%S> "
 			   			   "command=<%S>" %format (classname, command));
 
-	DEBUG.storeFile ("module", "parm", vin, "action");
+	DEBUG.storeFile ("Module", "parm", vin, "action");
 
 	string mName = meta["name"];
 	mName = mName.cutat (".module");
@@ -691,12 +691,12 @@ value *CoreModule::getCurrentConfig (void)
 	mName = mName.cutat (".module");
 	
 	out["OpenCORE:Command"] = "getconfig";
-	DEBUG.storeFile ("module", "getconfig-param", out, "getCurrentConfig");
+	DEBUG.storeFile ("Module", "getconfig-param", out, "getCurrentConfig");
 	
 	returnval = (corestatus_t) API::execute (mName, apitype, path, "action",
 											 out, res);
 											 
-	DEBUG.storeFile ("module", "getconfig-result", res, "getCurrentConfig");
+	DEBUG.storeFile ("Module", "getconfig-result", res, "getCurrentConfig");
 
 	if (returnval != status_ok) res.clear();
 	return &res;
@@ -737,6 +737,6 @@ bool CoreModule::updateOK (int currentversion)
 	
 	if (returnval != status_ok) return false;
 	if (res["OpenCORE:Result"]["code"] != 0) return false;
-	log::write (log::info, "module", "Update on %S ok" %format (meta["name"]));
+	log::write (log::info, "Module", "Update on %S ok" %format (meta["name"]));
 	return true;
 }
