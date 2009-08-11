@@ -1520,6 +1520,7 @@ value *CoreSession::listMeta (const statstring &parentid,
 	{
 		res[ofclass].type ("class");
 		const value &dlist = mdb.getMetaClassChildren (ofclass);
+		DEBUG.storeFile ("session", "dlist",dlist,"listMeta");
 		
 		foreach (dclass, dlist)
 		{
