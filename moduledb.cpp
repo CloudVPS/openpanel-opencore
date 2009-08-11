@@ -1230,7 +1230,7 @@ const value &ModuleDB::getMetaClassChildren (const statstring &baseid)
 	if (! metachildren.exists (baseid))
 	{
 		log::write (log::error, "ModuleDB", "No implementations found for "
-					"alleged meta-class <%S>" %format (baseid);
+					"alleged meta-class <%S>" %format (baseid));
 		DEBUG.storeFile ("ModuleDB", "metachildren", metachildren, "getMetaClassChildren");
 		return none;
 	}
