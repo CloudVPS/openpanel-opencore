@@ -54,7 +54,7 @@ CoreSession *SessionDB::get (const statstring &id)
 		if (res) res->inuse++;
 	}
 	
-	if (res) log::write (log::debug, "session", "SDB Open <%S>" %format (id));
+	if (res) log::write (log::debug, "Session", "SDB Open <%S>" %format (id));
 	return res;
 }
 
@@ -76,11 +76,11 @@ CoreSession *SessionDB::create (const value &meta)
 		}
 		catch (...)
 		{
-			log::write (log::error, "session", "Software bug in session "
+			log::write (log::error, "Session", "Software bug in session "
 					    "database, exception caught");
 		}
 	}
-	log::write (log::debug, "session", "SDB Create <%S>" %format (id));
+	log::write (log::debug, "Session", "SDB Create <%S>" %format (id));
 	
 	return s;
 }
@@ -95,7 +95,7 @@ void SessionDB::release (CoreSession *s)
 		lck = 0;
 		s->heartbeat = kernel.time.now();
 		if (s->inuse > 0) s->inuse--;
-		log::write (log::debug, "session", "SDB Release <%S> "
+		log::write (log::debug, "Session", "SDB Release <%S> "
 				    "inuse <%i>" %format (s->id, s->inuse));
 	}
 }
@@ -115,7 +115,7 @@ void SessionDB::remove (CoreSession *s)
 			CoreSession *crsr = first;
 			CoreSession *parent = NULL;
 			
-			log::write (log::debug, "session", "SDB Remove <%S>" %format (s->id));
+			log::write (log::debug, "Session", "SDB Remove <%S>" %format (s->id));
 						
 			while (crsr)
 			{
@@ -178,7 +178,7 @@ void SessionDB::remove (CoreSession *s)
 		}
 		catch (...)
 		{
-			log::write (log::error, "session", "Software bug in session "
+			log::write (log::error, "Session", "Software bug in session "
 					    "database, exception caught.");
 		}
 	}
@@ -191,13 +191,13 @@ CoreSession *SessionDB::find (const statstring &key, bool noreport)
 {
 	if (! first)
 	{
-		log::write (log::debug, "session", "Find on empty list");
+		log::write (log::debug, "Session", "Find on empty list");
 		return NULL;
 	}
 	
 	if (! key)
 	{
-		log::write (log::warning, "session", "Find on empty key");
+		log::write (log::warning, "Session", "Find on empty key");
 	}
 	
 	CoreSession *crsr = first;
@@ -213,7 +213,7 @@ CoreSession *SessionDB::find (const statstring &key, bool noreport)
 	
 	if (! noreport)
 	{
-		log::write (log::warning, "session", "Session <%S> not "
+		log::write (log::warning, "Session", "Session <%S> not "
 				    "found" %format (key));
 	}
 	return NULL;
@@ -365,7 +365,7 @@ int SessionDB::expire (void)
 		}
 		catch (...)
 		{
-			log::write (log::error, "session", "Software bug in session "
+			log::write (log::error, "Session", "Software bug in session "
 					    "database expiration, exception caught.");
 		}
 	}
@@ -384,7 +384,7 @@ CoreSession::CoreSession (const statstring &myid, class ModuleDB &pmdb)
 	inuse = 0;
 	if (! db.init ())
 	{
-		log::write (log::error, "session", "Error initializing the sqlite3 "
+		log::write (log::error, "Session", "Error initializing the sqlite3 "
 				    "database");
 		throw (sqliteInitException());
 	}
@@ -408,7 +408,7 @@ bool CoreSession::login (const string &user, const string &pass, bool superuser)
 	if (superuser && user[0]=='!')
 	{
         db.enableGodMode();
-        log::write (log::info, "session", "Login special <%S> in godmode"
+        log::write (log::info, "Session", "Login special <%S> in godmode"
 				    %format (user, meta["origin"]));
         return true;
     }
@@ -419,13 +419,13 @@ bool CoreSession::login (const string &user, const string &pass, bool superuser)
 		if (! user) return false;
 
 		setError (ERR_DBMANAGER_LOGINFAIL);
-		log::write (log::error, "session", "Failed login user "
+		log::write (log::error, "Session", "Failed login user "
 				    "<%S> (%S)" %format (user, db.getLastError()));
 		
 	}
 	else
 	{
-		log::write (log::info, "session", "Login user=<%S> origin=<%S>"
+		log::write (log::info, "Session", "Login user=<%S> origin=<%S>"
 				    %format (user, meta["origin"]));
 		
 		meta["user"] = user;
@@ -460,12 +460,12 @@ bool CoreSession::userLogin (const string &user)
 	res = db.userLogin (user);
 	if (! res)
 	{
-		log::write (log::error, "session", "Failed login "
+		log::write (log::error, "Session", "Failed login "
 				    "user <%S> (%S)" %format (user, db.getLastError()));
 	}
 	else
 	{
-		log::write (log::info, "session", "Login user=<%S> origin=<%S>"
+		log::write (log::info, "Session", "Login user=<%S> origin=<%S>"
 				    %format (user, meta["origin"]));
 				   
 		meta["user"] = user;
@@ -502,7 +502,7 @@ string *CoreSession::createObject (const statstring &parentid,
 	
 	if (withid) withparam["id"] = withid;
 	
-	DEBUG.storeFile ("session", "create-param", withparam);
+	DEBUG.storeFile ("Session", "create-param", withparam);
 
 	// Catch internal classes.
 	if (mdb.isInternalClass (ofclass))
@@ -516,7 +516,7 @@ string *CoreSession::createObject (const statstring &parentid,
 	// Check for the class.
 	if (! mdb.classExists (ofclass))
 	{
-		log::write (log::error, "session", "Create request for class <%S> "
+		log::write (log::error, "Session", "Create request for class <%S> "
 				    "which does not exist" %format (ofclass));
 		setError (ERR_SESSION_CLASS_UNKNOWN);
 		return NULL;
@@ -531,7 +531,7 @@ string *CoreSession::createObject (const statstring &parentid,
 	// Make sure the indexing makes sense.
 	if ( (! cl.manualindex) && (withid) )
 	{
-		log::write (log::error, "session", "Create request with manual id "
+		log::write (log::error, "Session", "Create request with manual id "
 				    "on class <%S> with autoindex" %format (ofclass));
 		setError (ERR_SESSION_INDEX);
 		return NULL;
@@ -539,7 +539,7 @@ string *CoreSession::createObject (const statstring &parentid,
 	
 	if (cl.manualindex && (! withid))
 	{
-		log::write (log::error, "session", "Create request with no required "
+		log::write (log::error, "Session", "Create request with no required "
 				    "manual id on class <%S>" %format (ofclass));
 		setError (ERR_SESSION_NOINDEX);
 		return NULL;
@@ -552,7 +552,7 @@ string *CoreSession::createObject (const statstring &parentid,
 		
 		if (! db.fetchObject (vparent, parentid, /* formodule */ false))
 		{
-			log::write (log::error, "session", "Lookup failed for "
+			log::write (log::error, "Session", "Lookup failed for "
 					    "fetchObject on parentid=<%S>" %format (parentid));
 			setError (ERR_SESSION_PARENTREALM);
 			return NULL;
@@ -561,7 +561,7 @@ string *CoreSession::createObject (const statstring &parentid,
 		pmid = vparent[0]["metaid"];
 		if (! pmid)
 		{
-			log::write (log::error, "session", "Error getting metaid "
+			log::write (log::error, "Session", "Error getting metaid "
 					    "from resolved parent object: %J" %format (vparent));
 			setError (ERR_SESSION_PARENTREALM, "Error finding metaid");
 			return NULL;
@@ -569,7 +569,7 @@ string *CoreSession::createObject (const statstring &parentid,
 		
 		if ((! cl.hasprototype) && (pmid.strstr ("$prototype$") >= 0))
 		{
-			log::write (log::error, "session", "Blocking attempt to "
+			log::write (log::error, "Session", "Blocking attempt to "
 					    "create new prototype records under"
 					    " id=%S" %format (pmid));
 			setError (ERR_SESSION_CREATEPROTO);
@@ -612,22 +612,22 @@ string *CoreSession::createObject (const statstring &parentid,
 		}
 	}
 	
-	DEBUG.storeFile ("session", "normalize-pre", withparam, "createObject");
+	DEBUG.storeFile ("Session", "normalize-pre", withparam, "createObject");
 	
 	if (! cl.normalize (withparam, err))
 	{
-		log::write (log::error, "session", "Input data validation "
+		log::write (log::error, "Session", "Input data validation "
 				    "error: %s " %format (err));
 		setError (ERR_SESSION_VALIDATION, err);
 		return NULL;
 	}
 
-	DEBUG.storeFile ("session", "normalize-post", withparam, "createObject");
+	DEBUG.storeFile ("Session", "normalize-post", withparam, "createObject");
 	
 	// Handle any module-bound crypting voodoo on the fields.
 	if (! handleCrypts (parentid, ofclass, withid, withparam))
 	{
-		log::write (log::error, "session", "Create failed due to crypt error");
+		log::write (log::error, "Session", "Create failed due to crypt error");
 		// handleCrypts already sets the error
 		return NULL;
 	}
@@ -636,7 +636,7 @@ string *CoreSession::createObject (const statstring &parentid,
 	uuid = db.createObject(parentid, withparam, ofclass, withid, false, immediate);
 	if (! uuid)
 	{
-		log::write (log::error, "session", "Database error: %s"
+		log::write (log::error, "Session", "Database error: %s"
 				    %format (db.getLastError()));
 		setError (db.getLastErrorCode(), db.getLastError());
 		return NULL;
@@ -663,7 +663,7 @@ string *CoreSession::createObject (const statstring &parentid,
 	// Get the parameters for the module action.
 	if (! db.fetchObject (parm, uuid, true /* formodule */))
 	{
-		log::write (log::critical, "session", "Database failure getting object-"
+		log::write (log::critical, "Session", "Database failure getting object-"
 				   "related data for '%S': %s" %format (uuid,
 				    db.getLastError()));
 				   
@@ -739,7 +739,7 @@ bool CoreSession::handleCrypts (const statstring &parentid,
 	// Make sure we have a class.
 	if (! mdb.classExists (ofclass))
 	{
-		log::write (log::critical, "session", "Request for crypt of class "
+		log::write (log::critical, "Session", "Request for crypt of class "
 				    "<%S> which doesn't seem to exist" %format (ofclass));
 		ALERT->alert ("Session error on crypt for nonexistant class "
 					  "name=<%S>" %format (ofclass));
@@ -749,7 +749,7 @@ bool CoreSession::handleCrypts (const statstring &parentid,
 	// Get a reference to the CoreClass object.
 	CoreClass &C = mdb.getClass (ofclass);
 	
-	log::write (log::debug, "session", "Handlecrypt class=<%S>"
+	log::write (log::debug, "Session", "Handlecrypt class=<%S>"
 					%format (ofclass));
 	
 	foreach (opt, C.param)
@@ -760,7 +760,7 @@ bool CoreSession::handleCrypts (const statstring &parentid,
 		{
 			if (opt("type") != "password")
 			{
-				log::write (log::warning, "session", "%S::%S has a "
+				log::write (log::warning, "Session", "%S::%S has a "
 						    "crypt-attribute but is not marked as a "
 						    "password field" %format (ofclass, opt.id()));
 			}
@@ -786,7 +786,7 @@ bool CoreSession::handleCrypts (const statstring &parentid,
 						if (mdb.makeCrypt (ofclass, opt.id(),
 								param[opt.id()].sval(), crypted) != status_ok)
 						{
-							log::write (log::error, "session", "Could not "
+							log::write (log::error, "Session", "Could not "
 									    "get crypt-result from module");
 							setError (ERR_SESSION_CRYPT);
 							return false;
@@ -803,7 +803,7 @@ bool CoreSession::handleCrypts (const statstring &parentid,
 						break;
 					
 					defaultcase:
-						log::write (log::error, "session", "Unknown crypt-"
+						log::write (log::error, "Session", "Unknown crypt-"
 								    "type: %S"
 								   %format (C.param[opt.id()]("crypt")));
 						return false;
@@ -825,7 +825,7 @@ bool CoreSession::handleCrypts (const statstring &parentid,
 				{
 					// Completely failed to find it, something fishy's
 					// going on.
-					log::write (log::error, "session", "Object submitted "
+					log::write (log::error, "Session", "Object submitted "
 							    "with externally crypted field, no data "
 							    "for the field and no pre-existing "
 							    "object, member=<%S::%S>"
@@ -861,7 +861,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 	string nuuid;
 	string err;
 	
-	DEBUG.storeFile ("session", "param", withparam, "updateObject");
+	DEBUG.storeFile ("Session", "param", withparam, "updateObject");
 	
 	// Catch internal classes.
 	if (mdb.isInternalClass (ofclass))
@@ -875,7 +875,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 	// Complain if the class does not exist.
 	if (! mdb.classExists (ofclass))
 	{
-		log::write (log::error, "session", "Could not update object, class "
+		log::write (log::error, "Session", "Could not update object, class "
 				    "<%S> does not exist" %format (ofclass));
 		setError (ERR_SESSION_CLASS_UNKNOWN);
 		return false;
@@ -885,7 +885,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 	if (! handleCrypts (parentid, ofclass, withid, withparam))
 	{
 		// Crypting failed. Bummer.
-		log::write (log::error, "session", "Update failed due to crypt error");
+		log::write (log::error, "Session", "Update failed due to crypt error");
 		setError (ERR_SESSION_CRYPT);
 		return false;
 	}
@@ -898,7 +898,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 	if (! uuid)
 	{
 		// Report the problem.
-		log::write (log::error, "session", "Update of object with id/metaid <%S> "
+		log::write (log::error, "Session", "Update of object with id/metaid <%S> "
 				    "which could not be found in the database: %s"
 				    %format (withid, db.getLastError()));
 				   
@@ -911,7 +911,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 	
 	if (! db.fetchObject (oldobject, uuid, false))
 	{
-		log::write (log::error, "session", "Object disappeared while trying "
+		log::write (log::error, "Session", "Object disappeared while trying "
 				    "to update class=<%S> uuid=<%S>" %format (ofclass, uuid));
 		
 		setError (ERR_SESSION_OBJECT_NOT_FOUND);
@@ -934,7 +934,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 	
 	if (! cl.normalize (withparam, err))
 	{
-		log::write (log::error, "session", "Input data validation error: "
+		log::write (log::error, "Session", "Input data validation error: "
 				    "%S" %format (err));
 		setError (ERR_SESSION_VALIDATION, err);
 		return false;
@@ -964,7 +964,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 	// Get the parameters for the module action.
 	if (! db.fetchObject (parm, nuuid, true /* formodule */))
 	{
-		log::write (log::critical, "session", "Database failure getting object-"
+		log::write (log::critical, "Session", "Database failure getting object-"
 				    "related data: %s" %format (db.getLastError()));
 		ALERT->alert ("Session error on object-related data\n"
 					  "uuid=<%S> error=<%S>" %format (nuuid,
@@ -998,7 +998,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 				
 				if (! db.fetchObject (parm, uuid, true))
 				{
-					log::write (log::critical, "session", "Database failure "
+					log::write (log::critical, "Session", "Database failure "
 							   "getting object-related data, cannot roll "
 							   "back to previous: %s" %format(db.getLastError()));
 					
@@ -1060,7 +1060,7 @@ bool CoreSession::deleteObject (const statstring &parentid,
 	
 	if (! uuidt)
 	{
-		log::write (log::error, "session", "Error deleting object '%S': not "
+		log::write (log::error, "Session", "Error deleting object '%S': not "
 				    "found: %s" %format (uuidt, db.getLastError()));
 				   
 		setError (db.getLastErrorCode(), db.getLastError());
@@ -1069,7 +1069,7 @@ bool CoreSession::deleteObject (const statstring &parentid,
 
 	if (!db.isDeleteable (uuidt))
 	{
-		log::write (log::error, "session", "Error deleting object '%S': "
+		log::write (log::error, "Session", "Error deleting object '%S': "
 				    "%s" %format (uuidt, db.getLastError()));
 		setError (db.getLastErrorCode(), db.getLastError());
 		return false;
@@ -1079,7 +1079,7 @@ bool CoreSession::deleteObject (const statstring &parentid,
 	
 	if (!db.listObjectTree(uuidlist, uuidt))
 	{
-		log::write (log::error, "session", "Error deleting object '%S':"
+		log::write (log::error, "Session", "Error deleting object '%S':"
 					"recursive listing failed: %s" %format (uuidt,
 					db.getLastError()));
 				   
@@ -1096,7 +1096,7 @@ bool CoreSession::deleteObject (const statstring &parentid,
 		bool deletesucceeded = db.deleteObject (uuid, immediate, true);
 		if (! deletesucceeded) // FIXME: get rid of bool var?
 		{
-			log::write (log::error, "session", "Error deleting object '%S': %s"
+			log::write (log::error, "Session", "Error deleting object '%S': %s"
 					    %format (uuid, db.getLastError()));
 			
 			setError (db.getLastErrorCode(), db.getLastError());
@@ -1116,14 +1116,14 @@ bool CoreSession::deleteObject (const statstring &parentid,
 		{
 			if (parm[0]["metaid"].sval().strstr("$prototype$") >= 0)
 			{
-				log::write (log::error, "session", "Denied delete of "
+				log::write (log::error, "Session", "Denied delete of "
 						    "prototype object");
 				setError (ERR_SESSION_NOTALLOWED);
 				return false;
 			}
 		}
 
-		DEBUG.storeFile ("session", "fetched", parm, "deleteObject");
+		DEBUG.storeFile ("Session", "fetched", parm, "deleteObject");
 
 		ctx = $("OpenCORE:Context", parm[0].id()) ->
 			  $("OpenCORE:Session",
@@ -1188,13 +1188,13 @@ bool CoreSession::deleteObject (const statstring &parentid,
 // ==========================================================================
 value *CoreSession::getClassInfo (const string &forclass)
 {
-	log::write (log::debug, "session", "getClassInfo <%S>" %format(forclass));
+	log::write (log::debug, "Session", "getClassInfo <%S>" %format(forclass));
 	
 	// The class named "ROOT" is a virtual concept within ModuleDB to keep
 	// track of classes that don't have parent objects.
 	if ( (forclass != "ROOT") && (! mdb.classExists (forclass)) )
 	{
-		log::write (log::error, "session", "Info for class <%S> requested "
+		log::write (log::error, "Session", "Info for class <%S> requested "
 				    "where no such class exists" %format (forclass));
 		
 		setError (ERR_SESSION_CLASS_UNKNOWN);
@@ -1205,7 +1205,7 @@ value *CoreSession::getClassInfo (const string &forclass)
 	returnclass (value) res retain;
 	res = mdb.getClassInfo (forclass, meta["user"] == "openadmin");
 	if (! res) return &res;
-	DEBUG.storeFile ("session", "res", res, "classinfo");
+	DEBUG.storeFile ("Session", "res", res, "classinfo");
 	return &res;
 }
 
@@ -1216,7 +1216,7 @@ value *CoreSession::getUserQuota (const statstring &useruuid)
 {
 	returnclass (value) res retain;
 	
-	log::write (log::debug, "session", "getUserQuota <%S>" %format (useruuid));
+	log::write (log::debug, "Session", "getUserQuota <%S>" %format (useruuid));
 	
 	value cl = mdb.listClasses ();
 	foreach (c, cl)
@@ -1249,7 +1249,7 @@ bool CoreSession::setUserQuota (const statstring &ofclass,
 								 int count,
 							     const statstring &useruuid)
 {
-	log::write (log::debug, "session", "setUserQuota <%S,%S,%i>"
+	log::write (log::debug, "Session", "setUserQuota <%S,%S,%i>"
 			    %format (ofclass, useruuid, count));
 			   
 	if (db.setUserQuota (ofclass, count, useruuid)) return true;
@@ -1263,7 +1263,7 @@ bool CoreSession::setUserQuota (const statstring &ofclass,
 bool CoreSession::chown(const statstring &ofobject,
 						const statstring &user)
 {
-	log::write (log::debug, "session", "chown <%S,%S>"
+	log::write (log::debug, "Session", "chown <%S,%S>"
 			    %format (ofobject, user));
 
 	statstring uuid;
@@ -1301,7 +1301,7 @@ value *CoreSession::callMethod (const statstring &parentid,
 		// The id was not a valid metaid/uuid, let's moan and exit.
 		if (! uuid)
 		{
-			log::write (log::error, "session", "Callmethod: object not found "
+			log::write (log::error, "Session", "Callmethod: object not found "
 					    "class=<%S> id=<%S>" %format (ofclass, withid));
 			setError (ERR_SESSION_OBJECT_NOT_FOUND);
 			return &res;
@@ -1320,7 +1320,7 @@ value *CoreSession::callMethod (const statstring &parentid,
 	if (st != status_ok)
 	{
 		setError (ERR_MDB_ACTION_FAILED, moderr);
-		log::write (log::error, "session", "Callmethod: Error from ModuleDB "
+		log::write (log::error, "Session", "Callmethod: Error from ModuleDB "
 				    "<%S::%S> id=<%S>" %format (ofclass, method, withid));
 	}
 	
@@ -1409,14 +1409,14 @@ bool CoreSession::syncDynamicObjects (const statstring &parentid,
 
 	if (! db.listObjects (olddb, parentid, $(ofclass), false, count, offset))
 	{
-		log::write (log::error, "session", "Error listing cached "
+		log::write (log::error, "Session", "Error listing cached "
 				    "dynamic objects: %s" %format (db.getLastError()));
 		// FIXME: Pass db.lasterror upwards if this ever makes sense
 		olddb.clear();
 	}
 	
-	DEBUG.storeFile ("session","old", olddb, "syncDynamicObjects");
-	DEBUG.storeFile ("session","new", curdb, "syncDynamicObjects");
+	DEBUG.storeFile ("Session","old", olddb, "syncDynamicObjects");
+	DEBUG.storeFile ("Session","new", curdb, "syncDynamicObjects");
 	
 	value skipfields = $("uuid",true) ->
 					   $("parentid",true) ->
@@ -1431,7 +1431,7 @@ bool CoreSession::syncDynamicObjects (const statstring &parentid,
 		// Is this oldie absent in the new list?
 		if (! curdb[0].exists (oldnode.id()))
 		{
-			log::write (log::debug, "session", "Removing cached node "
+			log::write (log::debug, "Session", "Removing cached node "
 					    "id=<%S>" %format (oldnode.id()));
 			// Yeah, kick its butt.
 			string uuid = oldnode["uuid"];
@@ -1443,7 +1443,7 @@ bool CoreSession::syncDynamicObjects (const statstring &parentid,
 			// No, so let's consider this an update.
 			// We'll need a temporary object to get rid of the
 			// extra uuid/id/metaid fields.
-			log::write (log::debug, "session", "Updating cached node "
+			log::write (log::debug, "Session", "Updating cached node "
 					    "id=<%S>" %format (oldnode.id()));
 			
 			bool changed = false;
@@ -1455,13 +1455,13 @@ bool CoreSession::syncDynamicObjects (const statstring &parentid,
 				if (oldnode[field.id()] != field)
 				{
 					changed = true;
-					log::write (log::debug, "session", "Cached node "
+					log::write (log::debug, "Session", "Cached node "
 							    "field <%S> changed" %format (field.id()));
 					break;
 				}
 				else
 				{
-					log::write (log::debug, "session", "Cached <%S> \"%S\" == "
+					log::write (log::debug, "Session", "Cached <%S> \"%S\" == "
 							    "\"%S\"" %format (field.id(),
 							    oldnode[field.id()], field));
 				}
@@ -1488,14 +1488,14 @@ bool CoreSession::syncDynamicObjects (const statstring &parentid,
 		if (! olddb[0].exists (curnode.id()))
 		{
 			// Great let's introduce him to the database then.
-			log::write (log::debug, "session", "Creating cached node "
+			log::write (log::debug, "Session", "Creating cached node "
 					    "id=<%S>" %format (curnode.id()));
 					   
 			string uuid = db.createObject (parentid, curnode,
 										   ofclass, curnode.id(), false, true);
 			if (! uuid)
 			{
-				log::write (log::error, "session", "Error creating "
+				log::write (log::error, "Session", "Error creating "
 						    "database cache of dynamic list: %s"
 						    %format (db.getLastError()));
 				setError (db.getLastErrorCode(), db.getLastError());
@@ -1516,12 +1516,12 @@ value *CoreSession::listMeta (const statstring &parentid,
 	returnclass (value) res retain;
 	
 	CoreClass &metaclass = mdb.getClass (ofclass);
-	log::write (log::debug, "session", "Getrecords metabase(%S)" %format (ofclass));
+	log::write (log::debug, "Session", "Getrecords metabase(%S)" %format (ofclass));
 	try
 	{
 		res[ofclass].type ("class");
 		const value &dlist = mdb.getMetaClassChildren (ofclass);
-		DEBUG.storeFile ("session", "dlist",dlist,"listMeta");
+		DEBUG.storeFile ("Session", "dlist",dlist,"listMeta");
 		
 		foreach (dclass, dlist)
 		{
@@ -1578,13 +1578,13 @@ value *CoreSession::listObjects (const statstring &parentid,
 	bool wasdynamic = false;
 	string err;
 	
-	log::write (log::debug, "session", "Listobjects class=<%S> "
+	log::write (log::debug, "Session", "Listobjects class=<%S> "
 			    "parentid=<%S>" %format (ofclass, parentid));
 
 	// Catch internal classes.
 	if (mdb.isInternalClass (ofclass))
 	{
-		log::write (log::debug, "session", "Listobjects for internal class");
+		log::write (log::debug, "Session", "Listobjects for internal class");
 		InternalClass &cl = mdb.getInternalClass (ofclass);
 		res = cl.listObjects (this, parentid);
 		if (! res.count()) setError (ERR_ICLASS, cl.error());
@@ -1610,7 +1610,7 @@ value *CoreSession::listObjects (const statstring &parentid,
 	if (mdb.classIsDynamic (ofclass))
 	{
 		wasdynamic = true;
-		log::write (log::debug, "session", "Class is dynamic");
+		log::write (log::debug, "Session", "Class is dynamic");
 		
 		if (! syncDynamicObjects (parentid, ofclass, offset, count))
 			return &res;
@@ -1625,7 +1625,7 @@ value *CoreSession::listObjects (const statstring &parentid,
 		setError (db.getLastErrorCode(), db.getLastError());
 	}
 	
-	DEBUG.storeFile ("session", "res", res, "listObjects");
+	DEBUG.storeFile ("Session", "res", res, "listObjects");
 
 	return &res;
 }
@@ -1635,7 +1635,7 @@ value *CoreSession::listObjects (const statstring &parentid,
 // ==========================================================================
 bool CoreSession::applyFieldWhiteLabel (value &objs, value &whitel)
 {	
-	log::write (log::debug, "session", "applyFieldWhiteLabel <(objs),(whitel)>");
+	log::write (log::debug, "Session", "applyFieldWhiteLabel <(objs),(whitel)>");
 
 	return db.applyFieldWhiteLabel (objs, whitel);
 }	
@@ -1663,7 +1663,7 @@ value *CoreSession::getObject (const statstring &parentid,
 	// from a metaclass, ktxbai.
 	if (mdb.classIsDynamic (ofclass))
 	{
-		log::write (log::debug, "session", "Class is dynamic");
+		log::write (log::debug, "Session", "Class is dynamic");
 		
 		if (! syncDynamicObjects (parentid, ofclass, 0, -1))
 			return &res;
@@ -1676,7 +1676,7 @@ value *CoreSession::getObject (const statstring &parentid,
 	// Not found under any method.
 	if (! uuid)
 	{
-		log::write (log::error, "session", "Could not resolve object at "
+		log::write (log::error, "Session", "Could not resolve object at "
 				    "parentid=<%S> class=<%S> key=<%S>"
 				    %format (parentid, ofclass, withid));
 
@@ -1686,7 +1686,7 @@ value *CoreSession::getObject (const statstring &parentid,
 	
 	if (! db.fetchObject (res, uuid, false /* formodule */))
 	{
-		log::write (log::critical, "session", "Database failure getting object-"
+		log::write (log::critical, "Session", "Database failure getting object-"
 				    "related data for '%s': %S" %format (uuid,
 				    db.getLastError()));
 				   
@@ -1707,7 +1707,7 @@ value *CoreSession::getObject (const statstring &parentid,
 	}
 	res[0]["class"] = ofclass;
 
-	DEBUG.storeFile ("session","res", res, "getObject");
+	DEBUG.storeFile ("Session","res", res, "getObject");
 	return &res; 
 }
 
@@ -1900,7 +1900,7 @@ void CoreSession::handleCascade (const statstring &parentid,
 							$("objectid", objectid.sval())
 						 );
 				
-				DEBUG.storeFile ("session", "data", tenv, "handleCascade");
+				DEBUG.storeFile ("Session", "data", tenv, "handleCascade");
 				
 				string moderr;
 				mdb.updateObject (objectclass, objectid, tenv, moderr);
