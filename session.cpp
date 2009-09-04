@@ -353,7 +353,7 @@ int SessionDB::expire (void)
 				}
 				else
 				{
-					log::write (log::debug, "expire", "Passing <%S> inuse=<%i> "
+					log::write (log::debug, "Expire", "Passing <%S> inuse=<%i> "
 							    "heartbeat=%i cutoff=%i" %format (s->id,
 							   		s->inuse,
 							   		(int) s->heartbeat,
@@ -993,7 +993,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 			if (! db.reportSuccess (nuuid))
 			{
 				setError (db.getLastErrorCode(), db.getLastError());
-				log::write (log::error, "session ", "Database failure on marking "
+				log::write (log::error, "Session", "Database failure on marking "
 						    "record: %s" %format (db.getLastError()));
 				
 				if (! db.fetchObject (parm, uuid, true))
@@ -1019,7 +1019,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 			setError (ERR_MDB_ACTION_FAILED, moderr);
 			if (! db.reportFailure (uuid))
 			{
-				log::write (log::error, "session ", "Database failure on "
+				log::write (log::error, "Session", "Database failure on "
 						    "rolling back reality objects: %s"
 						    %format (db.getLastError()));
 			}

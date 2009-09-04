@@ -36,7 +36,7 @@ public:
                     ~DBManager (void);
 
 					/// opens sqlite database etc.
-					bool init (char *dbfile = PATH_DB);
+					bool init (const char *dbfile = PATH_DB);
 					
 					/// close database file
 					void deinit ();

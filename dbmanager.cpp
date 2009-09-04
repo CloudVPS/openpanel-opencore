@@ -62,7 +62,7 @@ DBManager::~DBManager (void)
 	// does nothing right now, don't forget to call deinit!
 }
 
-bool DBManager::init (char *dbfile)
+bool DBManager::init (const char *dbfile)
 {
     exclusivesection (dbhandle)
     {

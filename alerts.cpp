@@ -35,7 +35,7 @@ void AlertHandler::alert (const string &alertstr)
 void AlertHandler::run (void)
 {
 	q.loadshox (PATH_ALERTQ);
-	CORE->log (log::info, "alerthdl", "Starting thread, %i alerts in queue"
+	log::write (log::info, "alerthdl", "Starting thread, %i alerts in queue"
 								   						%format (q.count()));
 	value ev;
 	
@@ -49,8 +49,8 @@ void AlertHandler::run (void)
 			}
 			else
 			{
-				CORE->log (log::warning, "alerthdl", "Error routing an "
-						   "alert, holding back 2 seconds");
+				log::write (log::warning, "alerthdl", "Error routing an "
+						    "alert, holding back 2 seconds");
 				sleep (2);
 				break;
 			}
@@ -60,8 +60,8 @@ void AlertHandler::run (void)
 		{
 			if (ev["cmd"] == "die")
 			{
-				CORE->log (log::info, "alerthdl", "Shutting down thread "
-						   "with %i alerts in queue" %format (q.count()));
+				log::write (log::info, "alerthdl", "Shutting down thread "
+						    "with %i alerts in queue" %format (q.count()));
 						   
 				q.saveshox (PATH_ALERTQ);
 				shutdownCondition.broadcast ();

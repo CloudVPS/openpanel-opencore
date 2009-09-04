@@ -28,8 +28,8 @@ int API::execute (const string &mname, const statstring &apitype,
 	
 	if (! fs.exists (fullcmd))
 	{
-		CORE->log (log::error, "API", "Error executing '%S': not found"
-				   %format (fullcmd));
+		log::write (log::error, "API", "Error executing '%S': not found"
+				    %format (fullcmd));
 		return status_failed;
 	}
 	
@@ -157,11 +157,11 @@ int API::commandline (const string &mname, const string &fullcmd,
 	
 	if (i == 187)
 	{
-		CORE->log (log::critical, "API", "Error connecting to authd");
+		log::write (log::critical, "API", "Error connecting to authd");
 	}
 	else
 	{
-		CORE->log (log::debug, "API", "Return-value: %i" %format (i));
+		log::write (log::debug, "API", "Return-value: %i" %format (i));
 	}
 	return i;
 }
@@ -264,13 +264,13 @@ int API::grace (const string &mname, const string &fullcmd, const value &in, val
 		blk = proc.gets();
 		expectedsize = blk.toint();
 		
-		CORE->log (log::debug, "API", "Expecting %i bytes", expectedsize);
+		log::write (log::debug, "API", "Expecting %i bytes" %format((int)expectedsize));
 		
 		while (true)
 		{
 			blk = proc.read (expectedsize - dt.strlen());
 			if (blk.strlen()) dt.strcat (blk);
-			CORE->log (log::debug, "API", "Read %i bytes", dt.strlen());
+			log::write (log::debug, "API", "Read %i bytes" %format (dt.strlen()));
 			
 			if (expectedsize <= dt.strlen())
 			{
@@ -278,11 +278,12 @@ int API::grace (const string &mname, const string &fullcmd, const value &in, val
 				break;
 			}
 		}
-		CORE->log (log::debug, "API", "proc.eof");
+		log::write (log::debug, "API", "proc.eof");
 	}
 	catch (exception e)
 	{
-		CORE->log (log::debug, "API", "Process exception: %s", e.description);
+		log::write (log::debug, "API", "Process exception: %s"
+					%format (e.description));
 	}
 	
 	proc.serialize();
@@ -294,8 +295,8 @@ int API::grace (const string &mname, const string &fullcmd, const value &in, val
 		// Give a warning moan on size mismatches.
 		if (dt.strlen() != expectedsize)
 		{
-			CORE->log (log::error, "API", "Call to Grace-API module "
-					   "script <%s> return data size mismatch" %format (fullcmd));
+			log::write (log::error, "API", "Call to Grace-API module "
+					    "script <%s> return data size mismatch" %format (fullcmd));
 		}
 		
 		// Decode the xml in any case.
@@ -306,8 +307,8 @@ int API::grace (const string &mname, const string &fullcmd, const value &in, val
 	if (! out.exists ("OpenCORE:Result"))
 	{
 		// Not found, bitch & whine.
-		CORE->log (log::error, "API", "Call to Grace-API module "
-				   "with no result-block");
+		log::write (log::error, "API", "Call to Grace-API module "
+				    "with no result-block");
 		
 		DEBUG.storeFile ("API","no-result",out,"grace");
 		return 1;
@@ -320,10 +321,8 @@ int API::grace (const string &mname, const string &fullcmd, const value &in, val
 	string errmsg = out["OpenCORE:Result"]["message"];
 	errmsg = strutil::regexp (errmsg, "s/\n/ -- /g");
 	
-	CORE->log (log::error, "API", "Module error %i from module %s: %s",
-			   out["OpenCORE:Result"]["error"].ival(),
-			   mname.str(),
-			   errmsg.str());
+	log::write (log::error, "API", "Module error %i from module %s: %s"
+				%format (out["OpenCORE:Result"]["error"],mname,errmsg));
 	return 1;
 }
 
