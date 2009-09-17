@@ -281,7 +281,6 @@ bool QuotaClass::updateObject (CoreSession *s,
 	{
 		mid = getMetaID (withid);
 		parentid = getParentID (withid);
-		
 	}
 	else
 	{
