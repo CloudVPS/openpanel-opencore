@@ -336,7 +336,8 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	{
 		if (l.sval().strncmp ("model name",10)) continue;
 		string scpu = l.sval().copyafter (": ");
-		senv["os_cpu"] = strutil::regexp (scpu, "s/\\(R\\)/&reg;/g");
+		scpu.replace ($("(R)","&reg;"));
+		senv["os_cpu"] = scpu;
 		break;
 	}
 	
