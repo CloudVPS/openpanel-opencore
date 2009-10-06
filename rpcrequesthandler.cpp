@@ -401,6 +401,21 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 			value &into = senv["devrss"][item["guid"]];
 			into["title"] = item["title"];
 			into["url"] = item["link"];
+			if (senv["devrss"].count() > 4) break;
+		}
+	}
+	
+	rssdat = hs.get ("http://forum.openpanel.com/index.php?type=rss;action=.xml");
+	rss.fromxml (rssdat, schema);
+	
+	foreach (item, rss[0])
+	{
+		if (item.count())
+		{
+			value &into = senv["forumrss"][item["guid"]];
+			into["title"] = item["title"];
+			into["url"] = item["link"];
+			if (senv["devrss"].count() > 4) break;
 		}
 	}
 	
