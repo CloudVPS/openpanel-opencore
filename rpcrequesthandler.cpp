@@ -392,6 +392,7 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		into["device"] = splt[0];
 		into["size"] = splt[1].ival() / (1024 * 1024);
 		into["usage"] = splt[4].ival();
+		into["freepct"] = 100 - splt[4].ival();
 		into["mountpoint"] = splt[5];
 	}
 	
