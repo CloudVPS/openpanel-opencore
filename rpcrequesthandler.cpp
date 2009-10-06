@@ -21,6 +21,7 @@
 #include <zlib.h>
 #include <sys/types.h>
 #include <sys/utsname.h>
+#include <grace/http.h>
 
 // ==========================================================================
 // CONSTRUCTOR RPCRequestHandler
