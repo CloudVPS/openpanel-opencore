@@ -392,7 +392,7 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	httpsocket hs;
 	value rss;
 	string rssdat = hs.get ("http://blog.openpanel.com/feed/");
-	fs.save ("/tmp/rssdat.txt");
+	fs.save (rssdat, "/tmp/rssdat.txt");
 	rss.fromxml (rssdat, schema);
 	rss.savexml ("/tmp/devrss.xml");
 	
