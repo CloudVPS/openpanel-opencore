@@ -118,6 +118,23 @@ private:
 };
 
 //  -------------------------------------------------------------------------
+/// Script parser for the landing page.
+//  -------------------------------------------------------------------------
+class LandingPageHandler : public httpdobject
+{
+public:
+			 LandingPageHandler (class OpenCoreApp *papp, httpd &srv);
+			~LandingPageHandler (void) {}
+			
+	int		 run (string &uri, string &postbody, value &inhdr,
+				  string &out, value &outhdr, value &env,
+				  tcpsocket &s);
+
+private:
+	class OpenCoreApp *app;
+};
+
+//  -------------------------------------------------------------------------
 /// Generate javascript code for preloading images.
 //  -------------------------------------------------------------------------
 class ImagePreloader : public httpdobject

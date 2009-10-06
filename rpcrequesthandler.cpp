@@ -18,6 +18,9 @@
 #include "debug.h"
 #include "rpc.h"
 #include <zlib.h>
+#include <sys/types.h>
+#include <sys/utsname.h>
+#include <sys/systeminfo.h>
 
 // ==========================================================================
 // CONSTRUCTOR RPCRequestHandler
@@ -300,5 +303,89 @@ int ImagePreloader::run (string &uri, string &postbody, value &inhdr,
 	out += "}\n";
 	
 	outhdr["Content-type"] = "text/javascript";
+	return 200;
+}
+
+// ==========================================================================
+// CONSTRUCTOR LandingPageHandler
+// ==========================================================================
+LandingPageHandler::LandingPageHandler (OpenCoreApp *papp, httpd &srv)
+	: httpdobject (srv, "/dynamic/*")
+{
+	app = papp;
+}
+
+// ==========================================================================
+// METHOD LandingPageHandler::run
+// ==========================================================================
+int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
+							 string &out, value &outhdr, value &env,
+							 tcpsocket &s)
+{
+	value senv;
+	struct utsname name;
+	char processor[256];
+	
+	uname (&name);
+	processor[0] = 0;
+	sysinfo (SI_ARCHITECTURE, processor, sizeof (processor));
+	
+	senv = $("os_name",name.sysname)->
+		   $("os_release",name.release)->
+		   $("os_cpu",processor) ->
+		   $("openpanel_release",version::release);
+	
+	if (fs.exists ("/etc/redhat-release"))
+	{
+		senv["os_distro"] = fs.load ("/etc/redhat-release");
+	}
+	else if (fs.exists ("/etc/debian_version"))
+	{
+		senv["os_distro"] = fs.load ("/etc/debian_version");
+	}
+	else if (fs.exists ("/etc/lsb-release")
+	{
+		senv["os_distro"] = fs.load ("/etc/lsb-release");
+	}
+	
+	string suptime = fs.load ("/proc/uptime");
+	suptime.cropafter (' ');
+	int iuptime = suptime.toint(10);
+	
+	senv["uptime_days"] = iuptime / 86400;
+	senv["uptime_hours"] = (iuptime % 86400) / 3600;
+	senv["uptime_minutes"] = (iuptime % 3600) / 60;
+	senv["uptime_seconds"] = iuptime % 60;
+	senv["uptime_hms"] = "%i:%02i:%02i" %format (senv["uptime_hours"],
+							senv["uptime_minutes"], senv["uptime_seconds"]);
+	
+	value output;
+	
+	systemprocess proc ($("/bin/df")->$("-kPl"));
+	proc.run();
+	while (! proc.eof())
+	{
+		output.newval() = proc.gets();
+	}
+	proc.close();
+	proc.serialize();
+	
+	for (int i=1; i<output.count(); ++i)
+	{
+		value splt = strutil::splitspace (output[i]);
+		if (splt.count() < 6) continue;
+		value &into = senv["mounts"][splt[0].sval()];
+		into["device"] = splt[0];
+		into["size"] = splt[1].ival() / (1024 * 1024);
+		into["usage"] = splt[4].ival();
+		into["mountpoint"] = splt[5];
+	}
+	
+	string script = fs.load ("/var/openpanel/http/dynamic/index.html");
+	scriptparser p;
+	p.build (script);
+	
+	p.run (senv, out);
+	outhdr["Content-type"] = "text/html";
 	return 200;
 }
