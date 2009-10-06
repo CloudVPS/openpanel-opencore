@@ -415,7 +415,7 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 			value &into = senv["forumrss"][item["guid"]];
 			into["title"] = item["title"];
 			into["url"] = item["link"];
-			if (senv["devrss"].count() > 4) break;
+			if (senv["forumrss"].count() > 4) break;
 		}
 	}
 	
