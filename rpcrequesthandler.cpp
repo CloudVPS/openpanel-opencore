@@ -17,6 +17,7 @@
 #include "session.h"
 #include "debug.h"
 #include "rpc.h"
+#include "version.h"
 #include <zlib.h>
 #include <sys/types.h>
 #include <sys/utsname.h>
