@@ -347,7 +347,7 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	{
 		senv["os_distro"] = fs.load ("/etc/debian_version");
 	}
-	else if (fs.exists ("/etc/lsb-release")
+	else if (fs.exists ("/etc/lsb-release"))
 	{
 		senv["os_distro"] = fs.load ("/etc/lsb-release");
 	}
