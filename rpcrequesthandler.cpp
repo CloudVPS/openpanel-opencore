@@ -335,7 +335,8 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	foreach (l,lcpuinfo)
 	{
 		if (l.sval().strncmp ("model name",10)) continue;
-		senv["os_cpu"] = l.sval().copyafter (": ");
+		string scpu = l.sval().copyafter (": ");
+		senv["os_cpu"] = strutil::regexp (scpu, "s/\\(R\\)/&reg;/g");
 		break;
 	}
 	
