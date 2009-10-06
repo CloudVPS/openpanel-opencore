@@ -367,6 +367,12 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	senv["uptime_hms"] = "%i:%02i:%02i" %format (senv["uptime_hours"],
 							senv["uptime_minutes"], senv["uptime_seconds"]);
 	
+	string sload = fs.load ("/proc/loadavg");
+	value vload = strutil::splitspace (sload);
+	senv["load_1"] = vload[0];
+	senv["load_5"] = vload[1];
+	senv["load_15"] = vload[2];
+	
 	value output;
 	
 	systemprocess proc ($("/bin/df")->$("-kPl"));
