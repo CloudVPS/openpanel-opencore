@@ -311,9 +311,10 @@ int ImagePreloader::run (string &uri, string &postbody, value &inhdr,
 // CONSTRUCTOR LandingPageHandler
 // ==========================================================================
 LandingPageHandler::LandingPageHandler (OpenCoreApp *papp, httpd &srv)
-	: httpdobject (srv, "/dynamic/*"), schema ("schema:rss.2.0.schema.xml")
+	: httpdobject (srv, "/dynamic/*")
 {
 	app = papp;
+	schema.load ("schema:rss.2.0.schema.xml");
 }
 
 // ==========================================================================
@@ -391,7 +392,9 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	httpsocket hs;
 	value rss;
 	string rssdat = hs.get ("http://blog.openpanel.com/feed/");
+	fs.save ("/tmp/rssdat.txt");
 	rss.fromxml (rssdat, schema);
+	rss.savexml ("/tmp/devrss.xml");
 	
 	foreach (item, rss[0])
 	{
