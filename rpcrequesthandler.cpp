@@ -392,21 +392,17 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	httpsocket hs;
 	value rss;
 	string rssdat = hs.get ("http://blog.openpanel.com/feed/");
-	fs.save ("/tmp/rssdat.txt", rssdat);
 	rss.fromxml (rssdat, schema);
-	rss.savexml ("/tmp/devrss.xml");
 	
 	foreach (item, rss[0])
 	{
 		if (item.count())
 		{
 			value &into = senv["devrss"][item["guid"]];
-			into["tite"] = item["title"];
+			into["title"] = item["title"];
 			into["url"] = item["link"];
 		}
 	}
-	
-	senv.savexml ("/tmp/scriptenv.xml");
 	
 	string script = fs.load ("/var/openpanel/http/dynamic/index.html");
 	scriptparser p;
