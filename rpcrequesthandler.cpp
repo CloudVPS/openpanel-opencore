@@ -20,7 +20,6 @@
 #include <zlib.h>
 #include <sys/types.h>
 #include <sys/utsname.h>
-#include <sys/systeminfo.h>
 
 // ==========================================================================
 // CONSTRUCTOR RPCRequestHandler
@@ -324,16 +323,20 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 {
 	value senv;
 	struct utsname name;
-	char processor[256];
 	
 	uname (&name);
-	processor[0] = 0;
-	sysinfo (SI_ARCHITECTURE, processor, sizeof (processor));
-	
 	senv = $("os_name",name.sysname)->
 		   $("os_release",name.release)->
-		   $("os_cpu",processor) ->
 		   $("openpanel_release",version::release);
+
+	string scpuinfo = fs.load ("/proc/cpuinfo");
+	value lcpuinfo = strutil::splitlines (scpuinfo);
+	foreach (l,lcpuinfo)
+	{
+		if (l.sval().strncmp ("model name",10)) continue;
+		senv["os_cpu"] = l.sval().copyafter (": ");
+		break;
+	}
 	
 	if (fs.exists ("/etc/redhat-release"))
 	{
