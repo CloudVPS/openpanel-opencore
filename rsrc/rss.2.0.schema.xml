@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<xml.schema id="rss.2.0">
+
+  <xml.schema.options>
+    <xml.option.namespaces>
+      <xml.namespace uri="http://purl.org/rss/1.0/modules/syndication/" action="strip"/>
+      <xml.namespace uri="http://purl.org/dc/elements/1.1/" action="strip"/>
+    </xml.option.namespaces>
+  </xml.schema.options>
+
+  <xml.class name="rss">
+    <xml.type>array</xml.type>
+    <xml.code>rssR</xml.code>
+    <xml.attributes>
+      <xml.attribute label="version" mandatory="true">
+        <xml.type>string</xml.type>
+        <xml.code>rssV</xml.code>
+      </xml.attribute>
+    </xml.attributes>
+    <xml.proplist>
+      <xml.member class="channel"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="item">
+    <xml.type>dict</xml.type>
+    <xml.code>RSit</xml.code>
+    <xml.proplist>
+      <xml.member class="title" id="title"/>
+      <xml.member class="link" id="link"/>
+      <xml.member class="description" id="description" mandatory="true"/>
+      <xml.member class="pubDate" id="pubdate" mandatory="true"/>
+      <xml.member class="guid" id="guid" mandatory="true"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="channel">
+    <xml.type>dict</xml.type>
+    <xml.code>RSch</xml.code>
+    <xml.proplist>
+      <xml.member class="item" mandatory="false" />
+      <xml.member class="title" id="title" mandatory="true"/>
+      <xml.member class="link" id="link" mandatory="true"/>
+      <xml.member class="description" id="description" mandatory="true"/>
+      <xml.member class="language" id="language"/>
+      <xml.member class="creator" id="creator"/>
+      <xml.member class="copyright" id="copyright"/>
+      <xml.member class="lastBuildDate" id="lastbuilddate"/>
+      <xml.member class="docs" id="docs"/>
+      <xml.member class="generator" id="generator"/>
+      <xml.member class="category" id="category"/>
+      <xml.member class="managingEditor" id="managingeditor"/>
+      <xml.member class="webMaster" id="webmaster"/>
+      <xml.member class="updatePeriod" id="updateperiod"/>
+      <xml.member class="updateFrequency" id="updatefrequency"/>
+      <xml.member class="ttl" id="ttl"/>
+    </xml.proplist>
+  </xml.class>
+  
+  <xml.class name="title">
+    <xml.type>string</xml.type><xml.code>RSti</xml.code>
+  </xml.class>
+  
+  <xml.class name="link">
+    <xml.type>string</xml.type><xml.code>RSli</xml.code>
+  </xml.class>
+  
+  <xml.class name="description">
+    <xml.type>string</xml.type><xml.code>RSde</xml.code>
+  </xml.class>
+  
+  <xml.class name="language">
+    <xml.type>string</xml.type><xml.code>RSla</xml.code>
+  </xml.class>
+  
+  <xml.class name="creator">
+    <xml.type>string</xml.type><xml.code>RScr</xml.code>
+  </xml.class>
+  
+  <xml.class name="copyright">
+    <xml.type>string</xml.type><xml.code>RSco</xml.code>
+  </xml.class>
+  
+  <xml.class name="lastBuildDate">
+    <xml.type>datetime</xml.type><xml.code>RSbd</xml.code>
+  </xml.class>
+  
+  <xml.class name="updatePeriod">
+    <xml.type>string</xml.type>
+    <xml.code>RSup</xml.code>
+  </xml.class>
+  
+  <xml.class name="updateFrequency">
+    <xml.type>integer</xml.type>
+    <xml.code>RSuf</xml.code>
+  </xml.class>
+  
+  <xml.class name="docs">
+    <xml.type>string</xml.type><xml.code>RSdo</xml.code>
+  </xml.class>
+  
+  <xml.class name="generator">
+    <xml.type>string</xml.type><xml.code>RSge</xml.code>
+  </xml.class>
+  
+  <xml.class name="category">
+    <xml.type>string</xml.type>
+    <xml.code>RSca</xml.code>
+    <xml.attributes>
+      <xml.attribute label="domain">
+        <xml.type>string</xml.type>
+        <xml.code>RSCd</xml.code>
+      </xml.attribute>
+    </xml.attributes>
+  </xml.class>
+  
+  <xml.class name="managingEditor">
+    <xml.type>string</xml.type><xml.code>RSme</xml.code>
+  </xml.class>
+  
+  <xml.class name="webMaster">
+    <xml.type>string</xml.type><xml.code>RSwm</xml.code>
+  </xml.class>
+  
+  <xml.class name="ttl">
+    <xml.type>integer</xml.type><xml.code>RStt</xml.code>
+  </xml.class>
+  
+  <xml.class name="description">
+    <xml.type>string</xml.type><xml.code>ITde</xml.code>
+  </xml.class>
+  
+  <xml.class name="pubDate">
+    <xml.type>datetime</xml.type><xml.code>ITpd</xml.code>
+  </xml.class>
+  
+  <xml.class name="guid">
+    <xml.type>string</xml.type>
+    <xml.code>GUID</xml.code>
+    <xml.attributes>
+      <xml.attribute label="isPermaLink" mandatory="true">
+        <xml.type>bool</xml.type>
+        <xml.code>GUiP</xml.code>
+      </xml.attribute>
+    </xml.attributes>
+  </xml.class>
+
+</xml.schema>

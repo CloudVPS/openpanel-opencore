@@ -18,6 +18,7 @@
 #include <grace/value.h>
 #include <grace/str.h>
 #include <grace/httpdefs.h>
+#include <grace/xmlschema.h>
 
 
 //  -------------------------------------------------------------------------
@@ -132,6 +133,7 @@ public:
 
 private:
 	class OpenCoreApp *app;
+	xmlschema		   schema;
 };
 
 //  -------------------------------------------------------------------------
