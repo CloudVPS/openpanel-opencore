@@ -698,6 +698,13 @@ corestatus_t ModuleDB::callMethod (const statstring &parentid,
 		return status_failed;
 	}
 	
+	if (! m->methods.exists (method))
+	{
+		log::write (log::error, "ModuleDB", "Methodcall for %s.%s is "
+					"not defined in module.xml" %format (ofclass,method));
+		return status_failed;
+	}
+	
 	value ctx =
 		$("OpenCORE:Command", "callmethod") ->
 		$("OpenCORE:Session",
