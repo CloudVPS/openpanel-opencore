@@ -925,8 +925,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 		{
 			withparam[par.id()] = oldobject[ofclass][par.id()];
 		}
-		else if (par.attribexists ("required") && par("required") &&
-				 (! withparam.exists (par.id())))
+		else if (! withparam.exists (par.id()))
 		{
 			withparam[par.id()] = oldobject[ofclass][par.id()];
 		}
