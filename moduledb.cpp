@@ -698,7 +698,9 @@ corestatus_t ModuleDB::callMethod (const statstring &parentid,
 		return status_failed;
 	}
 	
-	if (! m->methods.exists (method))
+	CoreClass &cl = getClass (ofclass);
+	
+	if (! cl.methods.exists (method))
 	{
 		log::write (log::error, "ModuleDB", "Methodcall for %s.%s is "
 					"not defined in module.xml" %format (ofclass,method));
