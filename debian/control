@@ -1,0 +1,18 @@
+Source: openpanel-core
+Section: misc
+Priority: optional
+Maintainer: OpenPanel/Panel6 packager <packages@panelsix.com>
+Build-Depends: debhelper (>= 5), libgrace, libgrace-devel, libgrace-pcre, zlib1g-dev, sqlite3
+Standards-Version: 3.7.2
+
+Package: openpanel-core
+Architecture: any
+Depends: openpanel-authd, libgrace, libgrace-dbfile, libgrace-pcre
+Description: core
+ the openpanel core
+
+Package: openpanel-devel
+Architecture: any
+Depends: libgrace-devel, openpanel-mkmodulexml
+Description: devel
+ OpenPanel module development libraries and includes

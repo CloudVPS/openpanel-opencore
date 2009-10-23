@@ -1,0 +1,13 @@
+#!/bin/sh
+# prerm framework for openpanel packages
+#
+# see: dh_installdeb(1)
+
+set -e
+
+invoke-rc.d openpanel-core stop || true
+#DEBHELPER#
+
+exit 0
+
+

@@ -1,0 +1,13 @@
+#!/bin/sh
+# postrm framework for openpanel packages
+#
+# see: dh_installdeb(1)
+
+set -e
+
+[ $1 = purge ] && update-rc.d openpanel-core remove > /dev/null
+#DEBHELPER#
+
+exit 0
+
+
