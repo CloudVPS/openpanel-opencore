@@ -40,6 +40,8 @@ install-stamp: build-stamp
 	install -m 644 rsrc/com.openpanel.opencore.module.schema.xml debian/openpanel-devel/usr/lib/opencore/schemas
 	install -m 644 rsrc/com.openpanel.opencore.module.validator.xml debian/openpanel-devel/usr/lib/opencore/schemas
 
+	touch install-stamp
+
 binary-indep: build install
 
 binary-arch: build install
