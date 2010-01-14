@@ -20,7 +20,8 @@ set -e
 case "$1" in
     configure)
 ln -sf /var/opencore/bin/opencore.app/exec /var/opencore/bin/opencore
-ln -s /var/opencore/log /var/log/opencore
+# It's already created in openpanel-authd package, so just commenting
+# ln -s /var/opencore/log /var/log/opencore
 grep -q opencore /etc/group || groupadd -f opencore > /dev/null
 grep -q opencore /etc/passwd || useradd opencore -r -g opencore > /dev/null
 grep -q paneluser /etc/group || groupadd -f openadmin

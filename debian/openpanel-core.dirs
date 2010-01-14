@@ -1,3 +1,5 @@
 usr/share/doc/openpanel
 etc/init.d
 var/opencore/bin
+var/opencore/conf/rollback
+var/opencore/conf/staging

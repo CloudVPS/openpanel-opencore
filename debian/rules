@@ -57,7 +57,7 @@ binary-arch: build install
 
 clean:
 	rm -f build-stamp install-stamp
-	make clean
+	[ ! -f makeinclude ] || make clean
 	dh_clean
 
 binary: binary-indep binary-arch
