@@ -22,9 +22,9 @@ case "$1" in
 	/etc/init.d/openpanel-ssl stop || true
 	;;
   restart)
-    stop
+    $0 stop
     sleep 10
-    start
+    $0 start
     ;;
   *)
 	N=/etc/init.d/$NAME
