@@ -69,9 +69,9 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 		{
 			statstring pid = "%i" %format ((int) s.peer_port);
 
-			if (inhdr.exists ("X-Originating-Address"))
+			if (inhdr.exists ("X-Forwarded-For"))
 			{
-				peer_name = inhdr["X-Originating-Address"];
+				peer_name = inhdr["X-Forwarded-For "];
 				exclusivesection (peercache)
 				{
 					peercache[pid] = peer_name;
