@@ -125,8 +125,9 @@ bool OpenCoreRPC::_confcreate (const value &conf, int update)
 		httpdUds.start();
 		fs.chmod (PATH_RPCSOCK, 0666);
 		
-		httpdTcp.listento (4088);
-		CORE->log (log::info, "RPC", "Setting up tcp-rpc on port 4088");
+		ipaddress localhost = "127.0.0.1";
+		httpdTcp.listento (localhost, 4088);
+		CORE->log (log::info, "RPC", "Setting up tcp-rpc on 127.0.0.1:4088");
 		
 		if (! update)
 		{

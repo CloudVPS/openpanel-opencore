@@ -93,6 +93,7 @@ int OpenCoreApp::main (void)
 	
 	if (argv.exists ("--debug"))
 	{
+		ferr.writeln ("Using debugging flags: %s" %format (argv["--debug"]));
 		DISABLE_DEBUGGING = false;
 		
 		if (argv["--debug"] != "all")
