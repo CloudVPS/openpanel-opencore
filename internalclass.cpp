@@ -193,7 +193,7 @@ value *QuotaClass::listObjects (CoreSession *s,
 					$("id", qwarningid) ->
 					$("metaid", qwarningid) ->
 					$("description", qdesc) ->
-					$("units", "Mbytes") ->
+					$("units", "MBytes") ->
 					$("usage", s->db.getSpecialQuotaUsage (qid, parentid)) ->
 					$("quota", s->db.getSpecialQuotaWarning (qid, parentid)));
 	}
