@@ -90,6 +90,7 @@ bool DBManager::init (const char *dbfile)
             dbinitdone = true;
         }
     }
+    dosqlite("PRAGMA temp_store=MEMORY");
     return true;
 }
 
