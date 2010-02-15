@@ -39,6 +39,7 @@ UNIQUE (uuid,version),
 UNIQUE (uniquecontext,metaid,version));
 
 CREATE INDEX metaid ON objects (metaid);
+CREATE INDEX owanteddeleted ON objects (wanted,deleted);
 
 CREATE TABLE classquota (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -66,6 +67,9 @@ CREATE TABLE powermirror (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 userid INTEGER NOT NULL,
 powerid INTEGER NOT NULL);
+
+CREATE INDEX puserid ON powermirror (userid);
+CREATE INDEX ppowerid ON powermirror (powerid);
 
 -- searchability; valueid refers to an entry in objectvalues 
 CREATE TABLE searchkeys (
