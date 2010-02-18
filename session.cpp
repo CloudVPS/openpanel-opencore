@@ -1630,13 +1630,12 @@ value *CoreSession::listObjects (const statstring &parentid,
 }
 
 // ==========================================================================
-// METHOD CoreSession::applyFieldWhiteLabel
+// METHOD CoreSession::applyFieldWhiteList
 // ==========================================================================
-bool CoreSession::applyFieldWhiteLabel (value &objs, value &whitel)
+bool CoreSession::applyFieldWhiteList (value &objs, value &whitel)
 {	
-	log::write (log::debug, "Session", "applyFieldWhiteLabel <(objs),(whitel)>");
-
-	return db.applyFieldWhiteLabel (objs, whitel);
+	log::write (log::debug, "Session", "applyFieldWhiteList <(objs),(whitel)>");
+	return db.applyFieldWhiteList (objs, whitel);
 }	
 
 // ==========================================================================

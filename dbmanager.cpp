@@ -1795,7 +1795,7 @@ value *DBManager::hidepasswords(const value &members, int localclassid, bool tag
 	return &res;
 }
 
-bool DBManager::applyFieldWhiteLabel(value &objs, value &whitel)
+bool DBManager::applyFieldWhiteList(value &objs, value &whitel)
 {
 	value blackl, classdata;
 	valueindex whitelv;

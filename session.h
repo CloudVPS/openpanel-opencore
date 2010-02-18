@@ -240,7 +240,7 @@ public:
 						 /// whitelist
 						 /// \param objs listObjects result
 						 /// \param whitel list of allowed fieldnames
-	bool				 applyFieldWhiteLabel (value &objs, value &whitel);
+	bool				 applyFieldWhiteList (value &objs, value &whitel);
 	
 						 /// Get a particular object.
 						 /// \param parentid The object parent's uuid, or

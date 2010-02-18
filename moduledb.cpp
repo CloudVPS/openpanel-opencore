@@ -892,7 +892,7 @@ value *ModuleDB::listParamsForMethod (const statstring &parentid,
 	// Complain if it's an unknown class.
 	if (! classExists (ofclass))
 	{
-		log::write (log::error, "ModuleDB", "Listparamsformethod called "
+		log::write (log::error, "ModuleDB", "listParamsForMethod called "
 				   "for class=<%S>, class not found" %format (ofclass));
 		
 		return NULL;
@@ -902,7 +902,7 @@ value *ModuleDB::listParamsForMethod (const statstring &parentid,
 	CoreClass &cl = getClass (ofclass);
 	if (! cl.methods.exists (methodname))
 	{
-		log::write (log::error, "ModuleDB", "Listparamsformethod called "
+		log::write (log::error, "ModuleDB", "listParamsForMethod called "
 				   "for class=<%S> methodname=<%S>, method not found"
 				   %format (ofclass, methodname));
 		
@@ -943,7 +943,7 @@ value *ModuleDB::listParamsForMethod (const statstring &parentid,
 		return &res;
 	}
 
-	log::write (log::error, "ModuleDB", "Listparamsformethod called "
+	log::write (log::error, "ModuleDB", "listParamsForMethod called "
 			   "for class=<%S> method=<%S>, not dynamic" %format (ofclass,
 			   methodname));
 	return NULL;

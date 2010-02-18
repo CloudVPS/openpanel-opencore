@@ -439,7 +439,7 @@ value *RPCHandler::getRecords (const value &v, CoreSession &cs)
 		if (vbody.exists ("whitelist"))
 		{
 			value in_whitel = vbody["whitelist"];
-			cs.applyFieldWhiteLabel (dres, in_whitel);
+			cs.applyFieldWhiteList (dres, in_whitel);
 		}
 	
 	cs.munlock ();

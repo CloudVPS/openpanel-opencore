@@ -74,7 +74,7 @@ public:
 					bool listObjectTree (value &into, const statstring &uuid);
 
 					/// filter a listObjects resultset according to a whitelist
-					bool applyFieldWhiteLabel (value &objs, value &whitel);
+					bool applyFieldWhiteList (value &objs, value &whitel);
 					
 					/// fetch an object by uuid
 					bool fetchObject(value &into, const statstring &uuid, bool formodule=false);
