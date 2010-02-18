@@ -266,62 +266,35 @@ value *CoreClass::flattenParam (void)
 		value &p = res[pobj.id()];
 		p["description"] = pobj.sval();
 		p["type"] = pobj("type").sval();
-		if (pobj.attribexists ("clihide"))
-		{
-			p["clihide"] = (pobj("clihide") == "true");
-		}
-		if (pobj.attribexists ("cliwidth"))
-		{
-			p["cliwidth"] = pobj("cliwidth").ival();
-		}
-		if (pobj.attribexists ("gridhide"))
-		{
-			p["gridhide"] = (pobj("gridhide") == "true");
-		}
-		if (pobj.attribexists ("gridwidth"))
-		{
-			p["gridwidth"] = pobj("gridwidth").ival();
-		}
-		if (pobj.attribexists ("gridlabel"))
-		{
-			p["gridlabel"] = pobj("gridlabel");
-		}
-		if (pobj.attribexists ("textwidth"))
-		{
-			p["textwidth"] = pobj("textwidth").ival();
-		}
-		if (pobj.attribexists ("sameline"))
-		{
-			p["sameline"] = pobj("sameline").bval();
-		}
-		if (pobj.attribexists ("breakcolumn"))
-		{
-			p["breakcolumn"] = pobj("breakcolumn").bval();
-		}
-		if (pobj.attribexists ("paddingtop"))
-		{
-			p["paddingtop"] = pobj("paddingtop").ival();
-		}
-		if (pobj.attribexists ("labelwidth"))
-		{
-			p["labelwidth"] = pobj("labelwidth").ival();
-		}
-		if (pobj.attribexists ("hidelabel"))
-		{
-			p["hidelabel"] = pobj("hidelabel").bval();
-		}
-		if (pobj.attribexists ("rows"))
-		{
-			p["rows"] = pobj("rows").ival();
-		}
-
-		#define CPBOOLATTR(zz) pobj.attribexists (zz) ? pobj(zz).bval() : false
-
-		p["enabled"] = CPBOOLATTR("enabled");
-		p["visible"] = CPBOOLATTR("visible");
-		p["required"] = CPBOOLATTR("required");
 		
-		#undef CPBOOLATTR
+		#define CONDCPBOOLATTR(zz) if (pobj.attribexists (zz)) p[zz] = (pobj(zz)=="true")
+		#define CONDCPINTATTR(zz) if (pobj.attribexists (zz)) p[zz] = pobj(zz).ival()
+		#define CONDCPSTRATTR(zz) if (pobj.attribexists (zz)) p[zz] = pobj(zz);
+		
+		CONDCPBOOLATTR("clihide");
+		CONDCPINTATTR("cliwidth");
+		CONDCPBOOLATTR("gridhide");
+		CONDCPINTATTR("gridwidth");
+		CONDCPSTRATTR("gridlabel");
+		CONDCPINTATTR("textwidth");
+		CONDCPBOOLATTR("sameline");
+		CONDCPBOOLATTR("breakcolumn");
+		CONDCPINTATTR("paddingtop");
+		CONDCPINTATTR("labelwidth");
+		CONDCPBOOLATTR("hidelabel");
+		CONDCPINTATTR("rows");
+
+		#undef CONDCPBOOLATTR
+		#undef CONDCPINTATTR
+		#undef CONDCPSTRATTR
+
+		#define GETBOOLATTR(zz) pobj.attribexists (zz) ? pobj(zz).bval() : false
+
+		p["enabled"] = GETBOOLATTR("enabled");
+		p["visible"] = GETBOOLATTR("visible");
+		p["required"] = GETBOOLATTR("required");
+		
+		#undef GETBOOLATTR
 		
 		string theregexp = pobj("regexp");
 		if (theregexp) theregexp = CORE->regexp (theregexp);
