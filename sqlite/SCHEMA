@@ -38,7 +38,7 @@ postponed BOOL DEFAULT 0,
 UNIQUE (uuid,version),
 UNIQUE (uniquecontext,metaid,version));
 
-CREATE INDEX metaid ON objects (metaid);
+CREATE INDEX ometaid ON objects (metaid);
 CREATE INDEX owanteddeleted ON objects (wanted,deleted);
 
 CREATE TABLE classquota (
