@@ -1415,7 +1415,7 @@ int DBManager::findclassid(const statstring &classname)
   // DEBUG.storeFile("DB", "dbres", v, "findclassid");
 	
   // CORE->log(log::debug, "DB","findclassid: %i" %format(v["rows"][0]["id"]));
-  //     return v["rows"][0]["id"].ival(); // FIXME: check if it's there?
+  return v["rows"][0]["id"].ival(); // FIXME: check if it's there?
 }
 
 string *DBManager::_classNameFromUUID(const int classid)
