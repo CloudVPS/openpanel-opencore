@@ -70,6 +70,9 @@ public:
 					/// \verbinclude db_listObjects.format
 					bool listObjects(value &into, const statstring &parent=nokey, const value &ofclass=nokey, bool formodule = false, int count=-1, int offset=0);
 					
+					/// replace a complete set of objects identified by class and perhaps parent
+          bool replaceObjects (value &newobjs, const statstring &parent=nokey, const statstring &ofclass=nokey);
+        	
 					/// list a whole object subtree, leaf-first
 					bool listObjectTree (value &into, const statstring &uuid);
 

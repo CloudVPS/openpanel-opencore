@@ -1399,110 +1399,22 @@ bool CoreSession::syncDynamicObjects (const statstring &parentid,
 	}
 	else rparentid = parentid;
 	
-	curdb = mdb.listDynamicObjects (parentid, rparentid, ofclass, err, count, offset);
+	curdb = mdb.listDynamicObjects (parentid, rparentid, ofclass, err);
 	if (err.strlen())
 	{
 		setError (ERR_MDB_ACTION_FAILED, err);
 		return false;
 	}
 
-	if (! db.listObjects (olddb, parentid, $(ofclass), false, count, offset))
+	if (! db.replaceObjects (curdb, parentid, $(ofclass)))
 	{
-		log::write (log::error, "Session", "Error listing cached "
+		log::write (log::error, "Session", "Error putting cached "
 				    "dynamic objects: %s" %format (db.getLastError()));
 		// FIXME: Pass db.lasterror upwards if this ever makes sense
-		olddb.clear();
+    return false;
 	}
-	
-	DEBUG.storeFile ("Session","old", olddb, "syncDynamicObjects");
-	DEBUG.storeFile ("Session","new", curdb, "syncDynamicObjects");
-	
-	value skipfields = $("uuid",true) ->
-					   $("parentid",true) ->
-					   $("ownerid",true) ->
-					   $("id",true) ->
-					   $("metaid",true);
-	
-	// Find any nodes currently in the database that we need to
-	// update or delete.
-	foreach (oldnode, olddb[0])
-	{
-		// Is this oldie absent in the new list?
-		if (! curdb[0].exists (oldnode.id()))
-		{
-			log::write (log::debug, "Session", "Removing cached node "
-					    "id=<%S>" %format (oldnode.id()));
-			// Yeah, kick its butt.
-			string uuid = oldnode["uuid"];
-			db.deleteObject (uuid);
-			db.reportSuccess (uuid);
-		}
-		else
-		{
-			// No, so let's consider this an update.
-			// We'll need a temporary object to get rid of the
-			// extra uuid/id/metaid fields.
-			log::write (log::debug, "Session", "Updating cached node "
-					    "id=<%S>" %format (oldnode.id()));
-			
-			bool changed = false;
-			
-			foreach (field, curdb[0][oldnode.id()])
-			{
-				if (skipfields.exists (field.id())) continue;
-				
-				if (oldnode[field.id()] != field)
-				{
-					changed = true;
-					log::write (log::debug, "Session", "Cached node "
-							    "field <%S> changed" %format (field.id()));
-					break;
-				}
-				else
-				{
-					log::write (log::debug, "Session", "Cached <%S> \"%S\" == "
-							    "\"%S\"" %format (field.id(),
-							    oldnode[field.id()], field));
-				}
-			}
-			
-			if (changed)
-			{
-				value repnode = curdb[0][oldnode.id()];
-				
-				repnode.rmval ("uuid");
-				repnode.rmval ("id");
-				repnode.rmval ("metaid");
-				string uuid = oldnode["uuid"];
-				db.updateObject (repnode, uuid);
-				db.reportSuccess (uuid);
-			}
-		}
-	}
-	
-	// Now find any new objects.
-	foreach (curnode, curdb[0])
-	{
-		// Never heard of this geezer before?
-		if (! olddb[0].exists (curnode.id()))
-		{
-			// Great let's introduce him to the database then.
-			log::write (log::debug, "Session", "Creating cached node "
-					    "id=<%S>" %format (curnode.id()));
-					   
-			string uuid = db.createObject (parentid, curnode,
-										   ofclass, curnode.id(), false, true);
-			if (! uuid)
-			{
-				log::write (log::error, "Session", "Error creating "
-						    "database cache of dynamic list: %s"
-						    %format (db.getLastError()));
-				setError (db.getLastErrorCode(), db.getLastError());
-			}
-		}
-	}
-	
-	return true;
+
+  return true;
 }
 
 // ==========================================================================

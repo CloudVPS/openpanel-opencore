@@ -25,7 +25,7 @@
 #include <sys/types.h>
 #include "dbmanager.h"
 #include "opencore.h"
-// #include "debug.h"
+#include "debug.h"
 #include "error.h"
 
 // TODO: check that we handle all relevant table columns at all places
@@ -837,6 +837,7 @@ string *DBManager::createObject(const statstring &parent, const value &withmembe
         lasterror.crop();
         lasterror.printf("Over quota (%d/%d)", currentusage, currentquota);
         errorcode = ERR_DBMANAGER_QUOTA;
+        res.clear();
         return &res;
     }
 	
@@ -2866,3 +2867,210 @@ value *DBManager::listSpecialQuota()
     
     return &res;
 }
+
+bool DBManager::replaceObjects (value &newobjs, const statstring &parent, const statstring &ofclass)
+{
+  // string permcheck;
+  
+// FIXME: do permcheck!
+#if 0
+  DEBUG.storeFile("DB","replace", newobjs, "newobjs");
+  CORE->log(log::debug, "DB", "doing permcheck");
+  
+  permcheck = createObject(parentid, $(nokey), ofclass, "test", true, true);
+  if(!permcheck)
+  {
+    CORE->log(log::debug, "DB", "permcheck true");
+    return false;
+  }
+
+  CORE->log(log::debug, "DB", "permcheck true");
+#endif
+
+  int classid;
+  int parentid=0;
+  string query;
+  
+  CORE->log(log::debug, "DB", "replaceObjects: %s %s" % format(parent, ofclass));
+  
+  if(parent != nokey && parent != "")
+  {
+    parentid=findlocalid(parent);
+  }
+	
+	DEBUG.storeFile("DB","replace", newobjs, "newobjs");
+  DEBUG.storeFile("DB","replace", newobjs[0], "newobjs0");
+  DEBUG.storeFile("DB","replace", newobjs[0][0], "newobjs00");
+	
+  classid = findclassid(ofclass);
+  // prime cache
+  getClassData(classid);
+	
+	exclusivesection (dbhandle)
+  {
+    value qres, disposeme;
+    value where;
+  	
+    qres=_dosqlite("BEGIN TRANSACTION /* replaceObjects */");
+    if(!qres)
+    {
+      goto replaceObjects_rollbackandbreak;
+    }
+    
+    // CORE->log(log::debug, "DB", "updateObject([members], uuid=%s, "
+    //      "deleted=%d)" %format (uuid, deleted ? 1 : 0));
+    query="DELETE /* replaceObjects */ FROM objects WHERE ";
+    where.clear();
+    where["parent"]=parentid;
+    where["class"]=classid;
+  	query.strcat(escapeforsql("=", " AND ", where));
+    qres = _dosqlite(query);
+  	if(!qres)
+  	{
+  		goto replaceObjects_rollbackandbreak;
+  	}
+
+    foreach(obj, newobjs[0])
+    {
+      value v;
+    	
+      v["uuid"]=obj["uuid"];
+      v["version"]=1;
+      v["metaid"]=obj["id"];
+      v["class"]=classid;
+      v["uniquecontext"]=classid;
+      v["parent"]=0;
+      v["deleted"]=0;
+      v["owner"]=userid;
+      v["reality"]=1;
+      v["wanted"]=1;
+      
+      if(!checkfieldlist(obj, classid))
+    	{
+        goto replaceObjects_rollbackandbreak;
+    	}
+    	
+    	v["content"]=serialize(obj);
+      
+    	query="INSERT /* replaceObjects */ INTO objects ";
+    	query.strcat(escapeforinsert(v));
+    	value qres = _dosqlite(query); // FIXME: handle errors
+
+    	if(!qres)
+    	{
+        goto replaceObjects_rollbackandbreak;
+    	}
+    }
+    
+    qres = _dosqlite("COMMIT TRANSACTION /* replaceObjects */");
+    if (!qres)
+    {
+      goto replaceObjects_rollbackandbreak;
+    }
+    
+    breaksection return true;
+    
+replaceObjects_rollbackandbreak:
+    disposeme = _dosqlite("ROLLBACK TRANSACTION /* replaceObjects */");
+    breaksection return false;
+replaceObjects_success:
+    breaksection return true;
+  }
+
+  return true;
+}
+
+
+
+#if 0
+
+DEBUG.storeFile ("Session","old", olddb, "syncDynamicObjects");
+DEBUG.storeFile ("Session","new", curdb, "syncDynamicObjects");
+
+value skipfields = $("uuid",true) ->
+				   $("parentid",true) ->
+				   $("ownerid",true) ->
+				   $("id",true) ->
+				   $("metaid",true);
+
+// Find any nodes currently in the database that we need to
+// update or delete.
+foreach (oldnode, olddb[0])
+{
+	// Is this oldie absent in the new list?
+	if (! curdb[0].exists (oldnode.id()))
+	{
+		log::write (log::debug, "Session", "Removing cached node "
+				    "id=<%S>" %format (oldnode.id()));
+		// Yeah, kick its butt.
+		string uuid = oldnode["uuid"];
+		db.deleteObject (uuid);
+		db.reportSuccess (uuid);
+	}
+	else
+	{
+		// No, so let's consider this an update.
+		// We'll need a temporary object to get rid of the
+		// extra uuid/id/metaid fields.
+		log::write (log::debug, "Session", "Updating cached node "
+				    "id=<%S>" %format (oldnode.id()));
+		
+		bool changed = false;
+		
+		foreach (field, curdb[0][oldnode.id()])
+		{
+			if (skipfields.exists (field.id())) continue;
+			
+			if (oldnode[field.id()] != field)
+			{
+				changed = true;
+				log::write (log::debug, "Session", "Cached node "
+						    "field <%S> changed" %format (field.id()));
+				break;
+			}
+			else
+			{
+				log::write (log::debug, "Session", "Cached <%S> \"%S\" == "
+						    "\"%S\"" %format (field.id(),
+						    oldnode[field.id()], field));
+			}
+		}
+		
+		if (changed)
+		{
+			value repnode = curdb[0][oldnode.id()];
+			
+			repnode.rmval ("uuid");
+			repnode.rmval ("id");
+			repnode.rmval ("metaid");
+			string uuid = oldnode["uuid"];
+			db.updateObject (repnode, uuid);
+			db.reportSuccess (uuid);
+		}
+	}
+}
+
+// Now find any new objects.
+foreach (curnode, curdb[0])
+{
+	// Never heard of this geezer before?
+	if (! olddb[0].exists (curnode.id()))
+	{
+		// Great let's introduce him to the database then.
+		log::write (log::debug, "Session", "Creating cached node "
+				    "id=<%S>" %format (curnode.id()));
+				   
+		string uuid = db.createObject (parentid, curnode,
+									   ofclass, curnode.id(), false, true);
+		if (! uuid)
+		{
+			log::write (log::error, "Session", "Error creating "
+					    "database cache of dynamic list: %s"
+					    %format (db.getLastError()));
+			setError (db.getLastErrorCode(), db.getLastError());
+		}
+	}
+}
+
+return true;
+#endif
