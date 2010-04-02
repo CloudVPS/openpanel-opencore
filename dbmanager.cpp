@@ -90,7 +90,7 @@ bool DBManager::init (const char *dbfile)
             dbinitdone = true;
         }
     }
-    dosqlite("PRAGMA temp_store=MEMORY");
+    value v = dosqlite("PRAGMA temp_store=MEMORY");
     return true;
 }
 
@@ -2904,7 +2904,7 @@ bool DBManager::replaceObjects (value &newobjs, const statstring &parent, const 
 	
   classid = findclassid(ofclass);
   // prime cache
-  getClassData(classid);
+  value classdata = getClassData(classid);
 	
 	exclusivesection (dbhandle)
   {

@@ -42,85 +42,93 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
                      tcpsocket &s)
 {
 	static lock<value> peercache;
-	DEBUG.storeFile ("RPCRequestHandler","postbody", postbody, "run");
-	CORE->log (log::debug, "RPC", "handle: %S %!" %format (uri, inhdr));
-	value indata;
-	value res;
-	string origin = "IPC";
-	uid_t uid = 0;
-	RPCHandler hdl (sdb);
-
-	indata.fromjson (postbody);
-	if (inhdr.exists ("X-OpenCORE-Origin"))
-	{
-		origin = inhdr["X-OpenCORE-Origin"];
-	}
 	
-	CORE->log (log::debug, "RPC", "body: %!" %format (indata));
-	
-	// Set up credentials if available
-	s.getcredentials();
-	CORE->log (log::debug, "RPC", "credentials: %d %d %d", s.peer_uid,
-													s.peer_gid, s.peer_pid);
-	if (s.peer_pid == 0)
+	try
 	{
-		string peer_name = s.peer_name;
-		if (peer_name == "127.0.0.1")
+		DEBUG.storeFile ("RPCRequestHandler","postbody", postbody, "run");
+		CORE->log (log::debug, "RPC", "handle: %S %!" %format (uri, inhdr));
+		value indata;
+		value res;
+		string origin = "IPC";
+		uid_t uid = 0;
+		RPCHandler hdl (sdb);
+	
+		indata.fromjson (postbody);
+		if (inhdr.exists ("X-OpenCORE-Origin"))
 		{
-			statstring pid = "%i" %format ((int) s.peer_port);
-
-			if (inhdr.exists ("X-Forwarded-For"))
+			origin = inhdr["X-OpenCORE-Origin"];
+		}
+		
+		CORE->log (log::debug, "RPC", "body: %!" %format (indata));
+		
+		// Set up credentials if available
+		s.getcredentials();
+		CORE->log (log::debug, "RPC", "credentials: %d %d %d", s.peer_uid,
+														s.peer_gid, s.peer_pid);
+		if (s.peer_pid == 0)
+		{
+			string peer_name = s.peer_name;
+			if (peer_name == "127.0.0.1")
 			{
-				peer_name = inhdr["X-Forwarded-For "];
-				exclusivesection (peercache)
+				statstring pid = "%i" %format ((int) s.peer_port);
+	
+				if (inhdr.exists ("X-Forwarded-For"))
 				{
-					peercache[pid] = peer_name;
-					if (peercache.count() > 128)
+					peer_name = inhdr["X-Forwarded-For "];
+					exclusivesection (peercache)
 					{
-						peercache.rmindex (0);
+						peercache[pid] = peer_name;
+						if (peercache.count() > 128)
+						{
+							peercache.rmindex (0);
+						}
+					}
+				}
+				else
+				{
+					sharedsection (peercache)
+					{
+						if (peercache.exists (pid))
+							peer_name = peercache[pid];
 					}
 				}
 			}
-			else
+				
+			if (origin.strchr ('/') >0) origin = origin.cutat ('/');
+			if (! origin) origin = "RPC";
+			origin.strcat ("/src=%s" %format (peer_name));
+		}
+	
+		res = hdl.handle (indata, s.peer_uid, origin);	
+		out = res.tojson ();
+		
+		if (inhdr.exists ("Accept-Encoding"))
+		{
+			string ae = inhdr["Accept-Encoding"];
+			if (ae.strstr ("deflate") >= 0)
 			{
-				sharedsection (peercache)
+				unsigned long reslen = (out.strlen() * 1.05) + 12;
+				char buf[reslen];
+				
+				if (compress2 ((Bytef*) buf, &reslen,
+							   (const Bytef*) out.str(), out.strlen(), 4) == Z_OK)
 				{
-					if (peercache.exists (pid))
-						peer_name = peercache[pid];
+					outhdr["Content-Encoding"] = "deflate";
+					out.strcpy (buf+2, reslen-2);
+				}
+				else
+				{
+					log::write (log::warning, "RPC", "Compress error");
 				}
 			}
 		}
-			
-		if (origin.strchr ('/') >0) origin = origin.cutat ('/');
-		if (! origin) origin = "RPC";
-		origin.strcat ("/src=%s" %format (peer_name));
+		
+		outhdr["Content-type"] = "application/json";
 	}
-
-	res = hdl.handle (indata, s.peer_uid, origin);	
-	out = res.tojson ();
-	
-	if (inhdr.exists ("Accept-Encoding"))
+	catch (...)
 	{
-		string ae = inhdr["Accept-Encoding"];
-		if (ae.strstr ("deflate") >= 0)
-		{
-			unsigned long reslen = (out.strlen() * 1.05) + 12;
-			char buf[reslen];
-			
-			if (compress2 ((Bytef*) buf, &reslen,
-						   (const Bytef*) out.str(), out.strlen(), 4) == Z_OK)
-			{
-				outhdr["Content-Encoding"] = "deflate";
-				out.strcpy (buf+2, reslen-2);
-			}
-			else
-			{
-				log::write (log::warning, "RPC", "Compress error");
-			}
-		}
+		log::write (log::error, "RPC", "Exception caught");
 	}
-	
-	outhdr["Content-type"] = "application/json";
 	return HTTP_OK;
 }
 
