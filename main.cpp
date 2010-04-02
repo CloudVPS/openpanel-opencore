@@ -16,6 +16,8 @@
 #include "debug.h"
 #include "alerts.h"
 
+#include <grace/defaults.h>
+
 #include <grace/thread.h>
 
 APPOBJECT(OpenCoreApp);
@@ -69,11 +71,20 @@ void OpenCoreApp::dancingBears (void)
 	ferr.writeln ("    (______)____)     (______)        \\__)         `-_/     (______)");
 }
 
+void OpenCoreApp::memoryLeakHandler (void)
+{
+	log::write (log::critical, "Main", "Memory leak detected. Application "
+				"performance will suffer.");
+}
+
 // ==========================================================================
 // METHOD OpenCoreApp::main
 // ==========================================================================
 int OpenCoreApp::main (void)
 {
+	// Enterprise mode ON.
+	defaults::memory::leakprotection = false;
+	defaults::memory::leakcallback = memoryLeakHandler;
 	
 	if (argv.exists ("--emit-dancing-bears"))
 	{

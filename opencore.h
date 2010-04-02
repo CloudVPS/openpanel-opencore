@@ -103,6 +103,8 @@ protected:
 						 /// \return False if authd is unavailable.
 	bool				 checkAuthDaemon (void);
 	
+	static void			 memoryLeakHandler (void);
+	
 	appconfig			 conf; ///< Configuration database.
 public: // TODO: temporary hack for module session! FIXME!
 	ModuleDB			*mdb; ///< Module manager.
