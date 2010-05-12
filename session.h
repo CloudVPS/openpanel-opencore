@@ -466,7 +466,8 @@ protected:
 						 /// \param count Max rows (may be broken).
 	value				*syncDynamicObjects (const statstring &parentid,
 											 const statstring &ofclass,
-											 int offset, int count);
+											 int offset, int count,
+											 const statstring &withid="");
 
 						 /// Gather a mixed list of real objects that
 						 /// inherit from a meta class.

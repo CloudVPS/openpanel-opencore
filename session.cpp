@@ -632,57 +632,93 @@ string *CoreSession::createObject (const statstring &parentid,
 		return NULL;
 	}
 
-	// create the object in the database, it will be marked as wanted.
-	uuid = db.createObject(parentid, withparam, ofclass, withid, false, immediate);
-	if (! uuid)
+	value ctx;
+	value parm;
+
+	if (mdb.classIsDynamic (ofclass))
 	{
-		log::write (log::error, "Session", "Database error: %s"
-				    %format (db.getLastError()));
-		setError (db.getLastErrorCode(), db.getLastError());
-		return NULL;
-	}
-	
-	if (owner)
-	{
-		if (! chown (uuid, owner))
+		uuid = strutil::uuid();
+		
+		ctx = $("OpenCORE:Context", ofclass) ->
+			  $("OpenCORE:Session",
+					$("sessionid", id.sval()) ->
+					$("classid", ofclass) ->
+					$("objectid", withid ? withid.sval() : uuid)
+			   )->
+			  $(ofclass,withparam);
+		
+		if (cl.requires && parentid)
 		{
-			db.reportFailure (uuid);
-			setError (ERR_SESSION_CHOWN);
-			return NULL;
+			value par;
+			if (mdb.classIsDynamic (cl.requires))
+			{
+				ctx << syncDynamicObjects (nokey, cl.requires, 0, -1, parentid);
+			}
+			else
+			{
+				statstring puuid;
+				puuid = db.findObject (nokey, ofclass, parentid, nokey);
+				if (! puuid) puuid = db.findObject (nokey, ofclass, nokey, parentid);
+				
+				value pv;
+				if (db.fetchObject (pv, puuid, false))
+				{
+					ctx << pv;
+				}
+			}
 		}
 	}
-
-	if (immediate)
+	else
 	{
-	    return new (memory::retainable::onstack) string (uuid);
-	}
+		// create the object in the database, it will be marked as wanted.
+		uuid = db.createObject(parentid, withparam, ofclass, withid, false, immediate);
+		if (! uuid)
+		{
+			log::write (log::error, "Session", "Database error: %s"
+						%format (db.getLastError()));
+			setError (db.getLastErrorCode(), db.getLastError());
+			return NULL;
+		}
+		
+		if (owner)
+		{
+			if (! chown (uuid, owner))
+			{
+				db.reportFailure (uuid);
+				setError (ERR_SESSION_CHOWN);
+				return NULL;
+			}
+		}
 
-	value parm;
-	value ctx;
-	
-	// Get the parameters for the module action.
-	if (! db.fetchObject (parm, uuid, true /* formodule */))
-	{
-		log::write (log::critical, "Session", "Database failure getting object-"
-				   "related data for '%S': %s" %format (uuid,
-				    db.getLastError()));
-				   
-		ALERT->alert ("Session error on object-related data\n"
-					  "uuid=<%S> error=<%s>" %format (uuid,
-					  db.getLastError()));
-		return NULL;
-	}
+		if (immediate)
+		{
+			return new (memory::retainable::onstack) string (uuid);
+		}
 
-	// Bring them into a larger context.
-	ctx = $("OpenCORE:Context", parm[0].id()) ->
-		  $("OpenCORE:Session",
-		  		$("sessionid", id.sval()) ->
-		  		$("classid", ofclass) ->
-		  		$("objectid", withid ? withid.sval() : uuid)
-		   );
+		// Get the parameters for the module action.
+		if (! db.fetchObject (parm, uuid, true /* formodule */))
+		{
+			log::write (log::critical, "Session", "Database failure getting object-"
+					   "related data for '%S': %s" %format (uuid,
+						db.getLastError()));
+					   
+			ALERT->alert ("Session error on object-related data\n"
+						  "uuid=<%S> error=<%s>" %format (uuid,
+						  db.getLastError()));
+			return NULL;
+		}
 	
-	// Merge the parameters
-	ctx << parm;
+		// Bring them into a larger context.
+		ctx = $("OpenCORE:Context", parm[0].id()) ->
+			  $("OpenCORE:Session",
+					$("sessionid", id.sval()) ->
+					$("classid", ofclass) ->
+					$("objectid", withid ? withid.sval() : uuid)
+			   );
+		
+		// Merge the parameters
+		ctx << parm;
+	}
 	
 	// Perform the moduleaction.
 	string moderr;
@@ -890,32 +926,42 @@ bool CoreSession::updateObject (const statstring &parentid,
 		return false;
 	}
 	
-	// Get the uuid of the original object.
-	uuid = db.findObject (parentid, ofclass, withid, nokey);
-	if (! uuid) uuid = db.findObject (parentid, ofclass, nokey, withid);
-	
-	// Object not found?
-	if (! uuid)
-	{
-		// Report the problem.
-		log::write (log::error, "Session", "Update of object with id/metaid <%S> "
-				    "which could not be found in the database: %s"
-				    %format (withid, db.getLastError()));
-				   
-		setError (ERR_SESSION_OBJECT_NOT_FOUND);
-		return false;
-	}
 	
 	CoreClass &cl = mdb.getClass (ofclass);
 	value oldobject;
+	value parm;
 	
-	if (! db.fetchObject (oldobject, uuid, false))
+	if (mdb.classIsDynamic (ofclass))
 	{
-		log::write (log::error, "Session", "Object disappeared while trying "
-				    "to update class=<%S> uuid=<%S>" %format (ofclass, uuid));
+		value t = syncDynamicObjects (parentid, ofclass, 0, -1, withid);
+		oldobject = t[ofclass];
+	}
+	else
+	{
+		// Get the uuid of the original object.
+		uuid = db.findObject (parentid, ofclass, withid, nokey);
+		if (! uuid) uuid = db.findObject (parentid, ofclass, nokey, withid);
 		
-		setError (ERR_SESSION_OBJECT_NOT_FOUND);
-		return false;
+		// Object not found?
+		if (! uuid)
+		{
+			// Report the problem.
+			log::write (log::error, "Session", "Update of object with id/metaid <%S> "
+						"which could not be found in the database: %s"
+						%format (withid, db.getLastError()));
+					   
+			setError (ERR_SESSION_OBJECT_NOT_FOUND);
+			return false;
+		}
+	
+		if (! db.fetchObject (oldobject, uuid, false))
+		{
+			log::write (log::error, "Session", "Object disappeared while trying "
+						"to update class=<%S> uuid=<%S>" %format (ofclass, uuid));
+			
+			setError (ERR_SESSION_OBJECT_NOT_FOUND);
+			return false;
+		}
 	}
 	
 	// Fill in missing parameters from the old object.
@@ -939,48 +985,82 @@ bool CoreSession::updateObject (const statstring &parentid,
 		return false;
 	}
 
-	bool updatesucceeded;
-	
-	updatesucceeded = db.updateObject (withparam, uuid, immediate);
-	if (! updatesucceeded) // FIXME: get rid of bool var?
-	{
-		setError (db.getLastErrorCode(), db.getLastError());
-		log::write (log::error, "session ", "Database failure on updating "
-				    "object: %s" %format (db.getLastError()));
-		return false;
-	}
-	
-	if (immediate)
-    {
-		return true;
-    }
-
-	nuuid = uuid;
-		
-	value parm;
 	value ctx;
-	
-	// Get the parameters for the module action.
-	if (! db.fetchObject (parm, nuuid, true /* formodule */))
+
+	if (mdb.classIsDynamic (ofclass))
 	{
-		log::write (log::critical, "Session", "Database failure getting object-"
-				    "related data: %s" %format (db.getLastError()));
-		ALERT->alert ("Session error on object-related data\n"
-					  "uuid=<%S> error=<%S>" %format (nuuid,
-					  db.getLastError()));
-					  
-		return false;
+		ctx = $("OpenCORE:Context", ofclass) ->
+			  $("OpenCORE:Session",
+					$("sessionid", id.sval()) ->
+					$("classid", ofclass) ->
+					$("objectid", withid ? withid.sval() : uuid)
+			   )->
+			  $(ofclass,oldobject);
+			  
+		if (cl.requires && parentid)
+		{
+			value par;
+			if (mdb.classIsDynamic (cl.requires))
+			{
+				ctx <<  syncDynamicObjects (nokey, cl.requires, 0, -1, parentid);
+			}
+			else
+			{
+				statstring puuid;
+				puuid = db.findObject (nokey, ofclass, parentid, nokey);
+				if (! puuid) puuid = db.findObject (nokey, ofclass, nokey, parentid);
+				
+				value pv;
+				if (db.fetchObject (pv, puuid, false))
+				{
+					ctx << pv;
+				}
+			}
+		}
 	}
+	else
+	{
+		bool updatesucceeded;
+		
+		updatesucceeded = db.updateObject (withparam, uuid, immediate);
+		if (! updatesucceeded) // FIXME: get rid of bool var?
+		{
+			setError (db.getLastErrorCode(), db.getLastError());
+			log::write (log::error, "session ", "Database failure on updating "
+						"object: %s" %format (db.getLastError()));
+			return false;
+		}
+		
+		if (immediate)
+		{
+			return true;
+		}
 
-	ctx = $("OpenCORE:Context", parm[0].id()) ->
-		  $("OpenCORE:Session",
-		  		$("sessionid", id.sval()) ->
-		  		$("classid", ofclass) ->
-		  		$("objectid", withid ? withid.sval() : uuid)
-		   );
-
-	// Merge the parameters
-	ctx << parm;
+		nuuid = uuid;
+		
+		// Get the parameters for the module action.
+		if (! db.fetchObject (parm, nuuid, true /* formodule */))
+		{
+			log::write (log::critical, "Session", "Database failure getting object-"
+						"related data: %s" %format (db.getLastError()));
+			ALERT->alert ("Session error on object-related data\n"
+						  "uuid=<%S> error=<%S>" %format (nuuid,
+						  db.getLastError()));
+						  
+			return false;
+		}
+	
+		ctx = $("OpenCORE:Context", parm[0].id()) ->
+			  $("OpenCORE:Session",
+					$("sessionid", id.sval()) ->
+					$("classid", ofclass) ->
+					$("objectid", withid ? withid.sval() : uuid)
+			   );
+	
+		// Merge the parameters
+		ctx << parm;
+	
+	}
 
 	// Perform the moduleaction.
 	string moderr;
@@ -989,6 +1069,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 	switch (res)
 	{
 		case status_ok:
+			if (mdb.isInternalClass (ofclass)) break;
 			if (! db.reportSuccess (nuuid))
 			{
 				setError (db.getLastErrorCode(), db.getLastError());
@@ -1016,6 +1097,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 		
 		case status_failed:
 			setError (ERR_MDB_ACTION_FAILED, moderr);
+			if (mdb.isInternalClass (ofclass)) return false;
 			if (! db.reportFailure (uuid))
 			{
 				log::write (log::error, "Session", "Database failure on "
@@ -1051,6 +1133,28 @@ bool CoreSession::deleteObject (const statstring &parentid,
 		bool r = cl.deleteObject (this, parentid, withid);
 		if (! r) setError (ERR_ICLASS, cl.error());
 		return r;
+	}
+	
+	if (mdb.classIsDynamic (ofclass))
+	{
+		value ctx;
+		
+		ctx = $("OpenCORE:Context", ofclass) ->
+			  $("OpenCORE:Session",
+					$("sessionid", id.sval()) ->
+					$("classid", ofclass) ->
+					$("objectid", withid)
+			   );
+		
+		CoreClass &cl = mdb.getClass (ofclass);
+		if (cl.requires && parentid)
+		{
+			ctx << syncDynamicObjects (nokey, cl.requires, 0, -1, parentid);
+		}
+		
+		string moderr;
+		mdb.deleteObject (ofclass, withid, ctx, moderr);
+		return true;
 	}
 
 	string uuidt; // uuid of top of tree-to-be-deleted
@@ -1385,7 +1489,8 @@ $exception (listObjectsInnerException, "");
 // ==========================================================================
 value *CoreSession::syncDynamicObjects (const statstring &parentid,
 										const statstring &ofclass,
-										int offset, int count)
+										int offset, int count,
+										const statstring &withid)
 {
 	returnclass (value) res retain;
 
@@ -1416,7 +1521,30 @@ value *CoreSession::syncDynamicObjects (const statstring &parentid,
 	CORE->log (log::debug, "Session", "syncDynamicObjects rparentid=<%S>"
 			   %format (rparentid));
 	
-	res = mdb.listDynamicObjects (parentid, rparentid, ofclass, err);
+	if (withid)
+	{
+		value tres;
+		tres = mdb.listDynamicObjects (parentid, rparentid, ofclass, err);
+		if (tres[ofclass].exists (withid))
+		{
+			res[ofclass] = tres[ofclass][withid];
+		}
+		else
+		{
+			foreach (obj, tres[ofclass])
+			{
+				if (obj["metaid"] == withid)
+				{
+					res[ofclass] = obj;
+					break;
+				}
+			}
+		}
+	}
+	else
+	{
+		res = mdb.listDynamicObjects (parentid, rparentid, ofclass, err);
+	}
 	
 	DEBUG.storeFile ("Session","mdbres", res, "syncDynamicObjects");
 	
@@ -1604,9 +1732,8 @@ value *CoreSession::getObject (const statstring &parentid,
 	if (mdb.classIsDynamic (ofclass))
 	{
 		log::write (log::debug, "Session", "Class is dynamic");
-		
-		if (! syncDynamicObjects (parentid, ofclass, 0, -1))
-			return &res;
+		res = syncDynamicObjects (parentid, ofclass, 0, -1, withid);
+		return &res;
 	}
 	
 	// Find the object, either by uuid or by metaid.
