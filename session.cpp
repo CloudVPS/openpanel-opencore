@@ -1403,6 +1403,9 @@ bool CoreSession::syncDynamicObjects (const statstring &parentid,
 			   %format (rparentid));
 	
 	curdb = mdb.listDynamicObjects (parentid, rparentid, ofclass, err);
+	
+	DEBUG.storeFile ("Session","syncDynamicObjects", curdb, "mdbres");
+	
 	if (err.strlen())
 	{
 		setError (ERR_MDB_ACTION_FAILED, err);
