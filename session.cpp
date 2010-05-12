@@ -1395,9 +1395,9 @@ bool CoreSession::syncDynamicObjects (const statstring &parentid,
 	value parentobj;
 	if (db.fetchObject (parentobj, parentid, /* formodule */ false))
 	{
-		rparentid = parentobj[0]["uuid"];
+		rparentid = parentobj[0]["metaid"];
 	}
-	else rparentid = parentid;
+	else rparentid = mparentid = parentid;
 	
 	CORE->log (log::debug, "Session", "syncDynamicObjects rparentid=<%S>"
 			   %format (rparentid));
@@ -1409,7 +1409,7 @@ bool CoreSession::syncDynamicObjects (const statstring &parentid,
 		return false;
 	}
 
-	if (! db.replaceObjects (curdb, rparentid, $(ofclass)))
+	if (! db.replaceObjects (curdb, parentid, $(ofclass)))
 	{
 		log::write (log::error, "Session", "Error putting cached "
 				    "dynamic objects: %s" %format (db.getLastError()));
