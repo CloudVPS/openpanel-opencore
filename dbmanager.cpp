@@ -2940,7 +2940,7 @@ bool DBManager::replaceObjects (value &newobjs, const statstring &parent, const 
       v["metaid"]=obj["id"];
       v["class"]=classid;
       v["uniquecontext"]=classid;
-      v["parent"]=0;
+      v["parent"]=parentid;
       v["deleted"]=0;
       v["owner"]=userid;
       v["reality"]=1;
