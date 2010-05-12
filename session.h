@@ -494,7 +494,6 @@ protected:
 	string				 locker; ///< Tag owning the ModuleDB write lock.
 	lock<bool>			 spinlock; ///< Serialize access to each session.
 	value				 quotamap; ///< Mapping between generated uuids and quotas.
-	static lock<value>	 dynamicuuids; ///< Cache of dynamic uuids.
 };
 
 #endif
