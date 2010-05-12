@@ -1400,7 +1400,7 @@ bool CoreSession::syncDynamicObjects (const statstring &parentid,
 	else rparentid = parentid;
 	
 	CORE->log (log::debug, "Session", "syncDynamicObjects rparentid=<%S>"
-			   %format (rparentid
+			   %format (rparentid));
 	
 	curdb = mdb.listDynamicObjects (parentid, rparentid, ofclass, err);
 	if (err.strlen())
