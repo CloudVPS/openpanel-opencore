@@ -140,6 +140,8 @@ int API::commandline (const string &mname, const string &fullcmd,
 	{
 	}
 	
+	DEBUG.storeFile ("API", "result", dt, "commandline");
+	
 	if (dt.strlen())
 	{
 		out.fromxml (dt);
