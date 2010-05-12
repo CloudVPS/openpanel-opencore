@@ -2915,7 +2915,7 @@ bool DBManager::replaceObjects (value &newobjs, const statstring &parent, const 
     if(!qres)
     {
       CORE->log (log::error, "DB", "replaceObjects: Error starting transaction");
-      breaksession return false;
+      breaksection return false;
     }
     
     // CORE->log(log::debug, "DB", "updateObject([members], uuid=%s, "
