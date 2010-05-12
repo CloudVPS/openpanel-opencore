@@ -1383,12 +1383,11 @@ $exception (listObjectsInnerException, "");
 // ==========================================================================
 // METHOD CoreSession::listDynamicObjects
 // ==========================================================================
-bool CoreSession::syncDynamicObjects (const statstring &parentid,
-									  const statstring &ofclass,
-									  int offset, int count)
+value *CoreSession::syncDynamicObjects (const statstring &parentid,
+										const statstring &ofclass,
+										int offset, int count)
 {
-	value curdb;
-	value olddb;
+	returnclass (value) res retain;
 	string err;
 	statstring rparentid;
 	
@@ -1397,14 +1396,27 @@ bool CoreSession::syncDynamicObjects (const statstring &parentid,
 	{
 		rparentid = parentobj[0]["metaid"];
 	}
-	else rparentid = parentid;
+	else
+	{
+		sharedsection (dynamicuuids)
+		{
+			if (dynamicuuids.exists (parentid))
+			{
+				rparentid = dynamicuuids[parentid];
+			}
+			else
+			{
+				rparentid = parentid;
+			}
+		}
+	}
 	
 	CORE->log (log::debug, "Session", "syncDynamicObjects rparentid=<%S>"
 			   %format (rparentid));
 	
-	curdb = mdb.listDynamicObjects (parentid, rparentid, ofclass, err);
+	res = mdb.listDynamicObjects (parentid, rparentid, ofclass, err);
 	
-	DEBUG.storeFile ("Session","syncDynamicObjects", curdb, "mdbres");
+	DEBUG.storeFile ("Session","mdbres", res, "syncDynamicObjects");
 	
 	if (err.strlen())
 	{
@@ -1412,15 +1424,24 @@ bool CoreSession::syncDynamicObjects (const statstring &parentid,
 		return false;
 	}
 
-	if (! db.replaceObjects (curdb, parentid, $(ofclass)))
+	foreach (cl, res)
 	{
-		log::write (log::error, "Session", "Error putting cached "
-				    "dynamic objects: %s" %format (db.getLastError()));
-		// FIXME: Pass db.lasterror upwards if this ever makes sense
-    return false;
+		if (cl("type") != "class") continue;
+		statstring classid = cl.id();
+		foreach (obj, cl)
+		{
+			if (obj("type") != "object") continue;
+			if (obj["metaid"] != obj["uuid"])
+			{
+				exclusivesection (dynamicuuids)
+				{
+					dynamicuuids[obj["uuid"]] = obj["metaid"];
+				}
+			}
+		}
 	}
-
-  return true;
+	
+	return &res;
 }
 
 // ==========================================================================
@@ -1529,8 +1550,8 @@ value *CoreSession::listObjects (const statstring &parentid,
 		wasdynamic = true;
 		log::write (log::debug, "Session", "Class is dynamic");
 		
-		if (! syncDynamicObjects (parentid, ofclass, offset, count))
-			return &res;
+		res = syncDynamicObjects (parentid, ofclass, offset, count);
+		return &res;
 	}
 	
 	// Get the list out of the database. Either pure, or through or
