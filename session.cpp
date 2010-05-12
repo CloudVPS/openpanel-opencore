@@ -1395,7 +1395,7 @@ bool CoreSession::syncDynamicObjects (const statstring &parentid,
 	value parentobj;
 	if (db.fetchObject (parentobj, parentid, /* formodule */ false))
 	{
-		rparentid = parentobj[0]["metaid"];
+		rparentid = parentobj[0]["uuid"];
 	}
 	else rparentid = parentid;
 	

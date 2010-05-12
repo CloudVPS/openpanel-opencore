@@ -2966,6 +2966,7 @@ bool DBManager::replaceObjects (value &newobjs, const statstring &parent, const 
     qres = _dosqlite("COMMIT TRANSACTION /* replaceObjects */");
     if (!qres)
     {
+      CORE->log (log::error, "DB", "replaceObject: Error committing");
       goto replaceObjects_rollbackandbreak;
     }
     
