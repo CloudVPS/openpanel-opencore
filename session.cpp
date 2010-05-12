@@ -1388,6 +1388,8 @@ value *CoreSession::syncDynamicObjects (const statstring &parentid,
 										int offset, int count)
 {
 	returnclass (value) res retain;
+
+	static lock<value> dynamicuuids;
 	string err;
 	statstring rparentid;
 	
@@ -1514,7 +1516,6 @@ value *CoreSession::listObjects (const statstring &parentid,
 {
 	returnclass (value) res retain;
 	
-	static lock<value> dynamicuuids;
 	bool wasdynamic = false;
 	string err;
 	
