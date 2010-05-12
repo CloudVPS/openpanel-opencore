@@ -1397,7 +1397,7 @@ bool CoreSession::syncDynamicObjects (const statstring &parentid,
 	{
 		rparentid = parentobj[0]["metaid"];
 	}
-	else rparentid = mparentid = parentid;
+	else rparentid = parentid;
 	
 	CORE->log (log::debug, "Session", "syncDynamicObjects rparentid=<%S>"
 			   %format (rparentid));
