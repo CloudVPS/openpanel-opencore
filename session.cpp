@@ -1504,21 +1504,25 @@ value *CoreSession::syncDynamicObjects (const statstring &parentid,
 	statstring rparentid;
 	
 	value parentobj;
-	if (db.fetchObject (parentobj, parentid, /* formodule */ false))
+	
+	if (parentid)
 	{
-		rparentid = parentobj[0]["metaid"];
-	}
-	else
-	{
-		sharedsection (dynamicuuids)
+		if (db.fetchObject (parentobj, parentid, /* formodule */ false))
 		{
-			if (dynamicuuids.exists (parentid))
+			rparentid = parentobj[0]["metaid"];
+		}
+		else
+		{
+			sharedsection (dynamicuuids)
 			{
-				rparentid = dynamicuuids[parentid];
-			}
-			else
-			{
-				rparentid = parentid;
+				if (dynamicuuids.exists (parentid))
+				{
+					rparentid = dynamicuuids[parentid];
+				}
+				else
+				{
+					rparentid = parentid;
+				}
 			}
 		}
 	}
@@ -1530,6 +1534,9 @@ value *CoreSession::syncDynamicObjects (const statstring &parentid,
 	{
 		value tres;
 		tres = mdb.listDynamicObjects (parentid, rparentid, ofclass, err);
+		
+		DEBUG.storeFile ("Session", "singleres", tres, "syncDynamicObjects");
+		
 		if (tres[ofclass].exists (withid))
 		{
 			res[ofclass] = tres[ofclass][withid];
