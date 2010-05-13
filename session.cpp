@@ -667,6 +667,8 @@ string *CoreSession::createObject (const statstring &parentid,
 				}
 			}
 		}
+		
+		DEBUG.storeFile ("Session","dynamic-ctx", ctx, "createObject");
 	}
 	else
 	{
