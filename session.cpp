@@ -1545,7 +1545,7 @@ value *CoreSession::syncDynamicObjects (const statstring &parentid,
 		{
 			foreach (obj, tres[ofclass])
 			{
-				if (obj["metaid"] == withid)
+				if ((obj["metaid"] == withid) || (obj["uuid"] == withid))
 				{
 					res[ofclass] = obj;
 					break;
