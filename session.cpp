@@ -934,7 +934,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 	if (mdb.classIsDynamic (ofclass))
 	{
 		value t = syncDynamicObjects (parentid, ofclass, 0, -1, withid);
-		oldobject = t[ofclass];
+		oldobject = t;
 		DEBUG.storeFile ("Session", "oldobject", oldobject, "updateObject");
 	}
 	else
@@ -996,7 +996,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 					$("classid", ofclass) ->
 					$("objectid", withid ? withid.sval() : uuid)
 			   )->
-			  $(ofclass,oldobject);
+			  $(ofclass,withparam);
 			  
 		if (cl.requires && parentid)
 		{
