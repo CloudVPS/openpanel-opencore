@@ -935,6 +935,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 	{
 		value t = syncDynamicObjects (parentid, ofclass, 0, -1, withid);
 		oldobject = t[ofclass];
+		DEBUG.storeFile ("Session", "oldobject", oldobject, "updateObject");
 	}
 	else
 	{
@@ -1062,7 +1063,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 	
 	}
 
-	DEBUG.storeFile ("Session", "update-ctx", ctx, "createObject");
+	DEBUG.storeFile ("Session", "update-ctx", ctx, "updateObject");
 
 	// Perform the moduleaction.
 	string moderr;
