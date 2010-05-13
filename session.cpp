@@ -1062,6 +1062,8 @@ bool CoreSession::updateObject (const statstring &parentid,
 	
 	}
 
+	DEBUG.storeFile ("Session", "update-ctx", ctx, "createObject");
+
 	// Perform the moduleaction.
 	string moderr;
 	corestatus_t res = mdb.updateObject (ofclass, withid, ctx, moderr);
