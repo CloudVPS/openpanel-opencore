@@ -1401,7 +1401,7 @@ value *CoreSession::callMethod (const statstring &parentid,
 	
 	// If an id is given, the method wants the object's members and
 	// what not.
-	if (withid)
+	if (withid && (! mdb.classIsDynamic (ofclass)))
 	{
 		uuid = db.findObject (parentid, ofclass, withid, nokey);
 		if (! uuid) uuid = db.findObject (parentid, ofclass, nokey, withid);
