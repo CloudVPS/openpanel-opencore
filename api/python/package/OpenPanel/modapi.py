@@ -5,8 +5,6 @@ from OpenPanel.exception import CoreException
 from xml.sax import saxutils
 import sys, os, traceback
 
-
-
 class modapirequest:
     pass
 
