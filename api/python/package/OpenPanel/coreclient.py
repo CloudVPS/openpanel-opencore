@@ -39,9 +39,12 @@ class PingerThread(threading.Thread):
 
 class CoreRPCClient(object):
     """The CoreRPCClient class."""
-    def __init__(self, sessionid=None, host=None):
+    def __init__(self, sessionid=None, host=None, ssl=True, port=4089):
         if host:
-            self._conn = httplib.HTTPSConnection(host, 4089)
+            if ssl:
+                self._conn = httplib.HTTPSConnection(host, port)
+            else:
+                self._conn = httplib.HTTPConnection(host, port)
         else:
             self._conn = UHTTPConnection("/var/opencore/sockets/opencore.sock")
             
@@ -99,8 +102,8 @@ class CoreRPCClient(object):
         
 class CoreSession(object):
     """The CoreSession class."""
-    def __init__(self, sessionid=None, host=None):
-        self.rpc = CoreRPCClient(sessionid, host)
+    def __init__(self, **kwargs):
+        self.rpc = CoreRPCClient(**kwargs)
 
     def login(self, user=None, password=None):
         if user:
