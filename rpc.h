@@ -14,6 +14,7 @@
 #include <grace/statstring.h>
 #include <grace/value.h>
 #include <grace/dictionary.h>
+#include <grace/daemon.h>
 #include "session.h"
 
 //  -------------------------------------------------------------------------
