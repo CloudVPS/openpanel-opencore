@@ -412,6 +412,12 @@ bool CoreSession::login (const string &user, const string &pass, bool superuser)
 				    %format (user, meta["origin"]));
         return true;
     }
+    
+    if (! user)
+    {
+    	setError (ERR_SESSION_NOLOGIN);
+    	return false;
+    }
 
 	res = db.login (user, pass);
 	if (! res)

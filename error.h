@@ -72,6 +72,7 @@
 #define ERR_SESSION_CHOWN				0x3009 // An object of this class could be created, but its ownership could not be changed to your chosen user.
 #define ERR_SESSION_PARENTREALM			0x300a // Class has parent-related indexing constraints, but the parent-id could not be resolved.
 #define ERR_SESSION_CREATEPROTO			0x300b // Cannot create new prototype objects
+#define ERR_SESSION_NOLOGIN				0x300c // No login username provided
 
 // rpc-specific errors = 0x40xx
 #define ERR_RPC_UNDEFINED				0x4001 // Undefined item or error

@@ -131,13 +131,6 @@ value *RPCHandler::bind (const value &v, uid_t uid, const string &origin)
 					$("error", "Error binding session"));
 	}
 	
-	if (! vbody.exists ("id"))
-	{
-		return $("header",
-					$("errorid", ERR_UNKNOWN) ->
-					$("error", "Missing 'id' field for login"));
-	}
-	
 	// /body/password is the canonical place to look for a password,
 	// but the old protocol used /body/data/id for some stupid reason.
 	string password = vbody.exists ("password") ? vbody["password"]
