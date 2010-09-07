@@ -22,6 +22,7 @@ RPCHandler::RPCHandler (SessionDB *s) : handler (this), sdb (*s)
 	BindCommand (callmethod, callMethod);
 	BindCommand (getrecord, getRecord);
 	BindCommand (getrecords, getRecords);
+	BindCommand (queryrecords, queryRecords);
 	BindCommand (getparent, getParent);
 	BindCommand (getworld, getWorld);
 	BindCommand (listparamsformethod, listParamsForMethod);
@@ -450,6 +451,36 @@ value *RPCHandler::getRecords (const value &v, CoreSession &cs)
 		}
 	
 	cs.munlock ();
+	return &res;
+}
+
+// ==========================================================================
+// METHOD RPCHandler::queryRecords
+// ==========================================================================
+value *RPCHandler::queryRecords (const value &v, CoreSession &cs)
+{
+	RPCRETURN (res);
+	const value &vbody = v["body"];
+	statstring in_parentid = vbody["parentid"];
+	statstring in_class = vbody["classid"];
+	statstring in_field = vbody["queryfield"];
+	string in_value = vbody["queryvalue"];
+	value &dres = res["body"]["data"];
+	
+	cs.mlockr ();
+	
+		dres = cs.listObjects (in_parentid, in_class, 0, -1);
+	
+	cs.munlock();
+	
+	int pos = dres[0].count() - 1;
+	for (;pos>=0;pos--)
+	{
+		if (dres[0][pos][in_field].sval() != in_value)
+		{
+			dres[0].rmindex (pos);
+		}
+	}
 	return &res;
 }
 

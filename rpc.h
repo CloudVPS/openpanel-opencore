@@ -83,6 +83,7 @@ public:
 	value			*callMethod (const value &v, CoreSession &cs);
 	value			*getRecord (const value &v, CoreSession &cs);
 	value			*getRecords (const value &v, CoreSession &cs);
+	value			*queryRecords (const value &v, CoreSession &cs);
 	value			*getParent (const value &v, CoreSession &cs);
 	value			*getWorld (const value &v, CoreSession &cs);
 	value			*listParamsForMethod (const value &v, CoreSession &cs);
