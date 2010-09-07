@@ -37,6 +37,7 @@ public:
 	{
 		if (! methods.exists (s))
 		{
+			log::write (log::debug, "RPC", "Register call <%s>" %format (s));
 			kmethod *n = new kmethod;
 			(*n) = i;
 			methods.set (s, n);
