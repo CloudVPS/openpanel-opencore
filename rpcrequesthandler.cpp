@@ -277,7 +277,7 @@ int EmblemRequestHandler::run (string &uri, string &postbody, value &inhdr,
 // CONSTRUCTOR ImagePreloader
 // ==========================================================================
 ImagePreloader::ImagePreloader (OpenCoreApp *papp, httpd &x)
-	: httpdobject (x, "*/preloader.js")
+	: httpdobject (x, "*/preloader.*")
 {
 	app = papp;
 }
@@ -296,20 +296,38 @@ int ImagePreloader::run (string &uri, string &postbody, value &inhdr,
 						 string &out, value &outhdr, value &env,
 						 tcpsocket &s)
 {
-	out = "function preloadImages () {\n"
-		  "preloadedGUIImages = new Array();\n";
-	value dir = fs.dir ("/var/openpanel/http/images/gui");
-	foreach (img, dir)
+	string fname = uri.copyafterlast ("/");
+	if (fname == "preloader.js")
 	{
-		string ext = img.sval().copyafterlast('.');
-		if ((ext != "png")&&(ext!="jpg")&&(ext!="gif")) continue;
+		out = "function preloadImages () {\n"
+			  "preloadedGUIImages = new Array();\n";
+		value dir = fs.dir ("/var/openpanel/http/images/gui");
+		foreach (img, dir)
+		{
+			string ext = img.sval().copyafterlast('.');
+			if ((ext != "png")&&(ext!="jpg")&&(ext!="gif")) continue;
+			
+			out += "preloadedGUIImages[\"%{0}s\"] = new Image(32,32);\n"
+				   "preloadedGUIImages[\"%{0}s\"].src = \"/images/gui/%{0}s\";\n"
+				   %format (img.id());
+		}
 		
-		out += "preloadedGUIImages[\"%{0}s\"] = new Image(32,32);\n"
-			   "preloadedGUIImages[\"%{0}s\"].src = \"/images/gui/%{0}s\";\n"
-			   %format (img.id());
+		out += "}\n";
 	}
-	
-	out += "}\n";
+	else
+	{
+		value images;
+		value dir = fs.dir ("/var/openpanel/http/images/gui");
+		foreach (img, dir)
+		{
+			string ext = img.sval().copyafterlast('.');
+			if ((ext != "png")&&(ext!="jpg")&&(ext!="gif")) continue;
+			
+			images.newval() == "/images/gui/%s" %format (img.id());
+		}
+		
+		out = images.tojson();
+	}
 	
 	outhdr["Content-type"] = "text/javascript";
 	return 200;
