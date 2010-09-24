@@ -323,7 +323,7 @@ int ImagePreloader::run (string &uri, string &postbody, value &inhdr,
 			string ext = img.sval().copyafterlast('.');
 			if ((ext != "png")&&(ext!="jpg")&&(ext!="gif")) continue;
 			
-			images.newval() == "/images/gui/%s" %format (img.id());
+			images.newval() = "/images/gui/%s" %format (img.id());
 		}
 		
 		out = images.tojson();
