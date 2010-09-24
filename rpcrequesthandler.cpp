@@ -277,7 +277,7 @@ int EmblemRequestHandler::run (string &uri, string &postbody, value &inhdr,
 // CONSTRUCTOR ImagePreloader
 // ==========================================================================
 ImagePreloader::ImagePreloader (OpenCoreApp *papp, httpd &x)
-	: httpdobject (x, "*/preloader.*")
+	: httpdobject (x, "/dynamic/imagelist.*")
 {
 	app = papp;
 }
@@ -297,7 +297,7 @@ int ImagePreloader::run (string &uri, string &postbody, value &inhdr,
 						 tcpsocket &s)
 {
 	string fname = uri.copyafterlast ("/");
-	if (fname == "preloader.js")
+	if (fname == "imagelist.js")
 	{
 		out = "function preloadImages () {\n"
 			  "preloadedGUIImages = new Array();\n";
@@ -337,7 +337,7 @@ int ImagePreloader::run (string &uri, string &postbody, value &inhdr,
 // CONSTRUCTOR LandingPageHandler
 // ==========================================================================
 LandingPageHandler::LandingPageHandler (OpenCoreApp *papp, httpd &srv)
-	: httpdobject (srv, "/dynamic/*")
+	: httpdobject (srv, "/dynamic/welcome.html")
 {
 	app = papp;
 	schema.load ("schema:rss.2.0.schema.xml");
