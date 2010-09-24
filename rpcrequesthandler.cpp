@@ -137,7 +137,7 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 // CONSTRUCTOR IconRequestHandler
 // ==========================================================================
 IconRequestHandler::IconRequestHandler (class OpenCoreApp *papp, httpd &serv)
-	: httpdobject (serv, "/images/icons/*"), app (papp)
+	: httpdobject (serv, "/dynamic/icons/*"), app (papp)
 {
 }
 
