@@ -453,7 +453,7 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		}
 	}
 	
-	string script = fs.load ("/var/openpanel/http/dynamic/index.html");
+	string script = fs.load ("/var/openpanel/http/dynamic/welcome.html");
 	scriptparser p;
 	p.build (script);
 	
