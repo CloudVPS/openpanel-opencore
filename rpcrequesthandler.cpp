@@ -198,7 +198,7 @@ int IconRequestHandler::run (string &uri, string &postbody, value &inhdr,
 // CONSTRUCTOR ItemIconRequestHandler
 // ==========================================================================
 ItemIconRequestHandler::ItemIconRequestHandler (class OpenCoreApp *papp, httpd &serv)
-	: httpdobject (serv, "/images/itemicons/*"), app (papp)
+	: httpdobject (serv, "/dynamic/itemicons/*"), app (papp)
 {
 }
 
@@ -244,7 +244,7 @@ int ItemIconRequestHandler::run (string &uri, string &postbody, value &inhdr,
 // CONSTRUCTOR EmblemRequestHandler
 // ==========================================================================
 EmblemRequestHandler::EmblemRequestHandler (class OpenCoreApp *papp, httpd &serv)
-	: httpdobject (serv, "/images/emblems/*"), app (papp)
+	: httpdobject (serv, "/dynamic/emblems/*"), app (papp)
 {
 }
 
