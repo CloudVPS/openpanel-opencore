@@ -7,7 +7,7 @@ Standards-Version: 3.7.2
 
 Package: openpanel-core
 Architecture: any
-Depends: openpanel-authd, libgrace, libgrace-dbfile, libgrace-pcre
+Depends: openpanel-authd, libgrace, libgrace-dbfile, libgrace-pcre, openpanel-mod-user
 Description: core
  the openpanel core
 
