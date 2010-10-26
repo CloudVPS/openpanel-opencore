@@ -1,33 +1,44 @@
 #! /bin/sh
-#
-#		Written by Miquel van Smoorenburg <miquels@cistron.nl>.
-#		Modified for Debian 
-#		by Ian Murdock <imurdock@gnu.ai.mit.edu>.
-#
-# Version:	@(#)openpanel 0.99 11-Nov-2006  danny@panelsix.com
-#
+
+### BEGIN INIT INFO
+# Provides:			opencore
+# Required-Start:	$remote_fs $syslog
+# Required-Stop:	$remote_fs $syslog
+# Default-Start:	2 3 4 5
+# Default-Stop:		1
+# Short-Description:	opencore
+### END INIT INFO
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/var/opencore/bin/opencore
 NAME=com.openpanel.svc.opencore
-DESC=opencore
+DESC="Opencore master daemon"
+PIDFILE="/var/run/$NAME.pid"
+DAEMON_OPTS=
 
+. /lib/lsb/init-functions
+
+# check if the daemon exists
 test -x $DAEMON || exit 0
 
 set -e
 
 case "$1" in
   start)
-	echo -n "Starting $DESC: "
-	start-stop-daemon --start --quiet --pidfile /var/run/$NAME.pid \
-		--exec $DAEMON -- $DAEMON_OPTS
-	echo "$NAME."
+	log_daemon_msg "Starting $DESC" "authd"
+	if start-stop-daemon --start --quiet --oknodo --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS; then
+	    log_end_msg 0
+	else
+	    log_end_msg 1
+	fi
 	;;
   stop)
-	echo -n "Stopping $DESC: "
-	start-stop-daemon --stop --signal TERM --quiet --pidfile /var/run/$NAME.pid \
-		--exec $DAEMON
-	echo "$NAME."
+	log_daemon_msg "Stopping $DESC" "authd"
+	if start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE; then
+	    log_end_msg 0
+	else
+	    log_end_msg 1
+	fi
 	;;
   restart|force-reload)
 	#
@@ -35,18 +46,23 @@ case "$1" in
 	#	option to the "reload" entry above. If not, "force-reload" is
 	#	just the same as "restart".
 	#
-	echo -n "Restarting $DESC: "
-	start-stop-daemon --stop --signal TERM --quiet --pidfile \
-		/var/run/$NAME.pid --exec $DAEMON
-	sleep 1
-	start-stop-daemon --start --quiet --pidfile \
-		/var/run/$NAME.pid --exec $DAEMON -- $DAEMON_OPTS
-	echo "$NAME."
+	log_daemon_msg "Restarting $DESC" "authd"
+	start-stop-daemon --stop --quiet --oknodo --retry 30 --pidfile $PIDFILE
+
+	if start-stop-daemon --start --quiet --oknodo --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS; then
+	    log_end_msg 0
+	else
+	    log_end_msg 1
+	fi
 	;;
+  status)
+	status_of_proc -p $PIDFILE $DAEMON openpanel-authd
+	exit $?
+	;;
+  
   *)
 	N=/etc/init.d/$NAME
-	# echo "Usage: $N {start|stop|restart|reload|force-reload}" >&2
-	echo "Usage: $N {start|stop|restart|force-reload}" >&2
+	echo "Usage: $N {start|stop|restart|force-reload|status}" >&2
 	exit 1
 	;;
 esac
