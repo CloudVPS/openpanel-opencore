@@ -287,14 +287,18 @@ bool QuotaClass::updateObject (CoreSession *s,
         mid = withid;
     }
 
-	statstring parentmeta = s->resolveMetaID (parentid);
-	
-	if (parentmeta == s->meta["user"])
+	// non-admins should not be able to change their own quotum
+	if (!s->isAdmin())
 	{
-		setError ("Cannot change own quota");
-		return false;
+		statstring parentmeta = s->resolveMetaID (parentid);
+
+		if (parentmeta == s->meta["user"])
+		{
+			setError ("Cannot change own quota");
+			return false;
+		}
 	}
-    
+
     CORE->log (log::debug, "QuotaClass", "Updateobject id=<%s> metaid=<%s> "
     		   "parentid=<%s> param=%J" %format (withid, mid, parentid, withparam));
 
