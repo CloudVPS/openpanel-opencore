@@ -212,8 +212,9 @@ public:
 						 /// Authenticate the session as a specific
 						 /// pre-validated user.
 						 /// \param user The user name.
-						 /// \param pass The plaintext password.
 	bool				 userLogin (const string &user);
+	
+	bool				isAdmin(void) const;
 	
 						 /// Back up a context-id.
 						 /// \param parentid The original parentid.

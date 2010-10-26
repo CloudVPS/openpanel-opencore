@@ -372,13 +372,13 @@ SessionListClass::~SessionListClass (void)
 // ==========================================================================
 value *SessionListClass::listObjects (CoreSession *s, const statstring &pid)
 {
-	//if (s->meta["user"] != "openadmin") return NULL;
+	//if (!s->isAdmin()) return NULL;
 	
 	returnclass (value) res retain;
 	value &qres = res["OpenCORE:ActiveSession"];
 	value m = CORE->sdb->list ();
 	
-	if (s->meta["user"] != "openadmin") return &res;
+	if (!s->isAdmin()) return &res;
 	
 	foreach (row, m)
 	{

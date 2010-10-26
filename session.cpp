@@ -476,6 +476,13 @@ bool CoreSession::userLogin (const string &user)
 	return res;
 }
 
+bool CoreSession::isAdmin(void) const
+{
+	bool isadmin = meta["user"] == "openadmin";
+	return isadmin;
+}
+
+
 // ==========================================================================
 // METHOD CoreSession::createObject
 // ==========================================================================
@@ -1311,7 +1318,7 @@ value *CoreSession::getClassInfo (const string &forclass)
 	
 	// Squeeze the information out of the ModuleDB.
 	returnclass (value) res retain;
-	res = mdb.getClassInfo (forclass, meta["user"] == "openadmin");
+	res = mdb.getClassInfo (forclass, isAdmin() );
 	if (! res) return &res;
 	DEBUG.storeFile ("Session", "res", res, "classInfo");
 	return &res;
@@ -1890,7 +1897,7 @@ value *CoreSession::listClasses (void)
 value *CoreSession::getWorld (void)
 {
 	returnclass (value) res retain;
-	bool isadmin = meta["user"] == "openadmin";
+	bool isadmin = isAdmin();
 	
 	foreach (cl, mdb.classlist)
 	{
