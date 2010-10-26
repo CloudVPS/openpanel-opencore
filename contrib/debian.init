@@ -1,19 +1,20 @@
 #! /bin/sh
 
 ### BEGIN INIT INFO
-# Provides:			opencore
+# Provides:			opencore-core
 # Required-Start:	$remote_fs $syslog
 # Required-Stop:	$remote_fs $syslog
 # Default-Start:	2 3 4 5
 # Default-Stop:		1
-# Short-Description:	opencore
+# Short-Description:	opencore-core
 ### END INIT INFO
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/var/opencore/bin/opencore
-NAME=com.openpanel.svc.opencore
-DESC="Opencore master daemon"
-PIDFILE="/var/run/$NAME.pid"
+LONGNAME=com.openpanel.svc.opencore
+NAME=openpanel-core
+DESC="Openpanel core daemon"
+PIDFILE="/var/run/$LONGNAME.pid"
 DAEMON_OPTS=
 
 . /lib/lsb/init-functions
@@ -25,19 +26,21 @@ set -e
 
 case "$1" in
   start)
-	log_daemon_msg "Starting $DESC" "authd"
-	if start-stop-daemon --start --quiet --oknodo --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS; then
-	    log_end_msg 0
+    generate_pound_config
+	log_daemon_msg "Starting $DESC" $NAME
+	if start_daemon -p $PIDFILE $DAEMON $DAEMON_OPTS; then
+		#mv `ls -1tr /var/run/pound.pid | tail -1` $PIDFILE
+	    log_success_msg
 	else
-	    log_end_msg 1
+	    log_failure_msg
 	fi
 	;;
   stop)
-	log_daemon_msg "Stopping $DESC" "authd"
-	if start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE; then
-	    log_end_msg 0
+	log_daemon_msg "Stopping $DESC" $NAME
+	if killproc -p $PIDFILE $DAEMON; then
+	    log_success_msg
 	else
-	    log_end_msg 1
+	    log_failure_msg
 	fi
 	;;
   restart|force-reload)
@@ -46,18 +49,24 @@ case "$1" in
 	#	option to the "reload" entry above. If not, "force-reload" is
 	#	just the same as "restart".
 	#
-	log_daemon_msg "Restarting $DESC" "authd"
-	start-stop-daemon --stop --quiet --oknodo --retry 30 --pidfile $PIDFILE
+	log_daemon_msg "Restarting $DESC" $NAME
 
-	if start-stop-daemon --start --quiet --oknodo --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS; then
+	killproc -p $PIDFILE $DAEMON
+
+    generate_pound_config
+	if start_daemon -p $PIDFILE $DAEMON $DAEMON_OPTS; then
 	    log_end_msg 0
 	else
 	    log_end_msg 1
 	fi
 	;;
   status)
-	status_of_proc -p $PIDFILE $DAEMON openpanel-authd
-	exit $?
+    if pidofproc -p $PIDFILE $DAEMON > /dev/null; then
+      log_success_msg "$NAME is running"
+    else
+      log_success_msg "$NAME is not running"
+    fi
+    exit $status
 	;;
   
   *)
@@ -68,3 +77,4 @@ case "$1" in
 esac
 
 exit 0
+

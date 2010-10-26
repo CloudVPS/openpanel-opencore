@@ -1,35 +1,64 @@
 #! /bin/sh
-# Version:	@(#)openpanel 0.99 11-Nov-2006  danny@panelsix.com
-#
+
+### BEGIN INIT INFO
+# Provides:			opencore
+# Required-Start:	$remote_fs $syslog
+# Required-Stop:	$remote_fs $syslog
+# Default-Start:	2 3 4 5
+# Default-Stop:		1
+# Short-Description:	opencore
+### END INIT INFO
+
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 NAME=openpanel
 
 set -e
 
+control_daemon( ) {
+	DAEMON_SCRIPT=/etc/init.d/openpanel-$2
+	if [ -f $DAEMON_SCRIPT ] ; then
+		$DAEMON_SCRIPT $1
+	fi
+}
+
 case "$1" in
   start)
-    /etc/init.d/openpanel-ssl start || true
-	/etc/init.d/openpanel-authd start || true
-	/etc/init.d/openpanel-swupd start || true
-	/etc/init.d/openpanel-core start || true
+    control_daemon start ssl
+    control_daemon start authd
+    control_daemon start swupd
+    control_daemon start core
 	;;
 
   stop)
-	/etc/init.d/openpanel-core stop || true
-	/etc/init.d/openpanel-authd stop || true
-	/etc/init.d/openpanel-swupd stop || true
-	/etc/init.d/openpanel-ssl stop || true
+    control_daemon stop core
+    control_daemon stop swupd
+    control_daemon stop authd
+    control_daemon stop ssl
 	;;
   restart)
-    $0 stop
+    control_daemon stop core
+    control_daemon stop swupd
+    control_daemon stop authd
+    control_daemon stop ssl
+
+    # TODO: wait for pid instead
     sleep 10
-    $0 start
+
+    control_daemon start ssl
+    control_daemon start authd
+    control_daemon start swupd
+    control_daemon start core
+    ;;
+  status)
+    control_daemon status ssl || true
+    control_daemon status authd || true
+    control_daemon status swupd || true
+    control_daemon status core || true
     ;;
   *)
 	N=/etc/init.d/$NAME
-	# echo "Usage: $N {start|stop}" >&2
-	echo "Usage: $N {start|stop}" >&2
+	echo "Usage: $N {start|stop|restart|status}" >&2
 	exit 1
 	;;
 esac
