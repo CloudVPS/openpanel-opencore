@@ -26,8 +26,7 @@ set -e
 
 case "$1" in
   start)
-    generate_pound_config
-	log_daemon_msg "Starting $DESC" $NAME
+ 	log_daemon_msg "Starting $DESC" $NAME
 	if start_daemon -p $PIDFILE $DAEMON $DAEMON_OPTS; then
 		#mv `ls -1tr /var/run/pound.pid | tail -1` $PIDFILE
 	    log_success_msg
@@ -36,7 +35,6 @@ case "$1" in
 	fi
 	;;
   stop)
-	log_daemon_msg "Stopping $DESC" $NAME
 	if killproc -p $PIDFILE $DAEMON; then
 	    log_success_msg
 	else
