@@ -2180,7 +2180,7 @@ bool DBManager::reportSuccess(const statstring &uuid)
     	if(!qres)
     	{
     		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* _reportSuccess */");
-    		return false;
+    		breaksection return false;
     	}
     }
     else
