@@ -54,7 +54,7 @@ DBManager::DBManager (void)
 	lasterror = "";
 	errorcode = 0;
 	god = false;
-	userid = -1;
+	useruuid = "";
 }
 
 DBManager::~DBManager (void)
@@ -119,7 +119,7 @@ string *DBManager::findParent (const statstring &uuid)
 		return &res;
 	}
 
-    if(!haspower(dbres["rows"][0]["parent"].ival(), userid))
+    if(!haspower(dbres["rows"][0]["parent"].ival(), this->useruuid))
     {
         lasterror = "Permission denied";
         errorcode = ERR_DBMANAGER_NOPERM;
@@ -226,7 +226,7 @@ string *DBManager::findObject (const statstring &parent, const statstring &ofcla
     if(v["rows"].count())
 	{
 		res=v["rows"][0]["uuid"].sval();
-		if(!god && !haspower(v["rows"][0]["id"].ival(), userid) && !(v["rows"][0]["id"].ival()==userid) && !classhasattrib(classid, "worldreadable"))
+		if(!god && !haspower(v["rows"][0]["id"].ival(), useruuid) && !(v["rows"][0]["uuid"]==(const char*)useruuid) && !classhasattrib(classid, "worldreadable"))
 		{	
 			lasterror = "Object found but access denied";
 			errorcode = ERR_DBMANAGER_NOPERM;
@@ -255,7 +255,7 @@ bool DBManager::listObjectTree (value &into, const statstring &uuid)
 	if(!localid)
 		return false;
 		
-	if(!haspower(localid, userid))
+	if(!haspower(localid, this->useruuid))
 	{
         lasterror = "Permission denied";
         errorcode = ERR_DBMANAGER_NOPERM;
@@ -315,7 +315,7 @@ bool DBManager::listObjects (value &into, const statstring &parent, const value 
 	where["o.wanted"]=1;
 	where["o.deleted"]=0;
 	if(!god)
-        where["p.powerid"]=userid;
+        where["p.powerid"]=findlocalid (useruuid);
 
     // TODO: check that this doesn't return objects more than once, like getquotausage did before opencore@3c2367c81cb6
 	string query="SELECT /* listObjects */ o.id id, o.class class, o.content content, o.metaid metaid, o.uuid uuid, o.owner ownerid, o2.uuid parentuuid, o3.uuid owneruuid FROM powermirror p, objects o LEFT JOIN objects o2 ON o.parent=o2.id LEFT JOIN objects o3 ON o.owner=o3.id WHERE (o.owner=p.userid OR o.id=p.powerid) AND ";
@@ -504,7 +504,7 @@ bool DBManager::fetchObject (value &into, const statstring &uuid, bool formodule
 	
 	localid=findlocalid(uuid);
 
-	if(!god && !haspower(localid, userid) && !classhasattrib(findclassid(classNameFromUUID(uuid)), "worldreadable") && !formodule)
+	if(!god && !haspower(localid, this->useruuid) && !classhasattrib(findclassid(classNameFromUUID(uuid)), "worldreadable") && !formodule)
 	{
 		lasterror = "Permission denied for object %s" %format (uuid);
 		errorcode = ERR_DBMANAGER_NOPERM;
@@ -700,7 +700,7 @@ bool DBManager::userisgone()
         return false;
 
     q.printf("SELECT /* userisgone */ id FROM objects WHERE ");
-	where["id"]=userid;
+	where["uuid"]=useruuid;
 	where["wanted"]=1;
 	q.strcat(escapeforsql("=", " AND ", where));
 	value dbres = dosqlite(q);
@@ -751,7 +751,7 @@ string *DBManager::createObject(const statstring &parent, const value &withmembe
 	string classuuid = findObject("", "Class", nokey, ofclass);
 	// TODO: check user quota 
 
-  value classdata = getClassData(classid);
+	value classdata = getClassData(classid);
 
 	if(parent)
 	{
@@ -812,7 +812,7 @@ string *DBManager::createObject(const statstring &parent, const value &withmembe
 	v["uuid"]=strutil::uuid();
 	if(ownerid==-1)
 	{
-	    v["owner"]=userid;
+	    v["owner"]=findlocalid (useruuid);
 	}
 	else
 	{
@@ -821,7 +821,7 @@ string *DBManager::createObject(const statstring &parent, const value &withmembe
 	
 	if(metaid) v["metaid"]=metaid;
 	
-	if(!god && parentid!=0 && !haspower(parentid, userid))
+	if(!god && parentid!=0 && !haspower(parentid, this->useruuid))
 	{
         lasterror = "Access denied to parent object";
         errorcode = ERR_DBMANAGER_NOPERM;
@@ -950,79 +950,79 @@ string *DBManager::createObject(const statstring &parent, const value &withmembe
 		}
 	}
 
-  exclusivesection (dbhandle)
-  {
-    value qres, disposeme;
-    qres=_dosqlite("BEGIN TRANSACTION /* createObject */");
-    if(!qres)
-    {
-      goto createObject_rollbackandbreak;
-    }
+	exclusivesection (dbhandle)
+	{
+ 	   value qres, disposeme;
+	    qres=_dosqlite("BEGIN TRANSACTION /* createObject */");
+	    if(!qres)
+	    {
+	      goto createObject_rollbackandbreak;
+	    }
 
-  	query="INSERT /* createObject */ INTO objects ";
-  	query.strcat(escapeforinsert(v));
-  	qres = _dosqlite(query); // FIXME: handle errors
+	  	query="INSERT /* createObject */ INTO objects ";
+	  	query.strcat(escapeforinsert(v));
+	  	qres = _dosqlite(query); // FIXME: handle errors
 	
-  	if(!qres)
-  	{
-      goto createObject_rollbackandbreak; // dosqlite has set a message for us
-  					 // TODO: replace with nicer message
-  	}
+	  	if(!qres)
+	  	{
+	    	goto createObject_rollbackandbreak; // dosqlite has set a message for us
+	  		// TODO: replace with nicer message
+	  	}
 	
-  	if(ofclass == "User")
-  	{
-  		if(!_setpowermirror(qres["insertid"].ival()))
-  		{
-        goto createObject_rollbackandbreak;
-  		}
-  		if(userid == 0)
-  		{
-  			string query;
+	  	if(ofclass == "User")
+	  	{
+	  		if(!_setpowermirror(qres["insertid"].ival()))
+	  		{
+				goto createObject_rollbackandbreak;
+	  		}
+	  		if(useruuid == "")
+	  		{
+	  			string query;
 
-  			query.crop();
-  			query.printf("REPLACE INTO powermirror (userid,powerid) VALUES(0,%d)", qres["insertid"].ival());
-  			value qres = _dosqlite(query);
-  			if(!qres)
-  			{
-          goto createObject_rollbackandbreak;
-  			}
-  		}
-  	}
+	  			query.crop();
+	  			query.printf("REPLACE INTO powermirror (userid,powerid) VALUES(0,%d)", qres["insertid"].ival());
+	  			value qres = _dosqlite(query);
+	  			if(!qres)
+	  			{
+	          		goto createObject_rollbackandbreak;
+	  			}
+	  		}
+	  	}
 	
-    query.crop();
-  	query.printf("UPDATE /* createObject markcolumn */ objects SET wanted=(CASE WHEN version!=%d THEN 0 WHEN version=%d THEN 1 END) WHERE uuid='%s'", 
-                 v["version"].ival(), v["version"].ival(), v["uuid"].str());
-    qres=_dosqlite(query);
-    if(!qres)
+	    query.crop();
+	  	query.printf("UPDATE /* createObject markcolumn */ objects SET wanted=(CASE WHEN version!=%d THEN 0 WHEN version=%d THEN 1 END) WHERE uuid='%s'", 
+	                 v["version"].ival(), v["version"].ival(), v["uuid"].str());
+	    qres=_dosqlite(query);
+	    if(!qres)
 		{
-      goto createObject_rollbackandbreak;
+	    	goto createObject_rollbackandbreak;
 		}
-  	res=v["uuid"].sval();
+	  	res=v["uuid"].sval();
 
-    if (immediate)
-    {
-        bool rsres = _reportSuccess(res);
-        if (!rsres)
-        {
-          goto createObject_rollbackandbreak;
-        }
-    }
+	    if (immediate)
+	    {
+	        bool rsres = _reportSuccess(res);
+	        if (!rsres)
+	        {
+	          goto createObject_rollbackandbreak;
+	        }
+	    }
 
-    qres = _dosqlite("COMMIT TRANSACTION /* createObject */");
-    if (!qres)
-    {
-      goto createObject_rollbackandbreak;
-    }
+	    qres = _dosqlite("COMMIT TRANSACTION /* createObject */");
+	    if (!qres)
+	    {
+	    	goto createObject_rollbackandbreak;
+	    }
     
-    goto createObject_success;
+	    goto createObject_success;
     
-createObject_rollbackandbreak:
-    disposeme = _dosqlite("ROLLBACK TRANSACTION /* createObject */");
-    res.clear();
-    // fallthrough
-createObject_success:
-    breaksection return &res;
-  }
+	createObject_rollbackandbreak:
+	    disposeme = _dosqlite("ROLLBACK TRANSACTION /* createObject */");
+	    res.clear();
+	    // fallthrough
+	createObject_success:
+	    breaksection return &res;
+	}
   // return &res;
 }
 
@@ -1200,6 +1200,8 @@ bool DBManager::setpowermirror(int uid)
 {
 	string query;
 	
+	int userid = findlocalid( useruuid );
+	
 	query.crop();
 	query.printf("REPLACE INTO powermirror (userid,powerid) VALUES(%d,%d)", uid, userid);
 	value qres = dosqlite(query);
@@ -1230,6 +1232,7 @@ bool DBManager::setpowermirror(int uid)
 bool DBManager::_setpowermirror(int uid)
 {
 	string query;
+	int userid = findlocalid( useruuid );
 	
 	query.crop();
 	query.printf("REPLACE INTO powermirror (userid,powerid) VALUES(%d,%d)", uid, userid);
@@ -1293,7 +1296,7 @@ bool DBManager::updateObject(const value &withmembers, const statstring &uuid, b
         return true;
     }
 
-	if(!god && !asgod && !haspower(localid, userid))
+	if(!god && !asgod && !haspower(localid, this->useruuid))
 	{
 		errorcode = ERR_DBMANAGER_NOPERM;
         lasterror = "Access to object denied";
@@ -1302,13 +1305,13 @@ bool DBManager::updateObject(const value &withmembers, const statstring &uuid, b
 
     if(deleted)
     {
-	// don't allow deleting yourself
-	if(localid==userid)
-	{
-		errorcode = ERR_DBMANAGER_FAILURE;
-		lasterror = "Cannot delete yourself";
-		return false;
-	}
+		// don't allow deleting yourself
+		if(uuid==useruuid)
+		{
+			errorcode = ERR_DBMANAGER_FAILURE;
+			lasterror = "Cannot delete yourself";
+			return false;
+		}
         // check that the object to be deleted is not the owner of anything
         query.crop();
         query.printf("SELECT /* updateObject deleting owner? */ COUNT(id) FROM objects WHERE owner=%d AND wanted=1 AND deleted=0", localid);
@@ -1852,13 +1855,13 @@ bool DBManager::login(const statstring &username, const statstring &password)
 {	
 	md5checksum csum;
 	string query;
-	query = "SELECT /* login */ id, content FROM objects WHERE ";
+	query = "SELECT /* login */ uuid content FROM objects WHERE ";
 	value where;
 	where["metaid"]=username;
 	where["class"]=findclassid("User");
 	where["reality"]=1;
 	
-    userid = -1;
+    useruuid = "";
 	query.strcat(escapeforsql("=", " AND ", where));
 	value qres = dosqlite(query); // TODO: handle 'not found'
     if(qres["rows"].count())
@@ -1873,10 +1876,10 @@ bool DBManager::login(const statstring &username, const statstring &password)
     // CORE->log(log::debug, "DB", "checking password: [%s] [%s]", members["password"].str(), h.str());
 		if(members["password"].sval() == h)
 		{
-			int id=qres["rows"][0]["id"].ival();
-			if(id)
+			string uuid=qres["rows"][0]["uuid"];
+			if(uuid!="")
 			{
-				userid=id;
+				useruuid=uuid;
 				return true;
 			}
 		}
@@ -1889,18 +1892,40 @@ bool DBManager::login(const statstring &username, const statstring &password)
 
 void DBManager::getCredentials(value &creds)
 {
-    creds["userid"]=userid;
+    creds["userid"]=findlocalid(useruuid);
+    creds["useruuid"]=useruuid;
 }
 
 void DBManager::setCredentials(const value &creds)
 {
-    userid=creds["userid"];
+	if( creds.exists("useruuid") )
+	{
+		useruuid = creds["useruuid"];
+	}
+	else
+	{
+		string query="SELECT /* findlocalid */ uuid FROM objects WHERE ";
+		value where;
+		where["wanted"]=1;
+		where["id"]=creds["userid"];
+		query.strcat(escapeforsql("=", " AND ", where));
+		value dbres = dosqlite(query); 
+		if(!dbres["rows"].count() > 0)
+		{
+			useruuid = dbres["rows"][0]["uuid"];
+		}
+		else
+		{
+			// FIXME: handle failure
+			useruuid = "";
+		}
+	}
 }
 
 bool DBManager::userLogin(const statstring &username)
 {	
 	string query;
-	query = "SELECT /* userLogin */ id FROM objects WHERE ";
+	query = "SELECT /* userLogin */ id, uuid FROM objects WHERE ";
 	value where;
 	where["metaid"]=username;
 	where["class"]=findclassid("User");
@@ -1919,7 +1944,7 @@ bool DBManager::userLogin(const statstring &username)
 	
 	if(id)
 	{
-		userid=id;
+		useruuid=qres["rows"][0]["uuid"];
 		return true;
 	}
 	
@@ -1930,7 +1955,7 @@ bool DBManager::userLogin(const statstring &username)
 
 void DBManager::logout(void)
 {
-	userid=-1;
+	useruuid="";
 }
 
 #if 0
@@ -2268,9 +2293,6 @@ bool DBManager::_reportSuccess(const statstring &uuid)
 		{
 			return false;
 		}
-
-		if(userid == oldid)
-			userid = newid;
 	}
 
   return true;
@@ -2380,6 +2402,8 @@ int DBManager::getUserQuota(const statstring &ofclass, const statstring &useruui
 {
     int lookupid, localid, quota, realuserid;
     string q;
+
+	int userid = findlocalid(this->useruuid);
 	
 	if(useruuid)
 	{
@@ -2460,7 +2484,7 @@ bool DBManager::setUserQuota(const statstring &ofclass, int count, const statstr
         lasterror = "User not found";
         return false;
 	}
-	if(!haspower(uid, userid) || uid==userid)
+	if(!haspower(uid, this->useruuid) || useruuid==this->useruuid)
 	{
         lasterror = "Permission denied";
         return false;
@@ -2506,7 +2530,7 @@ void DBManager::enableGodMode(void)
 	int classid;
 	string q;
 	
-	userid=0;
+	useruuid="";
 	god=true;
 }
 
@@ -2574,7 +2598,7 @@ bool DBManager::chown(const statstring &objectuuid, const statstring &useruuid)
 		return false;
 	}
 	
-	if(!god && !(haspower(objid, userid) && haspower(nuserid, userid)))
+	if(!god && !(haspower(objid, this->useruuid) && haspower(nuserid, this->useruuid)))
 	{
         lasterror = "Permission denied";
         return false;
@@ -2681,7 +2705,7 @@ int DBManager::getSpecialQuota (const statstring &tag, const statstring &useruui
     value v;
 
 	uid=findlocalid(useruuid);
-	if(!haspower(uid, userid))
+	if(!haspower(uid, this->useruuid))
 	{
         lasterror = "permission denied";
         return -2;
@@ -2710,7 +2734,7 @@ int DBManager::getSpecialQuotaUsage (const statstring &tag, const statstring &us
 		return -2;
 	}
 	
-	if(lookupid != userid && !haspower(lookupid, userid))
+	if(useruuid != this->useruuid && !haspower(lookupid, this->useruuid))
 	{
         lasterror = "permission denied";
         return -2;
@@ -2736,7 +2760,7 @@ int DBManager::getSpecialQuotaWarning (const statstring &tag, const statstring &
     value v;
 
 	uid=findlocalid(useruuid);
-	if(!haspower(uid, userid))
+	if(!haspower(uid, this->useruuid))
 	{
         lasterror = "permission denied";
         return -2;
@@ -2758,7 +2782,7 @@ bool DBManager::setSpecialQuota (const statstring &tag, const statstring &useruu
     value v;
 
 	uid=findlocalid(useruuid);
-	if(!haspower(uid, userid))
+	if(!haspower(uid, this->useruuid))
 	{
         lasterror = "permission denied";
         return false;
@@ -2942,7 +2966,7 @@ bool DBManager::replaceObjects (value &newobjs, const statstring &parent, const 
       v["uniquecontext"]=classid;
       v["parent"]=parentid;
       v["deleted"]=0;
-      v["owner"]=userid;
+      v["owner"]=findlocalid(useruuid);
       v["reality"]=1;
       v["wanted"]=1;
       

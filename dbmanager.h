@@ -158,8 +158,8 @@ protected:
   				/// helper function for markaswanted, markasreality
 					bool markcolumn(const statstring &column, const statstring &uuid, int version);
 
-					/// local id of authenticated user
-					int userid;
+					/// uuid of authenticated user
+					string useruuid;
 					
 					/// validates the database schema
 					bool checkschema(void);
@@ -198,7 +198,8 @@ protected:
 					string *_findmetaid(const int id);
 					
 					/// check owner-wise power over local object id
-					bool haspower(int oid, int uid);
+					bool haspower(int oid, string useruuid) { return haspower( oid, findlocalid( useruuid ) ); }
+					bool haspower(int oid, int userid);
 					
 					/// checks class right for (logged-in) user
 					bool _getClassRight(int classid, int uid, const statstring &right);
