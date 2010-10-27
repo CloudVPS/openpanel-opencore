@@ -43,6 +43,7 @@ chmod 750 /var/opencore/conf/rollback
 chown opencore:opencore /var/opencore/conf/rollback
 chown root:opencore /var/opencore/conf/staging
 chmod 770 /var/opencore/conf/staging
+invoke-rc.d openpanel-core restart
 
     ;;
 

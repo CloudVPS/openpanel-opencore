@@ -37,18 +37,15 @@ case "$1" in
     control_daemon stop ssl
 	;;
   restart)
+    control_daemon stop ssl
     control_daemon stop core
     control_daemon stop swupd
     control_daemon stop authd
-    control_daemon stop ssl
 
-    # TODO: wait for pid instead
-    sleep 10
-
-    control_daemon start ssl
-    control_daemon start authd
-    control_daemon start swupd
-    control_daemon start core
+    control_daemon restart authd
+    control_daemon restart swupd
+    control_daemon restart core
+    control_daemon restart ssl
     ;;
   status)
     control_daemon status ssl || true
