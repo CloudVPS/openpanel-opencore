@@ -137,42 +137,48 @@ value *RPCHandler::bind (const value &v, uid_t uid, const string &origin)
 												: vbody["data"]["id"];
 	
 	// Try a login with provided credentials
-	if (cs->login (vbody["id"], password, (uid==0)))
+	if( vbody.exists( "id" ) )
 	{
-		string sid = cs->id;
-		sdb.release (cs);
-		log::write (log::debug, "RPC", "Login: success");
-		
-		return $("header",
-					$("session_id", sid) ->
-					$("errorid", ERR_OK) ->
-					$("error", "Login succeeded")
-				);
-	}
-	
-	// Ok, find out if we can use pre-validation for the uid
-	value pw = core.userdb.getpwuid (uid);
-	if (pw)
-	{
-		string username = pw["username"];
-		
-		log::write (log::info, "RPC", "Login with pre-validated user %u "
-				    "(%s)" %format ((unsigned int) uid, username));
-		
-		if (username == "root") username = "openadmin"; // FIXME: HAX
-		
-		if (cs->userLogin (username))
+		if (cs->login (vbody["id"], password, (uid==0)))
 		{
 			string sid = cs->id;
 			sdb.release (cs);
-			DEBUG.newSession ();
 			log::write (log::debug, "RPC", "Login: success");
-			
+		
 			return $("header",
 						$("session_id", sid) ->
 						$("errorid", ERR_OK) ->
 						$("error", "Login succeeded")
 					);
+		}
+	}
+	else
+	{	
+		// Otherwise, try to use pre-validation for the uid
+		value pw = core.userdb.getpwuid (uid);
+
+		if( pw )
+		{
+			string username = pw["username"];
+	
+			log::write (log::info, "RPC", "Login with pre-validated user %u "
+					    "(%s)" %format ((unsigned int) uid, username));
+	
+			if (username == "root") username = "openadmin"; // FIXME: HAX
+	
+			if (cs->userLogin (username))
+			{
+				string sid = cs->id;
+				sdb.release (cs);
+				DEBUG.newSession ();
+				log::write (log::debug, "RPC", "Login: success");
+		
+				return $("header",
+							$("session_id", sid) ->
+							$("errorid", ERR_OK) ->
+							$("error", "Login succeeded")
+						);
+			}
 		}
 	}
 	
