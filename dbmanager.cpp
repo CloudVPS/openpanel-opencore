@@ -1855,7 +1855,7 @@ bool DBManager::login(const statstring &username, const statstring &password)
 {	
 	md5checksum csum;
 	string query;
-	query = "SELECT /* login */ uuid content FROM objects WHERE ";
+	query = "SELECT /* login */ uuid, content FROM objects WHERE ";
 	value where;
 	where["metaid"]=username;
 	where["class"]=findclassid("User");
@@ -1873,7 +1873,7 @@ bool DBManager::login(const statstring &username, const statstring &password)
 		}
 		string h;
 		h = csum.md5pw(password.str(), members["password"].str());
-    // CORE->log(log::debug, "DB", "checking password: [%s] [%s]", members["password"].str(), h.str());
+    	// CORE->log(log::debug, "DB", "checking password: [%s] [%s]", members["password"].str(), h.str());
 		if(members["password"].sval() == h)
 		{
 			string uuid=qres["rows"][0]["uuid"];
