@@ -49,7 +49,6 @@ CoreSession *SessionDB::get (const statstring &id)
 	
 	sharedsection (lck)
 	{
-		lck = 0;
 		res = find (id);
 		if (res) res->inuse++;
 	}
@@ -92,7 +91,6 @@ void SessionDB::release (CoreSession *s)
 {
 	sharedsection (lck)
 	{
-		lck = 0;
 		s->heartbeat = kernel.time.now();
 		if (s->inuse > 0) s->inuse--;
 		log::write (log::debug, "Session", "SDB Release <%S> "
@@ -298,7 +296,6 @@ bool SessionDB::exists (const statstring &id)
 
 	sharedsection (lck)
 	{
-		lck = 0;
 		s = find (id);
 	}
 	
@@ -315,7 +312,6 @@ value *SessionDB::list (void)
 	
 	sharedsection (lck)
 	{
-		lck = 0;
 		CoreSession *c = first;
 		while (c)
 		{

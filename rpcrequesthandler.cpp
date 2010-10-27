@@ -38,8 +38,8 @@ RPCRequestHandler::RPCRequestHandler (class OpenCoreApp *papp, httpd &server,
 // METHOD RPCRequestHandler::run
 // ==========================================================================
 int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
-                     string &out, value &outhdr, value &env,
-                     tcpsocket &s)
+                 		    string &out, value &outhdr, value &env,
+                		    tcpsocket &s)
 {
 	static lock<value> peercache;
 	
@@ -206,8 +206,8 @@ ItemIconRequestHandler::ItemIconRequestHandler (class OpenCoreApp *papp, httpd &
 // METHOD ItemIconRequestHandler::run
 // ==========================================================================
 int ItemIconRequestHandler::run (string &uri, string &postbody, value &inhdr,
-							 string &out, value &outhdr, value &env,
-							 tcpsocket &s)
+								 string &out, value &outhdr, value &env,
+								 tcpsocket &s)
 {
 	string uuid = uri.copyafterlast ("/");
 	uuid.cropat ('.');
