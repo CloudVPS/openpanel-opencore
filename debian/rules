@@ -32,13 +32,13 @@ install-stamp: build-stamp
 	cp -r api/python debian/openpanel-core/var/opencore/api/
 	cp -r api/sh debian/openpanel-core/var/opencore/api/
 
-	install -m 644 api/c++/include/authdclient.h debian/openpanel-devel/usr/include/opencore/authdclient.h
-	install -m 644 api/c++/include/moduleapp.h debian/openpanel-devel/usr/include/opencore/moduleapp.h
-	install -m 644 api/c++/lib/libcoremodule.a debian/openpanel-devel/usr/lib/opencore/libcoremodule.a
-	install -m 644 api/grace/include/grace-coreapi/module.h debian/openpanel-devel/usr/include/grace-coreapi/module.h
-	install -m 644 api/grace/lib/libgrace-coreapi.a debian/openpanel-devel/usr/lib/libgrace-coreapi.a
-	install -m 644 rsrc/com.openpanel.opencore.module.schema.xml debian/openpanel-devel/usr/lib/opencore/schemas
-	install -m 644 rsrc/com.openpanel.opencore.module.validator.xml debian/openpanel-devel/usr/lib/opencore/schemas
+	install -m 644 api/c++/include/authdclient.h debian/openpanel-dev/usr/include/opencore/authdclient.h
+	install -m 644 api/c++/include/moduleapp.h debian/openpanel-dev/usr/include/opencore/moduleapp.h
+	install -m 644 api/c++/lib/libcoremodule.a debian/openpanel-dev/usr/lib/opencore/libcoremodule.a
+	install -m 644 api/grace/include/grace-coreapi/module.h debian/openpanel-dev/usr/include/grace-coreapi/module.h
+	install -m 644 api/grace/lib/libgrace-coreapi.a debian/openpanel-dev/usr/lib/libgrace-coreapi.a
+	install -m 644 rsrc/com.openpanel.opencore.module.schema.xml debian/openpanel-dev/usr/lib/opencore/schemas
+	install -m 644 rsrc/com.openpanel.opencore.module.validator.xml debian/openpanel-dev/usr/lib/opencore/schemas
 
 	touch install-stamp
 

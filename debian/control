@@ -11,8 +11,11 @@ Depends: openpanel-authd, libgrace, libgrace-dbfile, libgrace-pcre, openpanel-mo
 Description: core
  the openpanel core
 
-Package: openpanel-devel
+Package: openpanel-dev
 Architecture: any
-Depends: libgrace-devel, openpanel-mkmodulexml
+Depends: libgrace-dev, openpanel-mkmodulexml
+Provides: openpanel-devel
+Replaces: openpanel-devel
+Conflicts: openpanel-devel
 Description: devel
  OpenPanel module development libraries and includes
