@@ -1021,7 +1021,7 @@ string *DBManager::createObject(const statstring &parent, const value &withmembe
 	    res.clear();
 	    // fallthrough
 	createObject_success:
-	    breaksection return &res;
+	    return &res;
 	}
   // return &res;
 }
@@ -1464,6 +1464,8 @@ string *DBManager::_findmetaid(const int id)
 
 value *DBManager::dosqlite (const statstring &query)
 {
+    CORE->log (log::debug, "DB", "dosqlite: %s" %format (query));
+
     returnclass (value) res retain;
 	
     exclusivesection (dbhandle)
@@ -1484,7 +1486,7 @@ value *DBManager::_dosqlite (const statstring &query)
 	int colcount=0;
 	
 	t1 = kernel.time.unow();
-  // CORE->log (log::debug, "DB", "dosqlite: %s" %format (query));
+    // CORE->log (log::debug, "DB", "dosqlite: %s" %format (query));
 	
 	if(sqlite3_prepare(dbhandle.o, query.str(), -1, &qhandle, 0) != SQLITE_OK)
 	{
@@ -1495,58 +1497,53 @@ value *DBManager::_dosqlite (const statstring &query)
 	}
 	
 	bool done=false;
-	while((qres = sqlite3_step(qhandle)) && !done)
+	while(!done)
 	{
 		rt1 = kernel.time.unow();
+    	qres = sqlite3_step(qhandle);
+
 		switch(qres)
 		{
 			case SQLITE_BUSY:
 				sleep(1);
-				continue;
 				break;
-			case SQLITE_MISUSE:  // fallthrough
-			case SQLITE_ERROR:
-				// the -useful- errors seem to come from _finalize - let's hope that's a consistent assumption
-        // CORE->log (log::debug, "DB", "sqlite3_step(%s) failed: "
-        //       "%s" %format (query, sqlite3_errmsg(dbhandle.o)));
-				// fallthrough to DONE
-			case SQLITE_DONE:
-				done=true;
-				break;
+				
 			case SQLITE_ROW:
 				res["columncount"] = colcount = sqlite3_column_count(qhandle);
 				if(colcount == 0)
 				{
 					res["rowschanged"]=sqlite3_changes(dbhandle.o);
 					done=true;
-					break;
 				}
-				value row;
-				for(int i=0; i < colcount; i++)
+				else
 				{
-					if(sqlite3_column_type(qhandle, i) != SQLITE_NULL)
-						row[sqlite3_column_name(qhandle, i)]=(const char *) sqlite3_column_text(qhandle, i);
-          // CORE->log (log::debug, "DB", "column text: %s" %format (sqlite3_column_text(qhandle,i)));
+				    value row;
+				    for(int i=0; i < colcount; i++)
+				    {
+					    if(sqlite3_column_type(qhandle, i) != SQLITE_NULL)
+						    row[sqlite3_column_name(qhandle, i)]=(const char *) sqlite3_column_text(qhandle, i);
+                        // CORE->log (log::debug, "DB", "column text: %s" %format (sqlite3_column_text(qhandle,i)));
+				    }
+				    res["rows"].newval()=row;
+            		rowcount++;		
 				}
 				
-				res["rows"].newval()=row;
+		        rt2 = kernel.time.unow();
+		        rt1 = rt2 - rt1;
+                CORE->log (log::debug, "DB", "row %d: %U usecs", rowcount, rt1.getusec());
+				break;
+
+			case SQLITE_DONE:
+				done=true;
+				break;
+            
+			case SQLITE_MISUSE:  // fallthrough
+			case SQLITE_ERROR:
+            default:
+                CORE->log (log::debug, "DB", "sqlite3_step(%s) failed: %s" %format (query, sqlite3_errmsg(dbhandle.o)));
+				done=true;
 				break;
 		}
-		rt2 = kernel.time.unow();
-		rt1 = rt2 - rt1;
-    // CORE->log (log::debug, "DB", "row %d: %U usecs", rowcount, rt1.getusec());
-		rowcount++;		
-	}
-	
-	if(!done)
-	{
-		// we should never get here!
-		// FIXME: rant and rave harder
-		lasterror.crop();
-		lasterror.printf("DBManager::dosqlite(%s): pigs fly :(", query.cval());
-		errorcode = ERR_DBMANAGER_FAILURE;
-		res.clear();
-		return &res;
 	}
 	
 	if(sqlite3_finalize(qhandle) != SQLITE_OK)
