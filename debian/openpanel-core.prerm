@@ -1,11 +1,21 @@
 #!/bin/sh
-# prerm framework for openpanel packages
-#
-# see: dh_installdeb(1)
 
 set -e
 
-invoke-rc.d openpanel-core stop || true
+case "$1" in
+    remove)
+        invoke-rc.d openpanel-core stop || true
+        rm -f /var/opencore/sockets/opencore.sock
+    ;;
+
+    upgrade|deconfigure|failed-upgrade)
+    ;;
+
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
 #DEBHELPER#
 
 exit 0
