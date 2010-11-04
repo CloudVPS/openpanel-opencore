@@ -173,7 +173,7 @@ protected:
 					/// execute query with sqlite, return stuff as value object
 					value *dosqlite (const statstring &query);
 					
-					/// implementation of dosqlite
+					/// implementation of dosqlite (lockless version)
 					value *_dosqlite (const statstring &query);
 
 					/// find version of previous metaid use
@@ -224,11 +224,13 @@ protected:
 					
 					/// find the local id for a given uuid
 					int findlocalid(const statstring &uuid);
+					/// find the local id for a given uuid (lockless version)
+					int _findlocalid(const statstring &uuid);
 					
 					/// fill the ancestry mirror for a userid
 					bool setpowermirror(int aid);
 
-					/// fill the ancestry mirror for a userid
+					/// fill the ancestry mirror for a userid (lockless version)
 					bool _setpowermirror(int aid);
 
 					/// to our short xml format

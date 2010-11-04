@@ -75,14 +75,14 @@ bool DBManager::init (const char *dbfile)
         		errorcode = ERR_DBMANAGER_INITFAIL;
         		sqlite3_close(dbhandle);
         		dbhandle = NULL;
-        		breaksection return false;
+        		return false;
         	}
 
         	if(!checkschema())
         	{
         		lasterror="Schema error on db init!";
         		errorcode = ERR_DBMANAGER_INITFAIL;
-        		breaksection return false;
+        		return false;
         	}
         	sqlite3_trace(dbhandle, _dbmanager_sqlite3_trace_rcvr, NULL);
 
@@ -1232,7 +1232,7 @@ bool DBManager::setpowermirror(int uid)
 bool DBManager::_setpowermirror(int uid)
 {
 	string query;
-	int userid = findlocalid( useruuid );
+	int userid = _findlocalid( useruuid );
 	
 	query.crop();
 	query.printf("REPLACE INTO powermirror (userid,powerid) VALUES(%d,%d)", uid, userid);
@@ -1436,7 +1436,7 @@ string *DBManager::_classNameFromUUID(const int classid)
 		if(cache_classNameFromUUID.exists(idstring))
 		{
 			res=cache_classNameFromUUID[idstring];
-			breaksection return &res;
+			return &res;
 		}
 	}
 	// query.printf("SELECT id FROM objects WHERE class=0 AND metaid='%S\'", classname.cval());
@@ -2031,12 +2031,43 @@ bool DBManager::markcolumn(const statstring &column, const statstring &uuid, int
 
 int DBManager::findlocalid(const statstring &uuid)
 {
+    if( !uuid ) 
+    {
+		lasterror.crop();
+		lasterror.printf("Localid for uuid '' not found");
+		return 0;
+    }
+   
 	string query="SELECT /* findlocalid */ id FROM objects WHERE ";
 	value where;
 	where["wanted"]=1;
 	where["uuid"]=uuid;
 	query.strcat(escapeforsql("=", " AND ", where));
 	value dbres = dosqlite(query); // FIXME: handle failure
+	if(!dbres["rows"].count())
+	{
+		lasterror.crop();
+		lasterror.printf("Localid for uuid %s not found", uuid.cval());
+		return 0;
+	}
+	return dbres["rows"][0]["id"].ival();
+}
+
+int DBManager::_findlocalid(const statstring &uuid)
+{
+    if( !uuid ) 
+    {
+		lasterror.crop();
+		lasterror.printf("Localid for uuid '' not found");
+		return 0;
+    }
+
+	string query="SELECT /* findlocalid */ id FROM objects WHERE ";
+	value where;
+	where["wanted"]=1;
+	where["uuid"]=uuid;
+	query.strcat(escapeforsql("=", " AND ", where));
+	value dbres = _dosqlite(query); // FIXME: handle failure
 	if(!dbres["rows"].count())
 	{
 		lasterror.crop();
@@ -2166,7 +2197,7 @@ bool DBManager::reportSuccess(const statstring &uuid)
   	if(!qres)
   	{
   		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportSuccess */");
-  		breaksection return false;
+  		return false;
   	}
   	
     res = _reportSuccess(uuid);
@@ -2177,7 +2208,7 @@ bool DBManager::reportSuccess(const statstring &uuid)
     	if(!qres)
     	{
     		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* _reportSuccess */");
-    		breaksection return false;
+    		return false;
     	}
     }
     else
@@ -2309,7 +2340,7 @@ bool DBManager::reportFailure(const statstring &uuid)
     	if(!qres)
     	{
     		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
-    		breaksection return false;
+    		return false;
     	}
 		
     	query = "SELECT /* reportFailure */ id FROM objects WHERE ";
@@ -2321,13 +2352,13 @@ bool DBManager::reportFailure(const statstring &uuid)
     	if(!qres)
     	{
     		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
-    		breaksection return false;
+    		return false;
     	}
     	if(!qres["rows"].count())
     	{
     		lasterror = "Object not found in deleteObject";
     		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
-    		breaksection return false;
+    		return false;
     	}
 
     	failedid=qres["rows"][0]["id"].ival();
@@ -2341,7 +2372,7 @@ bool DBManager::reportFailure(const statstring &uuid)
     	if(!qres)
     	{
     		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
-    		breaksection return false;
+    		return false;
     	}
     	if(qres["rows"].count())
     		gotoid=qres["rows"][0]["id"].ival();
@@ -2356,7 +2387,7 @@ bool DBManager::reportFailure(const statstring &uuid)
     	if(!qres)
     	{
     		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
-    		breaksection return false;
+    		return false;
     	}
 
     	if(gotoid)
@@ -2369,7 +2400,7 @@ bool DBManager::reportFailure(const statstring &uuid)
     		if(!qres)
     		{
     			value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
-    			breaksection return false;
+    			return false;
     		}
     	}	
     	query.crop();
@@ -2378,17 +2409,17 @@ bool DBManager::reportFailure(const statstring &uuid)
     	if(!qres)
     	{
     		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
-    		breaksection return false;
+    		return false;
     	}
 
     	qres=_dosqlite("COMMIT TRANSACTION /* reportFailure */");
     	if(!qres)
     	{
     		value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
-    		breaksection return false;
+    		return false;
     	}
 
-    	breaksection return true;
+    	return true;
     }
 }
 
@@ -2547,7 +2578,7 @@ value *DBManager::getClassData(int classid)
 		{
 			res=cache_getClassData[idstring];
       // DEBUG.storeFile("DB", "result-fromcache", res, "getClassData");
-			breaksection return &res;
+			return &res;
 		}
 	}
 
@@ -2936,7 +2967,7 @@ bool DBManager::replaceObjects (value &newobjs, const statstring &parent, const 
     if(!qres)
     {
       CORE->log (log::error, "DB", "replaceObjects: Error starting transaction");
-      breaksection return false;
+      return false;
     }
     
     // CORE->log(log::debug, "DB", "updateObject([members], uuid=%s, "
@@ -2991,13 +3022,13 @@ bool DBManager::replaceObjects (value &newobjs, const statstring &parent, const 
       goto replaceObjects_rollbackandbreak;
     }
     
-    breaksection return true;
+    return true;
     
 replaceObjects_rollbackandbreak:
     disposeme = _dosqlite("ROLLBACK TRANSACTION /* replaceObjects */");
-    breaksection return false;
+    return false;
 replaceObjects_success:
-    breaksection return true;
+    return true;
   }
 
   return true;
