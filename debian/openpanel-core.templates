@@ -1,0 +1,25 @@
+Template: openpanel-core/root_password
+Type: password
+Default: *
+Description: Please enter a password for the openpanel root user
+ The OpenPanel root user (openadmin) has a password which is independent of the
+ root user's password.
+ .
+ If this field is left blank, the password will not be changed. You can change 
+ the password manually by running "opencli update user openadmin password=S3cr1t"
+
+Template: openpanel-core/root_password_again
+Type: password
+Default: *
+Description: Please repeat the password for the openpanel root user
+ The OpenPanel root user (openadmin) has a password which is independent of the
+ root user's password.
+ .
+ If this field is left blank, the password will not be changed. You can change 
+ the password manually by running "opencli update user openadmin password=S3cr1t"
+
+Template: openpanel-core/password_mismatch
+Type: error
+Description: Password mismatch
+ The two passwords you entered were not the same. Please try again.
+

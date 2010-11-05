@@ -32,6 +32,7 @@ install-stamp: build-stamp
 	cp -r api/python debian/openpanel-core/var/opencore/api/
 	cp -r api/sh debian/openpanel-core/var/opencore/api/
 
+
 	install -m 644 api/c++/include/authdclient.h debian/openpanel-dev/usr/include/opencore/authdclient.h
 	install -m 644 api/c++/include/moduleapp.h debian/openpanel-dev/usr/include/opencore/moduleapp.h
 	install -m 644 api/c++/lib/libcoremodule.a debian/openpanel-dev/usr/lib/opencore/libcoremodule.a
@@ -47,6 +48,7 @@ binary-indep: build install
 binary-arch: build install
 	if [ -d debian/tmp ] ; then dh_install -a --sourcedir=debian/tmp ; fi
 	dh_installdocs -a
+	dh_installdebconf -a
 	dh_installdeb -a
 	dh_compress -a
 	dh_fixperms -a
