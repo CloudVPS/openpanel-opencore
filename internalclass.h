@@ -1,15 +1,12 @@
-// --------------------------------------------------------------------------
-// OpenPanel - The Open Source Control Panel
-// Copyright (c) 2006-2008 PanelSix
+// This file is part of OpenPanel - The Open Source Control Panel
+// The Grace library is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published by the Free 
+// Software Foundation, either version 3 of the License.
 //
-// This software and its source code are subject to version 2 of the
-// GNU General Public License. Please be aware that use of the OpenPanel
-// and PanelSix trademarks and the IconBase.com iconset may be subject
-// to additional restrictions. For more information on these restrictions
-// and for a copy of version 2 of the GNU General Public License, please
-// visit the Legal and Privacy Information section of the OpenPanel
-// website on http://www.openpanel.com/
-// --------------------------------------------------------------------------
+// Please note that use of the OpenPanel trademark may be subject to additional 
+// restrictions. For more information, please visit the Legal Information 
+// section of the OpenPanel website on http://www.openpanel.com/
+
 
 #ifndef _OPENCORE_INTERNALCLASS_H
 #define _OPENCORE_INTERNALCLASS_H 1
