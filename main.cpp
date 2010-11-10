@@ -461,7 +461,7 @@ int OpenCoreApp::cmdShowVersion (const value &cmdata)
 				 		  version::user, version::hostname));
 				 
 	fout.writeln ("Available under the GNU General Public License");
-	fout.writeln ("Copyright (C) 2009 PanelSix");
+	fout.writeln ("Copyright (C) 2006-2010 OpenPanel");
 	return 0;
 }
 

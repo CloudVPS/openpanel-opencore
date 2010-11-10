@@ -1,7 +1,7 @@
 Source: openpanel-core
 Section: misc
 Priority: optional
-Maintainer: OpenPanel/Panel6 packager <packages@panelsix.com>
+Maintainer: OpenPanel packager <packages@openpanel.com
 Build-Depends: debhelper (>= 5), libgrace, libgrace-dev, libgrace-pcre, libgrace-pcre-dev, zlib1g-dev, sqlite3, libpcre3-dev, libsqlite3-dev
 Standards-Version: 3.7.2
 
