@@ -52,16 +52,17 @@ case "$1" in
         chmod 770 /var/opencore/conf/staging
         
         db_get openpanel-core/root_password
-        if [ -n "$RET" -a "$RET" != "*" ]; then
-            # clean up the password, so we don't leak it through debconf
-            db_set openpanel-core/root_password ""
-            db_set openpanel-core/root_password_again ""
-
+        if [ -n "$RET" ]; then
             # we need a running daemon
             invoke-rc.d openpanel-authd start
             invoke-rc.d openpanel-core start
-            
+
             opencli "update user openadmin password=\"$RET\"" > /dev/null
+
+            # clean up the password, so we don't leak it through debconf
+            db_set openpanel-core/root_password ""
+            db_set openpanel-core/root_password_again ""
+            
         fi
     ;;
 
