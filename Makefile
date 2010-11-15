@@ -15,7 +15,9 @@ OBJ =	alerts.o api.o dbmanager.o main.o module.o moduledb.o \
 
 TSOBJ = techsupport.o dbmanager.o debug.o
 
-all: opencore.exe techsupport.exe api/python/package/OpenPanel/error.py
+MKOBJ = mkmodulexml.o
+
+all: opencore.exe techsupport.exe mkmodulexml api/python/package/OpenPanel/error.py 
 	grace mkapp opencore
 	grace mkapp techsupport
 
@@ -33,6 +35,9 @@ opencore.exe: $(OBJ) rsrc/resources.xml
 
 techsupport.exe: $(TSOBJ) rsrc/resources.xml
 	$(LD) $(LDFLAGS) -o techsupport.exe $(TSOBJ) $(LIBS)
+
+mkmodulexml: $(MKOBJ)
+	$(LD) $(LDFLAGS) -o mkmodulexml $(MKOBJ) $(LIBS)
 
 kickstart.panel.db: sqlite/SCHEMA sqlite/DBCONTENT
 	rm -f kickstart.panel.db

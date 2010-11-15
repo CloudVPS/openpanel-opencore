@@ -14,9 +14,9 @@ Description: OpenPanel main files
 
 Package: openpanel-dev
 Architecture: any
-Depends: libgrace-dev, openpanel-mkmodulexml
-Provides: openpanel-devel
-Replaces: openpanel-devel
-Conflicts: openpanel-devel
+Depends: libgrace-dev
+Provides: openpanel-devel, openpanel-mkmodulexml
+Replaces: openpanel-devel, openpanel-mkmodulexml
+Conflicts: openpanel-devel, openpanel-mkmodulexml
 Description: OpenPanel development files
  OpenPanel module development libraries and includes
