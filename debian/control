@@ -14,7 +14,7 @@ Description: OpenPanel main files
 
 Package: openpanel-dev
 Architecture: any
-Depends: libgrace-dev
+Depends: libgrace-dev, libgrace, libgrace-pcre, ${shlibs:Depends}
 Provides: openpanel-devel, openpanel-mkmodulexml
 Replaces: openpanel-devel, openpanel-mkmodulexml
 Conflicts: openpanel-devel, openpanel-mkmodulexml
