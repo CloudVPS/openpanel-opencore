@@ -1,7 +1,7 @@
 Source: openpanel-core
 Section: misc
 Priority: optional
-Maintainer: OpenPanel packager <packages@openpanel.com
+Maintainer: OpenPanel packager <packages@openpanel.com>
 Build-Depends: debhelper (>= 5), libgrace, libgrace-dev, libgrace-pcre, libgrace-pcre-dev, zlib1g-dev, sqlite3, libpcre3-dev, libsqlite3-dev
 Standards-Version: 3.7.2
 
@@ -14,7 +14,7 @@ Description: OpenPanel main files
 
 Package: openpanel-dev
 Architecture: any
-Depends: libgrace-dev, libgrace, libgrace-pcre, ${shlibs:Depends}
+Depends: libgrace-dev, libgrace, libgrace-pcre, ${shlibs:Depends}, ${misc:Depends}
 Provides: openpanel-devel, openpanel-mkmodulexml
 Replaces: openpanel-devel, openpanel-mkmodulexml
 Conflicts: openpanel-devel, openpanel-mkmodulexml
