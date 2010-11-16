@@ -9,6 +9,7 @@ Package: openpanel-core
 Architecture: any
 Pre-Depends: openpanel-cli, openpanel-authd, adduser, debconf
 Depends: openpanel-authd, libgrace, libgrace-dbfile, libgrace-pcre, openpanel-mod-user, ${shlibs:Depends}, ${misc:Depends}
+Recommends: openpanel-ssl, openpanel-gui
 Description: OpenPanel main files
  the openpanel core
 
