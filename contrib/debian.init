@@ -51,7 +51,7 @@ case "$1" in
 	    log_failure_msg
 	fi
 	;;
-  restart|force-reload)
+  restart|force-reload|reload)
 	#
 	#	If the "reload" option is implemented, move the "force-reload"
 	#	option to the "reload" entry above. If not, "force-reload" is
@@ -87,7 +87,7 @@ case "$1" in
   
   *)
 	N=/etc/init.d/$NAME
-	echo "Usage: $N {start|stop|restart|force-reload|status}" >&2
+	echo "Usage: $N {start|stop|restart|force-reload|reload|status}" >&2
 	exit 1
 	;;
 esac
