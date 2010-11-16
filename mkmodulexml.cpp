@@ -133,6 +133,13 @@ int mkmodulexmlApp::main (void)
 	
 	xmlschema S (schemapath);
 	validator V;
+	
+	if (! fs.exists (validatorpath))
+	{
+		ferr.writeln ("Validator file '%S' does not exist" %format (validatorpath));
+		return 1;
+	}
+	
 	if (! V.load (validatorpath))
 	{
 		ferr.writeln ("Error loading validator");
