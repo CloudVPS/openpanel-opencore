@@ -50,6 +50,7 @@ clean:
 	rm -f opencore techsupport
 	rm -f version.cpp version.id
 	rm -f api/python/package/OpenPanel/error.py rsrc/resources.xml
+	rm mkmodulexml
 
 doc:
 	@mkdir -p doc
@@ -59,6 +60,44 @@ doc:
 
 depend:
 	@makedepend -Y. -fMakefile.depend *.cpp 2>/dev/null
+
+install:
+	mkdir -p ${DESTDIR}/etc/init.d/
+	mkdir -p ${DESTDIR}/usr/bin/
+	mkdir -p ${DESTDIR}/var/opencore/
+	mkdir -p ${DESTDIR}/var/opencore/api
+	mkdir -p ${DESTDIR}/var/opencore/bin
+	mkdir -p ${DESTDIR}/var/opencore/conf/rollback
+	mkdir -p ${DESTDIR}/var/opencore/conf/staging
+	mkdir -p ${DESTDIR}/usr/include/opencore/
+	mkdir -p ${DESTDIR}/usr/include/grace-coreapi/
+	mkdir -p ${DESTDIR}/usr/lib/opencore/schemas/
+	
+	install -m 750 -d ${DESTDIR}/var/opencore/log
+	install -m 755 -d ${DESTDIR}/var/opencore/sockets
+	install -m 750 -d ${DESTDIR}/var/opencore/cache
+	install -m 700 -d ${DESTDIR}/var/opencore/db
+	install -m 770 -d ${DESTDIR}/var/opencore/sockets/swupd
+	install -m 770 -d ${DESTDIR}/var/opencore/db/panel
+	install -m 750 -d ${DESTDIR}/var/opencore/debug
+	install -m 755 contrib/debian.init ${DESTDIR}/etc/init.d/openpanel-core
+	install -m 755 contrib/openpanel.init ${DESTDIR}/etc/init.d/openpanel
+	cp -r opencore.app ${DESTDIR}/var/opencore/bin/
+	cp -r techsupport.app ${DESTDIR}/var/opencore/bin/
+	install -m 600 kickstart.panel.db ${DESTDIR}/var/opencore/db/panel/panel.db.setup
+	install -m 755 opencore ${DESTDIR}/var/opencore/bin/opencore 
+	install -m 755 techsupport ${DESTDIR}/var/opencore/bin/techsupport
+	cp -r api/python ${DESTDIR}/var/opencore/api/
+	cp -r api/sh ${DESTDIR}/var/opencore/api/
+	#
+	install -m 644 api/c++/include/authdclient.h ${DESTDIR}/usr/include/opencore/authdclient.h
+	install -m 644 api/c++/include/moduleapp.h ${DESTDIR}/usr/include/opencore/moduleapp.h
+	install -m 644 api/c++/lib/libcoremodule.a ${DESTDIR}/usr/lib/opencore/libcoremodule.a
+	install -m 644 api/grace/include/grace-coreapi/module.h ${DESTDIR}/usr/include/grace-coreapi/module.h
+	install -m 644 api/grace/lib/libgrace-coreapi.a ${DESTDIR}/usr/lib/libgrace-coreapi.a
+	install -m 644 rsrc/com.openpanel.opencore.module.schema.xml ${DESTDIR}/usr/lib/opencore/schemas/com.openpanel.opencore.module.schema.xml
+	install -m 644 rsrc/com.openpanel.opencore.module.validator.xml ${DESTDIR}/usr/lib/opencore/schemas/com.openpanel.opencore.module.validator.xml
+	install -m 755 mkmodulexml ${DESTDIR}/usr/bin/mkmodulexml
 
 SUFFIXES: .cpp .o
 .cpp.o:

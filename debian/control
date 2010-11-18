@@ -23,7 +23,7 @@ Description: OpenPanel development files
  OpenPanel module development libraries and includes
  
 Package: openpanel-minimal
-Architecture: any
+Architecture: all
 Depends: openpanel-core, openpanel-mod-user, openpanel-gui, openpanel-cli, openpanel-mod-domain
 Description: Open panel minimal meta package
  
