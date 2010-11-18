@@ -50,7 +50,7 @@ clean:
 	rm -f opencore techsupport
 	rm -f version.cpp version.id
 	rm -f api/python/package/OpenPanel/error.py rsrc/resources.xml
-	rm mkmodulexml
+	rm -f mkmodulexml
 
 doc:
 	@mkdir -p doc
