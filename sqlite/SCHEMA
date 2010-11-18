@@ -40,7 +40,7 @@ content TEXT NOT NULL,
 active BOOL DEFAULT 0,
 deleted BOOL DEFAULT 0,
 UNIQUE (uuid),
-UNIQUE (uniquecontext,metaid));
+UNIQUE (metaid,uniquecontext));
 
 CREATE TABLE classquota (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
