@@ -1,21 +1,30 @@
 Source: openpanel-core
 Section: misc
 Priority: optional
-Maintainer: OpenPanel/Panel6 packager <packages@panelsix.com>
-Build-Depends: debhelper (>= 5), libgrace, libgrace-dev, libgrace-pcre, zlib1g-dev, sqlite3, libpcre3-dev, libsqlite3-dev
+Maintainer: OpenPanel packager <packages@openpanel.com>
+Build-Depends: debhelper (>= 5), libgrace-dev, libgrace-pcre-dev, zlib1g-dev, sqlite3, libpcre3-dev, libsqlite3-dev
 Standards-Version: 3.7.2
 
 Package: openpanel-core
 Architecture: any
-Depends: openpanel-authd, libgrace, libgrace-dbfile, libgrace-pcre, openpanel-mod-user
+Pre-Depends: adduser, debconf
+Depends: openpanel-authd, libgrace, libgrace-dbfile, libgrace-pcre, ${shlibs:Depends}, ${misc:Depends}
+Recommends: openpanel-ssl, openpanel-gui, openpanel-mod-user, openpanel-cli
 Description: OpenPanel main files
  the openpanel core
 
 Package: openpanel-dev
 Architecture: any
-Depends: libgrace-dev, openpanel-mkmodulexml
-Provides: openpanel-devel
-Replaces: openpanel-devel
-Conflicts: openpanel-devel
+Depends: libgrace-dev, libgrace, libgrace-pcre, ${shlibs:Depends}, ${misc:Depends}
+Provides: openpanel-devel, openpanel-mkmodulexml
+Replaces: openpanel-devel, openpanel-mkmodulexml
+Conflicts: openpanel-devel, openpanel-mkmodulexml
 Description: OpenPanel development files
  OpenPanel module development libraries and includes
+ 
+Package: openpanel-minimal
+Architecture: any
+Depends: openpanel-core, openpanel-mod-user, openpanel-gui, openpanel-cli, openpanel-mod-domain
+Description: Open panel minimal meta package
+ 
+

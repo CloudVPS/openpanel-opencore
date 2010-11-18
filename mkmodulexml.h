@@ -7,14 +7,25 @@
 // restrictions. For more information, please visit the Legal Information 
 // section of the OpenPanel website on http://www.openpanel.com/
 
-#ifndef _OPENCORE_STATUS_H
-#define _OPENCORE_STATUS_H 1
+#ifndef _mkmodulexml_H
+#define _mkmodulexml_H 1
+#include <grace/application.h>
 
-/// Return status from an opencore API call.
-typedef enum {
-	status_ok = 0, ///< Successful transaction
-	status_failed = 1, ///< Complete failure
-	status_postponed = 2 ///< Incomplete, module will call back.
-} corestatus_t;
+//  -------------------------------------------------------------------------
+/// Main application class.
+//  -------------------------------------------------------------------------
+class mkmodulexmlApp : public application
+{
+public:
+		 	 mkmodulexmlApp (void) :
+				application ("com.openpanel.tools.mkmodulexml")
+			 {
+			 }
+			~mkmodulexmlApp (void)
+			 {
+			 }
+
+	int		 main (void);
+};
 
 #endif
