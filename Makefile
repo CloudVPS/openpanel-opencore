@@ -17,7 +17,7 @@ TSOBJ = techsupport.o dbmanager.o debug.o
 
 MKOBJ = mkmodulexml.o
 
-all: cpp-api cpp-api opencore.exe techsupport.exe mkmodulexml api/python/package/OpenPanel/error.py kickstart.panel.db
+all: cpp-api grace-api opencore.exe techsupport.exe mkmodulexml api/python/package/OpenPanel/error.py kickstart.panel.db
 	grace mkapp opencore
 	grace mkapp techsupport
 
