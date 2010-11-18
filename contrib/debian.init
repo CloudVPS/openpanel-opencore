@@ -15,7 +15,7 @@ LONGNAME=com.openpanel.svc.opencore
 NAME=openpanel-core
 DESC="Openpanel core daemon"
 PIDFILE="/var/run/$LONGNAME.pid"
-DAEMON_OPTS=
+DAEMON_OPTS=--debug=all
 
 . /lib/lsb/init-functions
 

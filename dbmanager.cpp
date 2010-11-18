@@ -107,7 +107,6 @@ string *DBManager::findParent (const statstring &uuid)
     string query = "SELECT /* findParent */ parent FROM objects WHERE ";
     value where;
     where["uuid"]=uuid;
-    where["wanted"]=1;
     query.strcat(escapeforsql("=", " AND ", where));
     value dbres = dosqlite(query);
     CORE->log(log::debug, "DB", "findParent SQL: %s" %format (query));
@@ -139,36 +138,6 @@ string *DBManager::findParent (const statstring &uuid)
     res=dbres["rows"][0]["uuid"].sval();
         
     return &res;
-}
-
-int DBManager::findObjectDeletedVersion (int uc, const statstring &withmetaid)
-{
-    string query;
-    value where;
-
-    query="SELECT /* findObjectDeletedVersion */ id,version,deleted FROM objects WHERE ";
-    where["uniquecontext"]=uc;
-    where["metaid"]=withmetaid;
-    
-    query.strcat(escapeforsql("=", " AND ", where));
-    query.strcat(" ORDER BY version DESC LIMIT 1");
-    value v = dosqlite(query);
-  // DEBUG.storeFile("DB", "dbres", v, "findObjectDeletedVersion");
-    
-    if(v["rows"].count() == 0)
-    {
-        return 0;
-    }
-    
-    if(!v["rows"][0]["deleted"].ival())
-    {
-        lasterror = "An object with this id already exists";
-        errorcode = ERR_DBMANAGER_EXISTS;
-        // DEBUG.storeFile("DB","errorcontext", v, "findObjectDeletedVersion");
-        return -1;
-    }
-
-    return v["rows"][0]["version"].ival();
 }
 
 string *DBManager::findObject (const statstring &parent, const statstring &ofclass, const statstring &withuuid, const statstring &withmetaid)
@@ -207,9 +176,7 @@ string *DBManager::findObject (const statstring &parent, const statstring &ofcla
         return &res;
     }
     
-    where["wanted"]=1;
     query.strcat(escapeforsql("=", " AND ", where));
-    query.strcat(" ORDER BY version DESC LIMIT 1");
   // CORE->log(log::debug, "DB", "findObject: classid: %d" %format (classid));
     value v = dosqlite(query);
     // DEBUG.storeFile("DB", "dbres", v, "findObject");
@@ -280,7 +247,7 @@ bool DBManager::_listObjectTree (value &into, int localid)
         errorcode = ERR_DBMANAGER_INVAL;
         return false;
     }
-    query.printf("SELECT /* _listObjectTree */ id, uuid FROM objects WHERE (parent=%d OR owner=%d) AND wanted=1 AND deleted=0", localid, localid);
+    query.printf("SELECT /* _listObjectTree */ id, uuid FROM objects WHERE (parent=%d OR owner=%d) AND deleted=0", localid, localid);
     value qres = dosqlite(query);
     if(!qres)
         return false;
@@ -311,9 +278,9 @@ bool DBManager::listObjects (value &into, const statstring &parent, const value 
             where["o.parent"]=0;
         }
     }
-        
-    where["o.wanted"]=1;
-    where["o.deleted"]=0;
+    
+    if(!formodule)
+        where["o.deleted"]=0;
     if(!god)
         where["p.powerid"]=findlocalid (useruuid);
 
@@ -378,11 +345,6 @@ bool DBManager::listObjects (value &into, const statstring &parent, const value 
             value tmpv;
             tmpv=deserialize(row["content"]);
 
-            if(!deref(tmpv, localclassid))
-            {
-                into.clear();
-                return false;
-            }
             resrow = tmpv;
         }
         else
@@ -517,7 +479,7 @@ bool DBManager::fetchObject (value &into, const statstring &uuid, bool formodule
         // if this object's class has a required-attribute, recurse upwards
         // and check it.
         string query;
-        query.printf("SELECT /* fetchObject */ o.class class, o.parent parent, o.content content, o.metaid metaid, o.uuid uuid, o.version version, o.owner owner, o.deleted deleted, o2.uuid parentuuid, o3.uuid owneruuid FROM objects o LEFT JOIN objects o2 ON o.parent=o2.id LEFT JOIN objects o3 ON o.owner=o3.id WHERE o.id=%d", localid);
+        query.printf("SELECT /* fetchObject */ o.class class, o.parent parent, o.content content, o.metaid metaid, o.uuid uuid, o.owner owner, o.deleted deleted, o2.uuid parentuuid, o3.uuid owneruuid FROM objects o LEFT JOIN objects o2 ON o.parent=o2.id LEFT JOIN objects o3 ON o.owner=o3.id WHERE o.id=%d", localid);
 
         value dbres = dosqlite(query);
         if(!dbres["rows"].count())
@@ -558,15 +520,7 @@ bool DBManager::fetchObject (value &into, const statstring &uuid, bool formodule
             if(formodule)
             {
                 value tmp=deserialize(row["content"]);
-                if(deref(tmp, row["class"]))
-                {
-                    into[id]=tmp;
-                }
-                else
-                {
-                    into.clear();
-                    return false;
-                }
+                into[id]=tmp;
             }
             else
             {
@@ -579,15 +533,6 @@ bool DBManager::fetchObject (value &into, const statstring &uuid, bool formodule
             {
                 value tmpv;
                 tmpv=deserialize(row["content"]);
-                if(!deref(tmpv, row["class"]))
-                {
-                    string tmp;
-                    tmp=lasterror;
-                    lasterror = "fetchObject (!inmodule, formodule) deref -> ";
-                    lasterror.strcat(tmp);
-                    into.clear();
-                    return false;
-                }
                 into[id]=filter(tmpv, row["class"]);
             }
             else
@@ -600,7 +545,6 @@ bool DBManager::fetchObject (value &into, const statstring &uuid, bool formodule
 
         into[id]["uuid"]=row["uuid"];
         into[id]("type")="object";
-        into[id]["version"]=row["version"];
         if(row["deleted"].ival())
             into[id]["deleted"]=1;
         into[id]("owner")=_findmetaid(row["owner"]);
@@ -701,10 +645,11 @@ bool DBManager::userisgone()
 
     q.printf("SELECT /* userisgone */ id FROM objects WHERE ");
     where["uuid"]=useruuid;
-    where["wanted"]=1;
     q.strcat(escapeforsql("=", " AND ", where));
     value dbres = dosqlite(q);
 
+	// FIXME: also log out for delete
+	// FIXME: force logout
     if (dbres["rows"].count() == 0)
     {
         errorcode = ERR_DBMANAGER_LOGINFAIL;
@@ -720,7 +665,7 @@ string *DBManager::createObject(const statstring &parent, const value &withmembe
     returnclass (string) res retain;
     value v;
     string query;
-    int classid, parentid=0, ownerid=-1, oldv=0;
+	int classid, parentid=0, ownerid=-1;
     value members;
     
     if (metaid == "$prototype$" && !god)
@@ -759,7 +704,7 @@ string *DBManager::createObject(const statstring &parent, const value &withmembe
         q.printf("SELECT /* createObject parentid */ id,owner FROM objects WHERE ");
         value where;
         where["uuid"]=parent;
-        where["wanted"]=1;
+        where["active"]=1;
         q.strcat(escapeforsql("=", " AND ", where));
         value uuiddbres = dosqlite(q);
         parentid=uuiddbres["rows"][0]["id"].ival();
@@ -793,20 +738,7 @@ string *DBManager::createObject(const statstring &parent, const value &withmembe
         }
     }
 
-    // check whether the metaid has been used previously, fix the versionnumber accordingly
-    if(classdata.attribexists("uniquein"))
-    {
-        oldv = findObjectDeletedVersion(v["uniquecontext"].ival(), metaid);
-        if(oldv==-1)
-        {
-            // findObjectDeletedVersion has set lasterror for us
-            res.clear();
-            return &res;
-        }
-    }   
-
     // move to protected function to share code with updateObject
-    v["version"]=oldv+1;
     v["content"]=serialize(members);
     v["class"]=classid;
     v["uuid"]=strutil::uuid();
@@ -933,7 +865,7 @@ string *DBManager::createObject(const statstring &parent, const value &withmembe
         where["metaid"]=protoid;
         where["class"]=classid;
         where["uniquecontext"]=classid; // for sanity
-        where["wanted"]=1;
+        where["active"]=1;
         query.strcat(escapeforsql("=", " AND ", where));
         value dbres = dosqlite(query);
         if(dbres["rows"].count() == 1)
@@ -988,23 +920,14 @@ string *DBManager::createObject(const statstring &parent, const value &withmembe
                 }
             }
         }
-    
-        query.crop();
-        query.printf("UPDATE /* createObject markcolumn */ objects SET wanted=(CASE WHEN version!=%d THEN 0 WHEN version=%d THEN 1 END) WHERE uuid='%s'", 
-                     v["version"].ival(), v["version"].ival(), v["uuid"].str());
-        qres=_dosqlite(query);
-        if(!qres)
-        {
-            goto createObject_rollbackandbreak;
-        }
-        res=v["uuid"].sval();
 
+        res=v["uuid"].sval();    
         if (immediate)
         {
             bool rsres = _reportSuccess(res);
             if (!rsres)
             {
-              goto createObject_rollbackandbreak;
+				goto createObject_rollbackandbreak;
             }
         }
 
@@ -1105,20 +1028,6 @@ string *DBManager::copyprototype(int fromid, int parentid, int ownerid, value &r
         }
     }
 
-    int oldv = 0;
-
-    // check whether the metaid has been used previously, fix the versionnumber accordingly
-    if(classdata.attribexists("uniquein"))
-    {
-        oldv = findObjectDeletedVersion(v["uniquecontext"].ival(), v["metaid"]);
-        if(oldv==-1)
-        {
-            // findObjectDeletedVersion has set lasterror for us
-            res.clear();
-            return &res;
-        }
-    }
-    
     value incontent = deserialize(in["content"]);
     value outcontent;
     foreach(member, incontent)
@@ -1128,13 +1037,10 @@ string *DBManager::copyprototype(int fromid, int parentid, int ownerid, value &r
         else
             outcontent[member.id()] = strutil::valueparse(member, repl);
     }
-    v["version"] = oldv+1;
     v["content"] = serialize(outcontent);
     v["uuid"] = strutil::uuid();
     v["parent"] = parentid;
     v["owner"]=ownerid;
-    v["wanted"] = 1;
-    v["reality"] = 0;
     iquery.strcat(escapeforinsert(v));
     value idbres = dosqlite(iquery);
     if(!idbres)
@@ -1144,13 +1050,10 @@ string *DBManager::copyprototype(int fromid, int parentid, int ownerid, value &r
         return &res;
     }
     res = v["uuid"];
-    markcolumn("wanted", res, oldv+1);
     string cquery = "SELECT /* copyprototype */ id FROM objects WHERE ";
     value where;
     where["parent"] = fromid;
-    where["wanted"] = 1;
-    if(!rootobj)
-        where["reality"] = 1;
+    where["active"] = 1;
     cquery.strcat(escapeforsql("=", " AND ", where));
     value cdbres = dosqlite(cquery);
     if(!cdbres)
@@ -1314,7 +1217,7 @@ bool DBManager::updateObject(const value &withmembers, const statstring &uuid, b
         }
         // check that the object to be deleted is not the owner of anything
         query.crop();
-        query.printf("SELECT /* updateObject deleting owner? */ COUNT(id) FROM objects WHERE owner=%d AND wanted=1 AND deleted=0", localid);
+        query.printf("SELECT /* updateObject deleting owner? */ COUNT(id) FROM objects WHERE owner=%d AND active=1 AND deleted=0", localid);
         value dbres = dosqlite(query);
         if(dbres["rows"][0][0].ival())
         {
@@ -1324,11 +1227,10 @@ bool DBManager::updateObject(const value &withmembers, const statstring &uuid, b
         }
     }
 
-    query="SELECT /* updateObject */ id, content, class, version, metaid, uniquecontext, parent, wanted, reality, owner FROM objects WHERE ";
+    query="SELECT /* updateObject */ id, content, class, metaid, uniquecontext, parent, active, owner FROM objects WHERE ";
     value where;
     where["id"]=localid;
     query.strcat(escapeforsql("=", " AND ", where));
-    query.strcat(" ORDER BY version DESC LIMIT 1");
     value dbres = dosqlite(query);
     if(!dbres)
     {
@@ -1337,7 +1239,7 @@ bool DBManager::updateObject(const value &withmembers, const statstring &uuid, b
     if(!dbres["rows"].count())
     {
         errorcode = ERR_DBMANAGER_NOTFOUND;
-        lasterror = "No previous version of this object was found";
+        lasterror = "Object not found";
         return false;
     }
     value fetched = dbres["rows"][0];
@@ -1363,7 +1265,6 @@ bool DBManager::updateObject(const value &withmembers, const statstring &uuid, b
     v["class"]=updatedclassid;
     v["uuid"]=uuid;
     
-    v["version"]=fetched["version"].ival() + 1;
     v["metaid"]=fetched["metaid"];
 
     if(fetched["uniquecontext"] != "")
@@ -1388,17 +1289,6 @@ bool DBManager::updateObject(const value &withmembers, const statstring &uuid, b
     // {
     //  return false;
     // }
-    string updatechildrenquery;
-
-    updatechildrenquery.printf("UPDATE /* updateObject */ objects SET parent=%d WHERE parent=%d", qres["insertid"].ival(), fetched["id"].ival());
-    value childdbres = dosqlite(updatechildrenquery);
-    if(!childdbres)
-    {
-        return false;
-    }
-
-    markcolumn("wanted", v["uuid"].str(), v["version"].ival());
-    
     return true;    
 }
 
@@ -1414,7 +1304,6 @@ int DBManager::findclassid(const statstring &classname)
     where["class"]=1;
     where["metaid"]=classname;
     query.strcat(escapeforsql("=", " AND ", where));
-    query.strcat(" ORDER BY version DESC LIMIT 1");
     v = dosqlite(query);
   // DEBUG.storeFile("DB", "dbres", v, "findclassid");
     
@@ -1656,81 +1545,6 @@ value *DBManager::deserialize(const string &content)
     return &res;
 }
 
-// we're in a raincoat that has four sleeves
-// gets us through all kind of stormy weather
-bool DBManager::deref(value &members, int localclassid)
-{
-    string query;
-    query.printf("SELECT /* deref */ uuid,metaid,content FROM objects WHERE id=%d", localclassid);
-    value classdbres = dosqlite(query);
-    
-    // FIXME: check count()
-    value classdata;
-    classdata.fromxml(classdbres["rows"][0]["content"].sval());
-        
-    // string s = members.toxml();
-    // string s2 = classdata.toxml();
-    // CORE->log(log::debug, "DB", "(%s) deref: (%d, %s)", DEBUG.uuid().cval(), localclassid, s.cval());
-    // CORE->log(log::debug, "DB", "(%s) deref classdef: (%s)", DEBUG.uuid().cval(), s2.cval());
-    foreach(field, members)
-    {
-        if(classdata[field.id()]("type") == "ref")
-        {
-      // CORE->log(log::debug, "DB", "replacing ref %s from object %s, "
-      //     "field %s" %format (field.id(), field,
-      //               classdata[field.id()]("reflabel")));
-                                         
-            value where;
-            where["uuid"]=field.cval();
-            where["wanted"]=1;
-            string q = "SELECT /* deref type==ref */ metaid, uuid, content FROM objects WHERE ";
-            q.strcat(escapeforsql("=", " AND ", where));
-            value refdbres = dosqlite(q);
-            if(!refdbres["rows"].count())
-            {
-                errorcode = ERR_DBMANAGER_NOTFOUND;
-                lasterror = "Referenced object not found";
-                members.clear();
-                return false;
-            }
-      // DEBUG.storeFile("DB", "dbres", refdbres, "deref");
-
-            value row = refdbres["rows"][0];
-            value fields = deserialize(row["content"]);
-            
-            if(row["metaid"].sval().strlen())
-            {
-                    fields["id"]=row["metaid"];
-                    fields["metaid"]=row["metaid"];
-            }
-            else
-            {
-                    fields["id"]=row["uuid"];
-            }
-            
-            // wrong, need to rename field according to spec in module.xml!
-            // members[classdata[field.id()]("nick")] = fields[classdata[field.id()]("reflabel")];
-            members[classdata[field.id()]("nick")] = fields[classdata[field.id()]("reflabel")];
-            
-      // CORE->log(log::debug, "DB", "deref: debugcontent found: %s", classdata[field.id()]("reflabel").cval());
-      // CORE->log(log::debug, "DB", "deref: debugcontent found: %s", classdata[field.id()]("nick").cval());
-      // DEBUG.storeFile("DB", "field", fields, "deref");
-
-      // CORE->log(log::debug, "DB", "content found: %s", fields[classdata[field.id()]("reflabel")].cval());
-            // FIXME: do the replace -> fetch the right field from the right object etc.
-        }
-        else if(classdata[field.id()].attribexists("nick"))
-        {
-            members[classdata[field.id()]("nick")] = field;
-        }
-        // don't "else" this, the module may want to know about the reference
-//      res[field.id()] = field;
-    }
-    // res=members;
-
-    return true;
-}
-
 value *DBManager::filter(const value &members, int localclassid)
 {
     returnclass (value) res retain;
@@ -1856,18 +1670,13 @@ bool DBManager::login(const statstring &username, const statstring &password)
     value where;
     where["metaid"]=username;
     where["class"]=findclassid("User");
-    where["reality"]=1;
-    
+
     useruuid = "";
     query.strcat(escapeforsql("=", " AND ", where));
     value qres = dosqlite(query); // TODO: handle 'not found'
     if(qres["rows"].count())
     {
         value members=deserialize(qres["rows"][0]["content"]);
-        if(!deref(members, where["class"]))
-        {
-            return false;
-        }
         string h;
         h = csum.md5pw(password.str(), members["password"].str());
         // CORE->log(log::debug, "DB", "checking password: [%s] [%s]", members["password"].str(), h.str());
@@ -1903,7 +1712,6 @@ void DBManager::setCredentials(const value &creds)
     {
         string query="SELECT /* findlocalid */ uuid FROM objects WHERE ";
         value where;
-        where["wanted"]=1;
         where["id"]=creds["userid"];
         query.strcat(escapeforsql("=", " AND ", where));
         value dbres = dosqlite(query); 
@@ -1926,7 +1734,6 @@ bool DBManager::userLogin(const statstring &username)
     value where;
     where["metaid"]=username;
     where["class"]=findclassid("User");
-    where["reality"]=1;
     
     query.strcat(escapeforsql("=", " AND ", where));
     value qres = dosqlite(query);
@@ -1955,57 +1762,6 @@ void DBManager::logout(void)
     useruuid="";
 }
 
-#if 0
-bool DBManager::copyrelation(int P, int Q)
-{
-    value qres;
-    string query;
-    
-    qres=dosqlite("BEGIN TRANSACTION /* copyrelation */");
-    if(!qres)
-    {
-        value disposeme = dosqlite("ROLLBACK TRANSACTION /* copyrelation */");
-        return false;
-    }
-
-    // P <> P
-    query.printf("INSERT /* copyrelation */ INTO objectrelations (objectA,relation,objectB) SELECT %d,relation,%d", Q, Q);
-    query.printf(" FROM objectrelations WHERE objectA = %d AND objectB = %d", P, P);
-    qres=dosqlite(query);
-    if(!qres)
-    {
-        value disposeme = dosqlite("ROLLBACK TRANSACTION /* copyrelation */");
-        return false;
-    }
-
-    // P <> x
-    query.crop();
-    query.printf("INSERT /* copyrelation */ INTO objectrelations (objectA,relation,objectB) SELECT %d,relation,objectB", Q);
-    query.printf(" FROM objectrelations WHERE objectA = %d AND objectB!= %d", P, P);
-    qres=dosqlite(query);
-    if(!qres)
-    {
-        value disposeme = dosqlite("ROLLBACK TRANSACTION /* copyrelation */");
-        return false;
-    }
-
-    // x <> P
-    query.crop();
-    query.printf("INSERT /* copyrelation */ INTO objectrelations (objectA,relation,objectB) SELECT objectA,relation,%d", Q);
-    query.printf(" FROM objectrelations WHERE objectA!= %d AND objectB = %d", P, P);
-    qres=dosqlite(query);
-    
-    // drag children along
-    query.crop();
-    query.printf("UPDATE /* copyrelation */ objects SET parent=%d WHERE parent=%d", Q, P);
-    qres=dosqlite(query);
-    
-    qres=dosqlite("COMMIT TRANSACTION /* copyrelation */");
-
-    return true; // TODO: handle failure
-}
-#endif
-
 string &DBManager::getLastError(void)
 {
     return lasterror;
@@ -2016,24 +1772,11 @@ int DBManager::getLastErrorCode(void)
     return errorcode;
 }
 
-bool DBManager::markcolumn(const statstring &column, const statstring &uuid, int version)
-{
-    value qres;
-    string query;
-    
-    // P <> P
-    query.printf("UPDATE /* markcolumn */ objects SET %s=(CASE WHEN version!=%d THEN 0 WHEN version=%d THEN 1 END) WHERE uuid='%s'", 
-                 column.cval(), version, version, uuid.str());
-    qres=dosqlite(query);
-
-    return true; // TODO: handle failure
-}
-
 int DBManager::findlocalid(const statstring &uuid)
 {
     string query="SELECT /* findlocalid */ id FROM objects WHERE ";
     value where;
-    where["wanted"]=1;
+    where["active"]=1;
     where["uuid"]=uuid;
     query.strcat(escapeforsql("=", " AND ", where));
     value dbres = dosqlite(query); // FIXME: handle failure
@@ -2065,12 +1808,6 @@ bool DBManager::registerClass(const value &classdata)
         return false;
     }
     
-    if(!classdata.attribexists("version")) 
-    {
-        lasterror = "Class needs a version";
-        return false;
-    }
-    
     if(classdata("indexing") == "manual" && !classdata.attribexists("uniquein"))
     {
         lasterror = "Manual indexing needs a uniqueness context";
@@ -2085,12 +1822,11 @@ bool DBManager::registerClass(const value &classdata)
         return false;
     }
 
-    query="SELECT /* registerClass */ id,uuid,version FROM objects WHERE ";
+    query="SELECT /* registerClass */ id,uuid FROM objects WHERE ";
     value where;
     where["class"]=1;
     where["metaid"]=classdata ("name");
     query.strcat(escapeforsql("=", " AND ", where));
-    query.strcat(" ORDER BY version DESC LIMIT 1");
     value dbres = dosqlite(query);
   // DEBUG.storeFile("DB", "dbres", dbres, "registerClass");
     if(dbres["rows"].count()) // zero rows means this class is new
@@ -2103,30 +1839,15 @@ bool DBManager::registerClass(const value &classdata)
             lasterror.printf("UUID mismatch, old = %S, new = %S, metaid = %S", row["uuid"].cval(), classdata("uuid").cval(), classdata("name").cval());
             return false;
         }
-
-        if(row["version"].ival() > classdata("version").ival())
-        {
-            lasterror = "Trying to update to an older version";
-            return false;
-        }
-        
-    // CORE->log(log::debug, "DB", "versions: %d %d", row["version"].ival(), classdata("version").ival());
-        if(row["version"].ival() == classdata("version").ival())
-        {
-            // the version is the same, so everything is cool
-            return true;
-        }
     }
     
     // apparently this class is new to us!
     
     query="INSERT /* registerClass */ INTO objects ";
     v["uuid"]=classdata("uuid");
-    v["version"]=classdata("version");
     v["metaid"]=classdata("name");
     v["uniquecontext"]=v["class"]=1; // predefined constant for Class Class
     v["content"]=serialize(classdata);
-    v["wanted"]=v["reality"]=1; // FIXME: handle migrations from old to new versions
     
     int oldid = findclassid(classdata("name"));
     
@@ -2135,7 +1856,7 @@ bool DBManager::registerClass(const value &classdata)
     if(!qres)
         return false;
         
-    if (oldid != 1)
+    if (oldid)
     {
         query.crop();
         query.printf("UPDATE /* registerClass */ objects SET class=%d WHERE class=%d", qres["insertid"].ival(), oldid);
@@ -2146,12 +1867,6 @@ bool DBManager::registerClass(const value &classdata)
         }
     }
 
-    if(!markcolumn("wanted", classdata("uuid").sval(), classdata("version")))
-        return false;
-        
-    if(!markcolumn("reality", classdata("uuid").sval(), classdata("version")))
-        return false;
-    
     return true;
 }
 
@@ -2188,113 +1903,26 @@ bool DBManager::reportSuccess(const statstring &uuid)
   
   return res;
 }
-  
+
 bool DBManager::_reportSuccess(const statstring &uuid)
 {
-  string query;
+    string query;
     value where;
     int oldid, newid;
 
-    query = "SELECT /* _reportSuccess */ id FROM objects WHERE ";
+    query.crop();
+    query.printf("UPDATE /* _reportSuccess */ objects SET active=1 WHERE ");
     where.clear();
     where["uuid"]=uuid;
-    where["reality"]=1;
-    where["deleted"]=0;
     query.strcat(escapeforsql("=", " AND ", where));
     value qres = _dosqlite(query);
-    if(! qres)
-        return false;
-
-    if(qres["rows"].count())
-        oldid=qres["rows"][0]["id"].ival();
-    else
-        oldid=0;    
-
-    query = "SELECT /* _reportSuccess */ id FROM objects WHERE ";
-    where.clear();
-    where["uuid"]=uuid;
-    where["wanted"]=1;
-    query.strcat(escapeforsql("=", " AND ", where));
-    query.strcat(" ORDER BY version DESC LIMIT 1");
-    qres = _dosqlite(query);
-    if(! qres)
-        return false;
-
-    newid=qres["rows"][0]["id"].ival();
-
-    query.crop();
-    query.printf("UPDATE /* _reportSuccess */ objects SET reality=(CASE WHEN (deleted=0 AND id=%d) THEN 1 ELSE 0 END), wanted=(CASE WHEN (deleted=0 AND id=%d) THEN 1 ELSE 0 END) WHERE ", newid, newid);
-    where.clear();
-    where["uuid"]=uuid;
-    query.strcat(escapeforsql("=", " AND ", where));
-    qres = _dosqlite(query);
     if(! qres)
     {
         return false;
     }
 
-    if(oldid)
-    {   
-        query.crop();
-        query.printf("UPDATE /* _reportSuccess */ objects SET parent=%d WHERE parent=%d", newid, oldid);
-        qres = _dosqlite(query);
-        if(! qres)
-        {
-            return false;
-        }
-
-        query.crop();
-        query.printf("UPDATE /* _reportSuccess */ objects SET owner=%d WHERE owner=%d", newid, oldid);
-        qres = _dosqlite(query);
-        if(! qres)
-        {
-            return false;
-        }   
-
-        query.crop();
-        query.printf("UPDATE /* _reportSuccess */ classquota SET userid=%d WHERE userid=%d", newid, oldid);
-        qres = _dosqlite(query);
-        if(! qres)
-        {
-            return false;
-        }   
-
-        query.crop();
-        query.printf("UPDATE /* _reportSuccess */ specialquota SET userid=%d WHERE userid=%d", newid, oldid);
-        qres = _dosqlite(query);
-        if(! qres)
-        {
-            return false;
-        }   
-
-        query.crop();
-        query.printf("UPDATE /* _reportSuccess */ specialquotausage SET userid=%d WHERE userid=%d", newid, oldid);
-        qres = _dosqlite(query);
-        if(! qres)
-        {
-            return false;
-        }   
-
-        query.crop();
-        query.printf("UPDATE /* _reportSuccess */ powermirror SET userid=%d WHERE userid=%d", newid, oldid);
-        qres = _dosqlite(query);
-        if(! qres)
-        {
-            return false;
-        }
-
-        query.crop();
-        query.printf("UPDATE /* _reportSuccess */ powermirror SET powerid=%d WHERE powerid=%d", newid, oldid);
-        qres = _dosqlite(query);
-        if(! qres)
-        {
-            return false;
-        }
-    }
-
-  return true;
+	return true;
 }
-
 // TODO: if version 1 fails, recursively clean all children too, for
 // prototype copying
 bool DBManager::reportFailure(const statstring &uuid)
@@ -2335,7 +1963,7 @@ bool DBManager::reportFailure(const statstring &uuid)
         query = "SELECT /* reportFailure */ id FROM objects WHERE ";
         where.clear();
         where["uuid"]=uuid;
-        where["reality"]=1;
+        where["active"]=1;
         query.strcat(escapeforsql("=", " AND ", where));
         qres=_dosqlite(query);
         if(!qres)
@@ -2380,17 +2008,16 @@ bool DBManager::reportFailure(const statstring &uuid)
             value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
             breaksection return false;
         }
+		        qres=_dosqlite("COMMIT TRANSACTION /* reportFailure */");
+		        if(!qres)
+		        {
+		            value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
+		            breaksection return false;
+		        }
 
-        qres=_dosqlite("COMMIT TRANSACTION /* reportFailure */");
-        if(!qres)
-        {
-            value disposeme = _dosqlite("ROLLBACK TRANSACTION /* reportFailure */");
-            breaksection return false;
-        }
-
-        breaksection return true;
-    }
-}
+		        breaksection return true;
+		    }
+		}
 
 // we iterate upwards from our logged-in user to find all
 // applying limits. a smaller limit overrides a bigger one,
@@ -2447,7 +2074,7 @@ int DBManager::getUserQuota(const statstring &ofclass, const statstring &useruui
             quota=thisquota;
             
         q.crop();
-        q.printf("SELECT /* getUserQuota */ owner FROM objects WHERE id=%d AND wanted=1", lookupid);
+        q.printf("SELECT /* getUserQuota */ owner FROM objects WHERE id=%d AND active=1", lookupid);
         dbres = dosqlite(q);
         if(!dbres["rows"].count() || dbres["rows"][0]["owner"].ival() == 0)
         {
@@ -2460,7 +2087,7 @@ int DBManager::getUserQuota(const statstring &ofclass, const statstring &useruui
     {
         // calculate usage
         q.crop();
-        q.printf("SELECT /* getUserQuota */ COUNT(DISTINCT(o.id)) FROM objects o, powermirror p WHERE class=%d AND wanted=1 AND o.owner=p.userid AND p.powerid=%d", localid, realuserid);
+        q.printf("SELECT /* getUserQuota */ COUNT(DISTINCT(o.id)) FROM objects o, powermirror p WHERE class=%d AND o.owner=p.userid AND p.powerid=%d", localid, realuserid);
         value dbres = dosqlite(q);
         *usage = dbres["rows"][0][0].ival();
 
@@ -2620,7 +2247,7 @@ bool DBManager::chown(const statstring &objectuuid, const statstring &useruuid)
     }
 
     query.crop();
-    query.printf("SELECT /* chown */ COUNT(id) FROM objects WHERE parent=%d AND wanted=1", objid);
+    query.printf("SELECT /* chown */ COUNT(id) FROM objects WHERE parent=%d", objid);
     value dbres = dosqlite(query);
     if(dbres["rows"][0][0].ival())
     {
@@ -2672,10 +2299,6 @@ bool DBManager::checkfieldlist(value &members, int classid)
                 CORE->log (log::warning, "DB", "Member <%S> not found "
                            "in class definition", fid.str());
             }
-            else if(fid == "version")
-            {
-                // that's ok
-            }
             else
             {
                 lasterror = "Member '%S' not found in class definition" %format (field.id());
@@ -2687,9 +2310,6 @@ bool DBManager::checkfieldlist(value &members, int classid)
     members.rmval("id");
     members.rmval("uuid");
     members.rmval("metaid");
-    // TODO: remove version from fetchObject/findObject again; change createObject
-    // to find the version through a separate method, then this here can go.
-    members.rmval("version");
     
     return true;
 }
@@ -2888,212 +2508,3 @@ value *DBManager::listSpecialQuota()
     
     return &res;
 }
-
-bool DBManager::replaceObjects (value &newobjs, const statstring &parent, const statstring &ofclass)
-{
-  // string permcheck;
-  
-// FIXME: do permcheck!
-#if 0
-  DEBUG.storeFile("DB","replace", newobjs, "newobjs");
-  CORE->log(log::debug, "DB", "doing permcheck");
-  
-  permcheck = createObject(parentid, $(nokey), ofclass, "test", true, true);
-  if(!permcheck)
-  {
-    CORE->log(log::debug, "DB", "permcheck true");
-    return false;
-  }
-
-  CORE->log(log::debug, "DB", "permcheck true");
-#endif
-
-  int classid;
-  int parentid=0;
-  string query;
-  
-  CORE->log(log::debug, "DB", "replaceObjects: %s %s" % format(parent, ofclass));
-  
-  if(parent != nokey && parent != "")
-  {
-    parentid=findlocalid(parent);
-  }
-    
-    DEBUG.storeFile("DB","replace", newobjs, "newobjs");
-  DEBUG.storeFile("DB","replace", newobjs[0], "newobjs0");
-  DEBUG.storeFile("DB","replace", newobjs[0][0], "newobjs00");
-    
-  classid = findclassid(ofclass);
-  // prime cache
-  value classdata = getClassData(classid);
-    
-    exclusivesection (dbhandle)
-  {
-    value qres, disposeme;
-    value where;
-    
-    qres=_dosqlite("BEGIN TRANSACTION /* replaceObjects */");
-    if(!qres)
-    {
-      CORE->log (log::error, "DB", "replaceObjects: Error starting transaction");
-      breaksection return false;
-    }
-    
-    // CORE->log(log::debug, "DB", "updateObject([members], uuid=%s, "
-    //      "deleted=%d)" %format (uuid, deleted ? 1 : 0));
-    query="DELETE /* replaceObjects */ FROM objects WHERE ";
-    where.clear();
-    where["parent"]=parentid;
-    where["class"]=classid;
-    query.strcat(escapeforsql("=", " AND ", where));
-    qres = _dosqlite(query);
-    if(!qres)
-    {
-        goto replaceObjects_rollbackandbreak;
-    }
-
-    foreach(obj, newobjs[0])
-    {
-      value v;
-        
-      v["uuid"]=obj["uuid"];
-      v["version"]=1;
-      v["metaid"]=obj["id"];
-      v["class"]=classid;
-      v["uniquecontext"]=classid;
-      v["parent"]=parentid;
-      v["deleted"]=0;
-      v["owner"]=findlocalid(useruuid);
-      v["reality"]=1;
-      v["wanted"]=1;
-      
-      if(!checkfieldlist(obj, classid))
-        {
-        goto replaceObjects_rollbackandbreak;
-        }
-        
-        v["content"]=serialize(obj);
-      
-        query="INSERT /* replaceObjects */ INTO objects ";
-        query.strcat(escapeforinsert(v));
-        value qres = _dosqlite(query); // FIXME: handle errors
-
-        if(!qres)
-        {
-        goto replaceObjects_rollbackandbreak;
-        }
-    }
-    
-    qres = _dosqlite("COMMIT TRANSACTION /* replaceObjects */");
-    if (!qres)
-    {
-      CORE->log (log::error, "DB", "replaceObject: Error committing");
-      goto replaceObjects_rollbackandbreak;
-    }
-    
-    breaksection return true;
-    
-replaceObjects_rollbackandbreak:
-    disposeme = _dosqlite("ROLLBACK TRANSACTION /* replaceObjects */");
-    breaksection return false;
-replaceObjects_success:
-    breaksection return true;
-  }
-
-  return true;
-}
-
-
-
-#if 0
-
-DEBUG.storeFile ("Session","old", olddb, "syncDynamicObjects");
-DEBUG.storeFile ("Session","new", curdb, "syncDynamicObjects");
-
-value skipfields = $("uuid",true) ->
-                   $("parentid",true) ->
-                   $("ownerid",true) ->
-                   $("id",true) ->
-                   $("metaid",true);
-
-// Find any nodes currently in the database that we need to
-// update or delete.
-foreach (oldnode, olddb[0])
-{
-    // Is this oldie absent in the new list?
-    if (! curdb[0].exists (oldnode.id()))
-    {
-        log::write (log::debug, "Session", "Removing cached node "
-                    "id=<%S>" %format (oldnode.id()));
-        // Yeah, kick its butt.
-        string uuid = oldnode["uuid"];
-        db.deleteObject (uuid);
-        db.reportSuccess (uuid);
-    }
-    else
-    {
-        // No, so let's consider this an update.
-        // We'll need a temporary object to get rid of the
-        // extra uuid/id/metaid fields.
-        log::write (log::debug, "Session", "Updating cached node "
-                    "id=<%S>" %format (oldnode.id()));
-        
-        bool changed = false;
-        
-        foreach (field, curdb[0][oldnode.id()])
-        {
-            if (skipfields.exists (field.id())) continue;
-            
-            if (oldnode[field.id()] != field)
-            {
-                changed = true;
-                log::write (log::debug, "Session", "Cached node "
-                            "field <%S> changed" %format (field.id()));
-                break;
-            }
-            else
-            {
-                log::write (log::debug, "Session", "Cached <%S> \"%S\" == "
-                            "\"%S\"" %format (field.id(),
-                            oldnode[field.id()], field));
-            }
-        }
-        
-        if (changed)
-        {
-            value repnode = curdb[0][oldnode.id()];
-            
-            repnode.rmval ("uuid");
-            repnode.rmval ("id");
-            repnode.rmval ("metaid");
-            string uuid = oldnode["uuid"];
-            db.updateObject (repnode, uuid);
-            db.reportSuccess (uuid);
-        }
-    }
-}
-
-// Now find any new objects.
-foreach (curnode, curdb[0])
-{
-    // Never heard of this geezer before?
-    if (! olddb[0].exists (curnode.id()))
-    {
-        // Great let's introduce him to the database then.
-        log::write (log::debug, "Session", "Creating cached node "
-                    "id=<%S>" %format (curnode.id()));
-                   
-        string uuid = db.createObject (parentid, curnode,
-                                       ofclass, curnode.id(), false, true);
-        if (! uuid)
-        {
-            log::write (log::error, "Session", "Error creating "
-                        "database cache of dynamic list: %s"
-                        %format (db.getLastError()));
-            setError (db.getLastErrorCode(), db.getLastError());
-        }
-    }
-}
-
-return true;
-#endif

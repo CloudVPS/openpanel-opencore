@@ -24,7 +24,7 @@ void _dbmanager_sqlite3_trace_rcvr(void *ignore, const char *query); // namespac
 
 //  -------------------------------------------------------------------------
 /// Database manager class for OpenCORE. Offers abstract functions
-/// pertaining to classes, objects and versioning of same. Currently
+/// pertaining to classes and objects. Currently
 /// employs SQLite for backend storage.
 //  -------------------------------------------------------------------------
 class DBManager
@@ -83,7 +83,7 @@ public:
 					bool fetchObject(value &into, const statstring &uuid, bool formodule=false);
 
 					/// create object, possibly in the current uniqueness context
-					/// returns value with items "uuid" and "version"
+					/// returns uuid
 					string *createObject(const statstring &parent,
 					                    const value &withmembers,
 					                    const statstring &ofclass,
@@ -156,7 +156,7 @@ protected:
           bool userisgone();
 
   				/// helper function for markaswanted, markasreality
-					bool markcolumn(const statstring &column, const statstring &uuid, int version);
+					bool markcolumn(const statstring &column, const statstring &uuid);
 
 					/// uuid of authenticated user
 					string useruuid;
@@ -176,9 +176,6 @@ protected:
 					/// implementation of dosqlite
 					value *_dosqlite (const statstring &query);
 
-					/// find version of previous metaid use
-					int findObjectDeletedVersion (int uc, const statstring &withmetaid);
-					
 					/// find local ID for a class, -1 if not found (because Class itself is 0)
 					int findclassid(const statstring &classname);
 					
