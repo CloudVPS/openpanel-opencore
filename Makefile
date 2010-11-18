@@ -63,6 +63,7 @@ depend:
 
 install:
 	mkdir -p ${DESTDIR}/etc/init.d/
+	mkdir -p ${DESTDIR}/etc/openpanel/
 	mkdir -p ${DESTDIR}/usr/bin/
 	mkdir -p ${DESTDIR}/var/opencore/
 	mkdir -p ${DESTDIR}/var/opencore/api
