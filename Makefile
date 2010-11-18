@@ -17,7 +17,7 @@ TSOBJ = techsupport.o dbmanager.o debug.o
 
 MKOBJ = mkmodulexml.o
 
-all: opencore.exe techsupport.exe mkmodulexml api/python/package/OpenPanel/error.py 
+all: opencore.exe techsupport.exe mkmodulexml api/python/package/OpenPanel/error.py kickstart.panel.db
 	grace mkapp opencore
 	grace mkapp techsupport
 
@@ -46,6 +46,7 @@ kickstart.panel.db: sqlite/SCHEMA sqlite/DBCONTENT
 
 clean:
 	rm -f *.o *.exe
+	rm -f kickstart.panel.db
 	rm -rf opencore.app techsupport.app
 	rm -f opencore techsupport
 	rm -f version.cpp version.id
