@@ -17,9 +17,15 @@ TSOBJ = techsupport.o dbmanager.o debug.o
 
 MKOBJ = mkmodulexml.o
 
-all: opencore.exe techsupport.exe mkmodulexml api/python/package/OpenPanel/error.py kickstart.panel.db
+all: cpp-api cpp-api opencore.exe techsupport.exe mkmodulexml api/python/package/OpenPanel/error.py kickstart.panel.db
 	grace mkapp opencore
 	grace mkapp techsupport
+
+cpp-api:
+	cd "api/c++/src" && ./configure && $(MAKE)
+
+grace-api:
+	cd "api/grace/src" && ./configure && $(MAKE)
 
 version.cpp:
 	grace mkversion version.cpp
@@ -52,6 +58,8 @@ clean:
 	rm -f version.cpp version.id
 	rm -f api/python/package/OpenPanel/error.py rsrc/resources.xml
 	rm -f mkmodulexml
+	cd "api/c++/src" && $(MAKE) clean
+	cd "api/grace/src" && $(MAKE) clean
 
 doc:
 	@mkdir -p doc
