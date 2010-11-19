@@ -1,76 +1,7 @@
 #!/usr/bin/make -f
-# This file is part of OpenPanel - The Open Source Control Panel
-# OpenPanel is free software: you can redistribute it and/or modify it 
-# under the terms of the GNU General Public License as published by the Free 
-# Software Foundation, using version 3 of the License.
-#
-# Please note that use of the OpenPanel trademark may be subject to additional 
-# restrictions. For more information, please visit the Legal Information 
-# section of the OpenPanel website on http://www.openpanel.com/
 
+#export DH_VERBOSE=1
 
-build: build-stamp
-build-stamp:
-	./configure
-	make
-	make kickstart.panel.db
-	cd api/c++/src && ./configure && make && cd ../../..
-	cd api/grace/src && ./configure && make && cd ../../..
-	touch build-stamp
+%:
+	dh $@
 
-install: install-stamp
-install-stamp: build-stamp
-	dh_testdir
-	dh_testroot
-	dh_installdirs
-	install -m 750 -d debian/openpanel-core/var/opencore/log
-	install -m 755 -d debian/openpanel-core/var/opencore/sockets
-	install -m 750 -d debian/openpanel-core/var/opencore/cache
-	install -m 700 -d debian/openpanel-core/var/opencore/db
-	install -m 770 -d debian/openpanel-core/var/opencore/sockets/swupd
-	install -m 770 -d debian/openpanel-core/var/opencore/db/panel
-	install -m 750 -d debian/openpanel-core/var/opencore/debug
-	install -m 644 LICENSE debian/openpanel-core/usr/share/doc/openpanel
-	install -m 755 contrib/debian.init debian/openpanel-core/etc/init.d/openpanel-core
-	install -m 755 contrib/openpanel.init debian/openpanel-core/etc/init.d/openpanel
-	cp -rf opencore.app debian/openpanel-core/var/opencore/bin/
-	cp -rf techsupport.app debian/openpanel-core/var/opencore/bin/
-	install -m 600 kickstart.panel.db debian/openpanel-core/var/opencore/db/panel/panel.db.setup
-	install -m 755 opencore debian/openpanel-core/var/opencore/bin/opencore 
-	install -m 755 techsupport debian/openpanel-core/var/opencore/bin/techsupport
-	cp -r api/python debian/openpanel-core/var/opencore/api/
-	cp -r api/sh debian/openpanel-core/var/opencore/api/
-
-	install -m 644 api/c++/include/authdclient.h debian/openpanel-dev/usr/include/opencore/authdclient.h
-	install -m 644 api/c++/include/moduleapp.h debian/openpanel-dev/usr/include/opencore/moduleapp.h
-	install -m 644 api/c++/lib/libcoremodule.a debian/openpanel-dev/usr/lib/opencore/libcoremodule.a
-	install -m 644 api/grace/include/grace-coreapi/module.h debian/openpanel-dev/usr/include/grace-coreapi/module.h
-	install -m 644 api/grace/lib/libgrace-coreapi.a debian/openpanel-dev/usr/lib/libgrace-coreapi.a
-	install -m 644 rsrc/com.openpanel.opencore.module.schema.xml debian/openpanel-dev/usr/lib/opencore/schemas/com.openpanel.opencore.module.schema.xml
-	install -m 644 rsrc/com.openpanel.opencore.module.validator.xml debian/openpanel-dev/usr/lib/opencore/schemas/com.openpanel.opencore.module.validator.xml
-	install -m 755 mkmodulexml debian/openpanel-dev/usr/bin/mkmodulexml
-
-	touch install-stamp
-
-binary-indep: build install
-
-binary-arch: build install
-	if [ -d debian/tmp ] ; then dh_install -a --sourcedir=debian/tmp ; fi
-	dh_installdocs -a
-	dh_installdebconf -a
-	dh_installdeb -a
-	dh_compress -a
-	dh_fixperms -a
-	dh_shlibdeps -a
-	dh_gencontrol -a
-	dh_md5sums -a
-	dh_builddeb -a
-
-clean:
-	rm -f build-stamp install-stamp
-	[ ! -f makeinclude ] || make clean
-	dh_clean
-
-binary: binary-indep binary-arch
-
-.PHONY: build binary binary-arch binary-indep clean install
