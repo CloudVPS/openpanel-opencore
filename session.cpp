@@ -408,8 +408,6 @@ bool CoreSession::login (const string &user, const string &pass, bool superuser)
 	res = db.login (user, pass);
 	if (! res)
 	{
-		if (! user) return false;
-
 		setError (ERR_DBMANAGER_LOGINFAIL);
 		log::write (log::error, "Session", "Failed login user "
 				    "<%S> (%S)" %format (user, db.getLastError()));
