@@ -50,11 +50,13 @@ void SessionDB::saveToDisk (const string &path)
 		{
 			crsr->spinlock.lockr();
 			
+			timestamp t = crsr->heartbeat;
+			
 			serialized[crsr->id] =
 				$("meta",crsr->meta)->
 				$("errors",crsr->errors)->
 				$("quotamap",crsr->quotamap)->
-				$("heartbeat",crsr->heartbeat);
+				$("heartbeat",t);
 			
 			crsr->spinlock.unlock();
 			
@@ -67,7 +69,7 @@ void SessionDB::saveToDisk (const string &path)
 
 // ==========================================================================
 // METHOD ::loadFromDisk
-/ ==========================================================================
+// ==========================================================================
 void SessionDB::loadFromDisk (const string &path)
 {
 	value serialized;
@@ -140,7 +142,9 @@ CoreSession *SessionDB::createFromSerialized (const value &ser)
 			s->meta = ser["meta"];
 			s->errors = ser["errors"];
 			s->quotamap = ser["quotamap"];
-			s->heartbeat = ser["heartbeat"];
+			
+			timestamp t = ser["heartbeat"];
+			s->heartbeat = t.unixtime();
 		}
 		catch (...)
 		{
