@@ -24,10 +24,10 @@ case "$1" in
         # It's already created in openpanel-authd package, so just commenting
         # ln -s /var/openpanel/log /var/log/opencore
         
-        getent group opencore  > /dev/null  || groupadd -f opencore > /dev/null
-        getent passwd opencore > /dev/null  || useradd opencore -r -g opencore > /dev/null
-        getent group paneluser > /dev/null  || groupadd -f paneluser
-        getent passwd openadmin > /dev/null || useradd -m -G paneluser openadmin
+        getent group openpanel-core  > /dev/null  || groupadd -f openpanel-core > /dev/null
+        getent passwd openpanel-core > /dev/null  || useradd openpanel-core -r -g openpanel-core > /dev/null
+        getent group openpaneluser > /dev/null  || groupadd -f openpaneluser
+        getent passwd openpanel-admin > /dev/null || useradd -m -G openpaneluser openpanel-admin
         
         update-rc.d openpanel-core start 94 2 3 4 5 . stop 74 0 1 6 . > /dev/null
         

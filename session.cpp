@@ -544,7 +544,7 @@ bool CoreSession::userLogin (const string &user)
 
 bool CoreSession::isAdmin(void) const
 {
-	bool isadmin = meta["user"] == "openadmin";
+	bool isadmin = meta["user"] == "openpanel-admin";
 	return isadmin;
 }
 
