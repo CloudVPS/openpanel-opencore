@@ -135,7 +135,7 @@ bool OpenCoreRPC::_confcreate (const value &conf, int update)
 		{
 			_htcp = new RPCRequestHandler (app, httpdTcp, pdb);
 			httpdTcp.systempath ("/var/openpanel");
-			new httpdlogger (httpdTcp, "/var/opencore/log/opencore.access.log");
+			new httpdlogger (httpdTcp, "/var/openpanel/log/opencore.access.log");
 			new IconRequestHandler (app, httpdTcp);
 			new ItemIconRequestHandler (app, httpdTcp);
 			new EmblemRequestHandler (app, httpdTcp);

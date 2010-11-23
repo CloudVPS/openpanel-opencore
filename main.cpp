@@ -234,7 +234,7 @@ bool OpenCoreApp::checkAuthDaemon (void)
 {
 	tcpsocket sauth;
 	
-	if (! sauth.uconnect ("/var/opencore/sockets/authd/authd.sock"))
+	if (! sauth.uconnect ("/var/openpanel/sockets/authd/authd.sock"))
 	{
 		ferr.writeln ("% Error connecting to authd socket");
 		return false;

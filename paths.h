@@ -8,13 +8,13 @@
 // section of the OpenPanel website on http://www.openpanel.com/
 
 
-#define PATH_CACHES "/var/opencore/cache"
-#define PATH_MODULES "/var/opencore/modules"
-#define PATH_DB "/var/opencore/db/panel/panel.db"
-#define PATH_ALERTQ "/var/opencore/db/alertq.db"
-#define PATH_DEBUG "/var/opencore/debug"
-#define PATH_CONF "/var/opencore/conf"
-#define PATH_TEMPLATES "/var/opencore/templates"
+#define PATH_CACHES "/var/openpanel/cache"
+#define PATH_MODULES "/var/openpanel/modules"
+#define PATH_DB "/var/openpanel/db/panel/panel.db"
+#define PATH_ALERTQ "/var/openpanel/db/alertq.db"
+#define PATH_DEBUG "/var/openpanel/debug"
+#define PATH_CONF "/var/openpanel/conf"
+#define PATH_TEMPLATES "/var/openpanel/templates"
 
 // RPC socket path
-#define PATH_RPCSOCK "/var/opencore/sockets/opencore.sock"
+#define PATH_RPCSOCK "/var/openpanel/sockets/opencore.sock"

@@ -104,7 +104,7 @@ int API::commandline (const string &mname, const string &fullcmd,
 		  $("CLASSID",   in["OpenCORE:Session"]["classid"]) ->
 		  $("OBJECTID",  in["OpenCORE:Session"]["objectid"]) ->
 		  $("PATH",      "/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:"
-		  			     "/usr/local/sbin:/var/opencore/tools");
+		  			     "/usr/local/sbin:/var/openpanel/tools");
 
 	makeShellEnvironment (env, "", in);
 	
@@ -170,7 +170,7 @@ int API::commandline (const string &mname, const string &fullcmd,
 // ==========================================================================
 bool API::connectToAuthDaemon (tcpsocket &s, const string &mname)
 {
-	if (! s.uconnect ("/var/opencore/sockets/authd/authd.sock"))
+	if (! s.uconnect ("/var/openpanel/sockets/authd/authd.sock"))
 	{
 		return false;
 	}

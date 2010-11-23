@@ -8,8 +8,8 @@ platform.h
 .gdb_history
 ktrace.out
 zones/
-opencore
-opencore.app
+openpaneld
+openpaneld.app
 techsupport
 techsupport.app
 version.cpp
