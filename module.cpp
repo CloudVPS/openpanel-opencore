@@ -132,6 +132,9 @@ bool CoreClass::normalize (value &mdata, string &error)
 		value &p = param[node.id()];
 		if (p("regexp").sval() && node.sval())
 		{
+			log::write (log::debug, "Module", "Checking param %s against "
+						"regexp %s" %format (node.id(), p("regexp")));
+			
 			string re = p("regexp");
 			re = CORE->regexp (re);
 			pcregexp RE (re);
