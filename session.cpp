@@ -37,6 +37,49 @@ SessionDB::~SessionDB (void)
 }
 
 // ==========================================================================
+// METHOD ::saveToDisk
+// ==========================================================================
+void SessionDB::saveToDisk (const string &path)
+{
+	value serialized;
+	
+	sharedsection (lck)
+	{
+		CoreSession *crsr = first;
+		while (crsr)
+		{
+			crsr->spinlock.lockr();
+			
+			serialized[crsr->id] =
+				$("meta",crsr->meta)->
+				$("errors",crsr->errors)->
+				$("quotamap",crsr->quotamap)->
+				$("heartbeat",crsr->heartbeat);
+			
+			crsr->spinlock.unlock();
+			
+			crsr = crsr->next;
+		}
+	}
+	
+	serialized.savexml (path);
+}
+
+// ==========================================================================
+// METHOD ::loadFromDisk
+/ ==========================================================================
+void SessionDB::loadFromDisk (const string &path)
+{
+	value serialized;
+	
+	serialized.loadxml (path);
+	foreach (s, serialized)
+	{
+		createFromSerialized (s);
+	}
+}
+
+// ==========================================================================
 // METHOD SessionDB::get
 // ==========================================================================
 CoreSession *SessionDB::get (const statstring &id)
@@ -77,6 +120,35 @@ CoreSession *SessionDB::create (const value &meta)
 	}
 	log::write (log::debug, "Session", "SDB Create <%S>" %format (id));
 	
+	return s;
+}
+
+// ==========================================================================
+// METHOD ::createFromSerialized
+// ==========================================================================
+CoreSession *SessionDB::createFromSerialized (const value &ser)
+{
+	CoreSession *s;
+	statstring id = ser.id();
+	
+	exclusivesection (lck)
+	{
+		try
+		{
+			lck = 1;
+			s = demand (id);
+			s->meta = ser["meta"];
+			s->errors = ser["errors"];
+			s->quotamap = ser["quotamap"];
+			s->heartbeat = ser["heartbeat"];
+		}
+		catch (...)
+		{
+			log::write (log::error, "Session", "Software bug in session "
+					    "database, exception caught");
+		}
+	}
+	log::write (log::debug, "Session", "SDB Recreate <%S>" %format (id));
 	return s;
 }
 
