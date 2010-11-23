@@ -992,15 +992,6 @@ bool CoreSession::updateObject (const statstring &parentid,
 		return false;
 	}
 	
-	// Handle any cryptable fields.
-	if (! handleCrypts (parentid, ofclass, withid, withparam))
-	{
-		// Crypting failed. Bummer.
-		log::write (log::error, "Session", "Update failed due to crypt error");
-		setError (ERR_SESSION_CRYPT);
-		return false;
-	}
-	
 	
 	CoreClass &cl = mdb.getClass (ofclass);
 	value oldobject;
@@ -1061,6 +1052,15 @@ bool CoreSession::updateObject (const statstring &parentid,
 		return false;
 	}
 
+	// Handle any cryptable fields.
+	if (! handleCrypts (parentid, ofclass, withid, withparam))
+	{
+		// Crypting failed. Bummer.
+		log::write (log::error, "Session", "Update failed due to crypt error");
+		setError (ERR_SESSION_CRYPT);
+		return false;
+	}
+	
 	value ctx;
 
 	if (mdb.classIsDynamic (ofclass))
