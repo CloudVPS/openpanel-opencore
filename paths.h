@@ -17,4 +17,4 @@
 #define PATH_TEMPLATES "/var/openpanel/templates"
 
 // RPC socket path
-#define PATH_RPCSOCK "/var/openpanel/sockets/opencore.sock"
+#define PATH_RPCSOCK "/var/openpanel/sockets/openpanel-core.sock"

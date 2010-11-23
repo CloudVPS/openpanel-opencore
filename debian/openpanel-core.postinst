@@ -31,21 +31,21 @@ case "$1" in
         
         update-rc.d openpanel-core start 94 2 3 4 5 . stop 74 0 1 6 . > /dev/null
         
-        chown opencore:opencore /var/openpanel/cache
+        chown openpanel-core:openpanel-core /var/openpanel/cache
         chmod 750 /var/openpanel/cache
         if [ ! -f /var/openpanel/db/panel/panel.db ]; then
                 cp /var/openpanel/db/panel/panel.db.setup /var/openpanel/db/panel/panel.db
         fi
-        chown -R opencore:opencore /var/openpanel/db
+        chown -R openpanel-core:openpanel-core /var/openpanel/db
         chmod 700 /var/openpanel/db
-        chown -R opencore:opencore /var/openpanel/debug
+        chown -R openpanel-core:openpanel-core /var/openpanel/debug
         chmod -R 750 /var/openpanel/debug
-        chown opencore:opencore /var/openpanel/log
+        chown openpanel-core:openpanel-core /var/openpanel/log
         chmod 750 /var/openpanel/log
-        chown -R opencore:authd /var/openpanel/sockets
+        chown -R openpanel-core:openpanel-authd /var/openpanel/sockets
         chmod 750 /var/openpanel/conf/rollback
-        chown opencore:opencore /var/openpanel/conf/rollback
-        chown root:opencore /var/openpanel/conf/staging
+        chown openpanel-core:openpanel-core /var/openpanel/conf/rollback
+        chown root:openpanel-core /var/openpanel/conf/staging
         chmod 770 /var/openpanel/conf/staging
 
         invoke-rc.d openpanel-core restart

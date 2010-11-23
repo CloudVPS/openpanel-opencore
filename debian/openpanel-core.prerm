@@ -15,7 +15,7 @@ set -e
 case "$1" in
     remove)
         invoke-rc.d openpanel-core stop || true
-        rm -f /var/openpanel/sockets/opencore.sock
+        rm -f /var/openpanel/sockets/openpanel-core.sock
     ;;
 
     upgrade|deconfigure|failed-upgrade)
