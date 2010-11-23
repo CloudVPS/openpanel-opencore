@@ -137,6 +137,10 @@ bool CoreClass::normalize (value &mdata, string &error)
 			
 			string re = p("regexp");
 			re = CORE->regexp (re);
+			
+			log::write (log::debug, "Module", "String <%s> regexp <%s>"
+						%format (node.sval(), re);
+			
 			pcregexp RE (re);
 			
 			if (! RE.match (node.sval()))
