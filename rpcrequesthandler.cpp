@@ -406,11 +406,15 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	proc.close();
 	proc.serialize();
 	
+	value skipfs = $("tmpfs") -> $("udev") -> $("none");
+	
 	for (int i=1; i<output.count(); ++i)
 	{
 		value splt = strutil::splitspace (output[i]);
 		if (splt.count() < 6) continue;
-		value &into = senv["mounts"][splt[0].sval()];
+		if (skipfs.exists (splt[0].sval())) continue;
+		
+		value &into = senv["mounts"][splt[5].sval()];
 		
 		into = $("device",splt[0])->
 			   $("size",splt[1].ival() / (1024 * 1024))->
