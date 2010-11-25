@@ -1062,6 +1062,8 @@ bool CoreSession::updateObject (const statstring &parentid,
 	}
 	
 	value ctx;
+	
+	DEBUG.storeFile ("Session", "postnormalize", withparam, "updateObject");
 
 	if (mdb.classIsDynamic (ofclass))
 	{
@@ -1098,6 +1100,8 @@ bool CoreSession::updateObject (const statstring &parentid,
 	{
 		bool updatesucceeded;
 		
+		DEBUG.storeFile ("Session", "parm0", withparam, "updateObject");
+
 		updatesucceeded = db.updateObject (withparam, uuid, immediate);
 		if (! updatesucceeded) // FIXME: get rid of bool var?
 		{
@@ -1133,9 +1137,12 @@ bool CoreSession::updateObject (const statstring &parentid,
 					$("objectid", withid ? withid.sval() : uuid)
 			   );
 	
+		DEBUG.storeFile ("Session", "parm1", ctx, "updateObject");
+	
 		// Merge the parameters
 		ctx << parm;
 	
+		DEBUG.storeFile ("Session", "parm2", ctx, "updateObject");
 	}
 
 	DEBUG.storeFile ("Session", "update-ctx", ctx, "updateObject");

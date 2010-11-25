@@ -150,6 +150,17 @@ int IconRequestHandler::run (string &uri, string &postbody, value &inhdr,
 	
 	app->log (log::debug, "httpicon", "Request for <%s>" %format (uuid));
 	
+	if (inhdr.exists ("If-Modified-Since"))
+	{
+		s.puts ("HTTP/1.1 304 NOT CHANGED\r\n"
+				"Connection: %s\r\n"
+				"Content-length: 0\r\n\r\n"
+				%format (keepalive ? "keepalive" : "close"));
+		
+		env["sentbytes"] = 0;
+		return -304;
+	}
+	
 	if (! app->mdb->classExistsUUID (uuid))
 	{
 		string orgpath;

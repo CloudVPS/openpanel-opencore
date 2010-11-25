@@ -164,11 +164,15 @@ bool CoreClass::normalize (value &mdata, string &error)
 			caseselector (p("type"))
 			{
 				incaseof ("integer") :
-					mdata[p.id()] = mdata[p.id()].ival();
+					log::write (log::debug, "CoreClass", "Normalize %s to int"
+								%format (p.id()));
+					node = node.ival();
 					break;
 				
 				incaseof ("bool") :
-					mdata[p.id()] = mdata[p.id()].bval();
+					log::write (log::debug, "CoreClass", "Normalize %s to bool"
+								%format (p.id()));
+					node = node.bval();
 					break;
 				
 				defaultcase :
@@ -190,6 +194,9 @@ bool CoreClass::normalize (value &mdata, string &error)
 		if (! normalizeLayoutNode (p, mdata, error))
 			return false;
 	}
+	
+	DEBUG.storeFile ("CoreClass", "endOfFunc", mdata, "normalize");
+	
 	return true;
 }
 

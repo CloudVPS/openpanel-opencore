@@ -1355,6 +1355,8 @@ bool DBManager::updateObject(const value &withmembers, const statstring &uuid, b
 
   // CORE->log(log::debug, "DB", "%s %i %i" %format (fetched["version"],
   //      fetched["version"], fetched["version"].ival() + 1));
+
+	DEBUG.storeFile ("DB", "members", members, "updateObject");
 			  
 	v["content"]=serialize(members);
 	v["class"]=updatedclassid;
@@ -1639,7 +1641,9 @@ string *DBManager::serialize(const value &members)
 {
 	returnclass (string) res retain;
 	
+	DEBUG.storeFile ("DB", "members", members, "serialize");
 	res=members.toxml(value::compact, schema);
+	DEBUG.storeFile ("DB", "res", res, "serialize");
 	
 	return &res;
 }
