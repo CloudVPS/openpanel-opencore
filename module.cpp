@@ -159,7 +159,22 @@ bool CoreClass::normalize (value &mdata, string &error)
                 return false;
 		    }
 		}
-		
+		else
+		{
+			caseselector (p("type"))
+			{
+				incaseof ("integer") :
+					mdata[p.id()] = mdata[p.id()].ival();
+					break;
+				
+				incaseof ("bool") :
+					mdata[p.id()] = mdata[p.id()].bval();
+					break;
+				
+				defaultcase :
+					break;
+			}
+		}
 	}
 	
 	value dbug =
