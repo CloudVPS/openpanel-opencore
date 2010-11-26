@@ -130,6 +130,9 @@ bool CoreClass::normalize (value &mdata, string &error)
 		}
 		
 		value &p = param[node.id()];
+		
+		if ((p("type") == "password") && (node.sval().strlen() == 0)) continue;
+		
 		if (p("regexp").sval() && node.sval())
 		{
 			log::write (log::debug, "Module", "Checking param %s against "
@@ -230,6 +233,8 @@ bool CoreClass::normalizeLayoutNode (value &p, value &mdata, string &error)
 	if (p.id() == "id") return true;
 	if (! param.exists (p.id())) return true;
 	
+	if (
+	
 	if ((p.attribexists ("required")))
 	{
 		// If the parameter is not in the primary lay-out, it must be
@@ -242,6 +247,7 @@ bool CoreClass::normalizeLayoutNode (value &p, value &mdata, string &error)
 		bool exists = mdata.exists (p.id()) && mdata[p.id()].sval();
 		if ((! exists) && (! p("default").sval()))
 		{
+			if (p("type") == "password") return true;
 			DEBUG.storeFile ("CoreClass","req-no-default", p, "normalizeLayoutNode");
 			error = "Required element with no default: %s" %format (p.id());
 			return false;
