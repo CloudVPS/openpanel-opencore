@@ -82,6 +82,7 @@
       <and><match.id>listenport</match.id></and>
       <and><match.id>minthreads</match.id></and>
       <and><match.id>maxthreads</match.id></and>
+      <and><match.id>listenaddr</match.id></and>
     </match.child>
   </datarule>
 

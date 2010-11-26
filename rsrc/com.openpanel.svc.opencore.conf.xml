@@ -31,7 +31,7 @@
       <maxthreads>8</maxthreads>
     </unixsocket>
     <httpsocket>
-      <listenport>3300</listenport>
+      <listenport>4088</listenport>
       <minthreads>6</minthreads>
       <maxthreads>32</maxthreads>    
     </httpsocket>

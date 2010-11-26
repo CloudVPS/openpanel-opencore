@@ -45,12 +45,14 @@
   <xml.class name="httpsocket">
   	<xml.type>dict</xml.type>
   	<xml.proplist>
+  		<xml.member class="listenaddr" id="listenaddr"/>
 	  	<xml.member class="minthreads"	id="minthreads"/>
   		<xml.member class="maxthreads"	id="maxthreads"/>
 		<xml.member class="listenport"	id="listenport"/>  
 	</xml.proplist>
   </xml.class>
   
+  <xml.class name="listenaddr"><xml.type>ipaddress</xml.type></xml.class>
   <xml.class name="minthreads"><xml.type>integer</xml.type></xml.class>
   <xml.class name="maxthreads"><xml.type>integer</xml.type></xml.class>  
   <xml.class name="listenport"><xml.type>integer</xml.type></xml.class>
