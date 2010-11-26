@@ -245,6 +245,7 @@ bool CoreClass::normalizeLayoutNode (value &p, value &mdata, string &error)
 		bool exists = mdata.exists (p.id()) && mdata[p.id()].sval();
 		if ((! exists) && (! p("default").sval()))
 		{
+			if (p("type") == "password") return true;
 			DEBUG.storeFile ("CoreClass","req-no-default", p, "normalizeLayoutNode");
 			error = "Required element with no default: %s" %format (p.id());
 			return false;
