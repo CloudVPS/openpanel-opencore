@@ -68,9 +68,11 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 			{
 				statstring pid = "%i" %format ((int) s.peer_port);
 	
+				DEBUG.storeFile ("RPC", "inhdr", inhdr, "run");
+	
 				if (inhdr.exists ("X-Forwarded-For"))
 				{
-					peer_name = inhdr["X-Forwarded-For "];
+					peer_name = inhdr["X-Forwarded-For"];
 					exclusivesection (peercache)
 					{
 						peercache[pid] = peer_name;
@@ -92,14 +94,8 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 				
 			if (origin.strchr ('/') >0) origin = origin.cutat ('/');
 			if (! origin) origin = "RPC";
-			if (! peer_name)
-			{
-				origin.strcat ("/src=sslproxy");
-			}
-			else
-			{
-				origin.strcat ("/src=%s" %format (peer_name));
-			}
+
+			origin.strcat ("/src=%s" %format (peer_name));
 		}
 	
 		res = hdl.handle (indata, s.peer_uid, origin);	
