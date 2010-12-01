@@ -92,7 +92,14 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 				
 			if (origin.strchr ('/') >0) origin = origin.cutat ('/');
 			if (! origin) origin = "RPC";
-			origin.strcat ("/src=%s" %format (peer_name));
+			if (! peer_name)
+			{
+				origin.strcat ("/src=sslproxy");
+			}
+			else
+			{
+				origin.strcat ("/src=%s" %format (peer_name));
+			}
 		}
 	
 		res = hdl.handle (indata, s.peer_uid, origin);	
