@@ -43,7 +43,7 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 		CORE->log (log::debug, "RPC", "handle: %S %!" %format (uri, inhdr));
 		value indata;
 		value res;
-		string origin = "IPC";
+		string origin = "rpc";
 		uid_t uid = 0;
 		RPCHandler hdl (sdb);
 	
