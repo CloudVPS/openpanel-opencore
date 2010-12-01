@@ -37,8 +37,6 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
                  		    string &out, value &outhdr, value &env,
                 		    tcpsocket &s)
 {
-	static lock<value> peercache;
-	
 	try
 	{
 		DEBUG.storeFile ("RPCRequestHandler","postbody", postbody, "run");
@@ -66,29 +64,9 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 			string peer_name = s.peer_name;
 			if (peer_name == "127.0.0.1")
 			{
-				statstring pid = "%i" %format ((int) s.peer_port);
-	
-				DEBUG.storeFile ("RPC", "inhdr", inhdr, "run");
-	
 				if (inhdr.exists ("X-Forwarded-For"))
 				{
 					peer_name = inhdr["X-Forwarded-For"];
-					exclusivesection (peercache)
-					{
-						peercache[pid] = peer_name;
-						if (peercache.count() > 128)
-						{
-							peercache.rmindex (0);
-						}
-					}
-				}
-				else
-				{
-					sharedsection (peercache)
-					{
-						if (peercache.exists (pid))
-							peer_name = peercache[pid];
-					}
 				}
 			}
 				
