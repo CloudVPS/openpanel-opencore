@@ -398,7 +398,7 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	proc.close();
 	proc.serialize();
 	
-	value skipfs = $("tmpfs") -> $("udev") -> $("none");
+	value skipfs = $("tmpfs",true) -> $("udev",true) -> $("none",true);
 	
 	for (int i=1; i<output.count(); ++i)
 	{
