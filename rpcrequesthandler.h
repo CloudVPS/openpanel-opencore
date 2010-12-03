@@ -128,8 +128,11 @@ public:
 				  tcpsocket &s);
 
 private:
+	lock<value>		   rsscache;
 	class OpenCoreApp *app;
 	xmlschema		   schema;
+	
+	value			  *getRSS (const string &url);
 };
 
 //  -------------------------------------------------------------------------

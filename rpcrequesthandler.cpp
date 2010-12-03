@@ -415,10 +415,7 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 			   $("mountpoint",splt[5]);
 	}
 	
-	httpsocket hs;
-	value rss;
-	string rssdat = hs.get ("http://blog.openpanel.com/feed/");
-	rss.fromxml (rssdat, schema);
+	value rss = getRSS ("http://blog.openpanel.com/feed/");
 	
 	foreach (item, rss[0])
 	{
@@ -431,8 +428,7 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		}
 	}
 	
-	rssdat = hs.get ("http://forum.openpanel.com/index.php?type=rss;action=.xml");
-	rss.fromxml (rssdat, schema);
+	rss = getRSS ("http://forum.openpanel.com/index.php?type=rss;action=.xml");
 	
 	foreach (item, rss[0])
 	{
@@ -452,4 +448,40 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	p.run (senv, out);
 	outhdr["Content-type"] = "text/html";
 	return 200;
+}
+
+value *LandingPageHandler::getRSS (const string &url)
+{
+	returnclass (value) res retain;
+	
+	timestamp tnow = core.time.now();
+	sharedsection (rsscache)
+	{
+		if (rsscache.exists (url))
+		{
+			timestamp tcache = rsscache[url]["ts"];
+			tcache += 300;
+			
+			if (tnow > tcache)
+			{
+				res = rsscache[url]["data"];
+				return &res;
+			}
+		}
+	}
+	
+	httpsocket hs;
+	value rss;
+	
+	string rssdat = hs.get (url);
+	rss.fromxml (rssdat, schema);
+	
+	exclusivesection (rsscache)
+	{
+		rsscache[url]["ts"] = tnow;
+		rsscache[url]["data"] = rss;
+	}
+	
+	res = (const value &) rss;
+	return &res;
 }
