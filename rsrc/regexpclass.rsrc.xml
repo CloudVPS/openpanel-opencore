@@ -23,7 +23,7 @@
 	<string id="_domain">[a-zA-Z0-9]{1}[-a-zA-Z0-9]+(\.[-.a-zA-Z0-9]*)?</string>
 	<string id="_dompages">(((\/?([a-zA-Z0-9_]+)){0,}\.[a-zA-Z0-9_]+)?)?</string>
 	<string id="_cn">[a-zA-Z0-9]</string>
-	<string id="_email">[^%@ ]+@([A-Za-z0-9\-]+\.)+([A-Za-z]{2,})</string>
+	<string id="_email">[^%@ ]+@(([A-Za-z0-9\-]+\.)+([A-Za-z]{2,})|localhost)</string>
 	<string id="_hostname">^((([a-zA-Z0-9]){1}([a-zA-Z0-9-]+)?\.)+)?([a-zA-Z0-9]){1}([a-zA-Z0-9-]{0,}([a-zA-Z0-9]){1})\.([a-zA-Z]){2,4}$$</string>
 	<string id="_urlvalid">[-0-9a-zA-Z!#%?=\&.,/+_~;]*</string>
 	

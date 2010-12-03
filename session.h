@@ -39,6 +39,9 @@ public:
 									 /// Destructor.
 									~SessionDB (void);
 
+	void							 saveToDisk (const string &path);
+	void							 loadFromDisk (const string &path);
+
 									 /// Find a CoreSession by its
 									 /// session-id. A pointer is
 									 /// returned, but SessionDB remains
@@ -61,6 +64,11 @@ public:
 									 ///             that should be added.
 									 /// \return Pointer to the session.
 	class CoreSession 				*create (const value &meta);
+	
+									 /// Create a new session from data that
+									 /// was serialized earlier.
+									 /// \param ser The serialized structure.
+	class CoreSession				*createFromSerialized (const value &ser);
 	
 									 /// Release a claim on a session.
 									 /// The session will be kept in

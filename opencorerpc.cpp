@@ -121,8 +121,14 @@ bool OpenCoreRPC::_confcreate (const value &conf, int update)
 		httpdUds.start();
 		fs.chmod (PATH_RPCSOCK, 0666);
 		
-		ipaddress localhost = "127.0.0.1";
-		httpdTcp.listento (localhost, 4088);
+		ipaddress listenaddr = "127.0.0.1";
+		
+		if (conf["httpsocket"].exists ("listenaddr"))
+		{
+			listenaddr = conf["httpsocket"]["listenaddr"];
+		}
+		
+		httpdTcp.listento (listenaddr, conf["httpsocket"]["listenport"]);
 		CORE->log (log::info, "RPC", "Setting up tcp-rpc on 127.0.0.1:4088");
 		
 		if (! update)

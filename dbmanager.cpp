@@ -275,7 +275,7 @@ bool DBManager::listObjects (value &into, const statstring &parent, const value 
             where["o.parent"]=0;
         }
 	}
-	
+		
 	if(!god)
         where["p.powerid"]=findlocalid (useruuid);
 
@@ -1255,6 +1255,8 @@ bool DBManager::updateObject(const value &withmembers, const statstring &uuid, b
 
   // CORE->log(log::debug, "DB", "%s %i %i" %format (fetched["version"],
   //      fetched["version"], fetched["version"].ival() + 1));
+
+	DEBUG.storeFile ("DB", "members", members, "updateObject");
 			  
 	if (deleted)
 		v["content"]="";
@@ -1529,7 +1531,9 @@ string *DBManager::serialize(const value &members)
 {
 	returnclass (string) res retain;
 	
+	DEBUG.storeFile ("DB", "members", members, "serialize");
 	res=members.toxml(value::compact, schema);
+	DEBUG.storeFile ("DB", "res", res, "serialize");
 	
 	return &res;
 }
@@ -1668,7 +1672,7 @@ bool DBManager::login(const statstring &username, const statstring &password)
 	value where;
 	where["metaid"]=username;
 	where["class"]=findclassid("User");
-
+	
     useruuid = "";
 	query.strcat(escapeforsql("=", " AND ", where));
 	value qres = dosqlite(query); // TODO: handle 'not found'
@@ -1867,7 +1871,7 @@ bool DBManager::registerClass(const value &classdata)
 			return false;
 		}
 		return true; // FIXME: we should accept class changes
-	}
+		}
 		
 	// apparently this class is new to us!
 	
@@ -1876,7 +1880,7 @@ bool DBManager::registerClass(const value &classdata)
 	v["metaid"]=classdata("name");
 	v["uniquecontext"]=v["class"]=1; // predefined constant for Class Class
 	v["content"]=serialize(classdata);
-
+	
     int oldid = findclassid(classdata("name"));
     
 	query.strcat(escapeforinsert(v));
@@ -1906,18 +1910,18 @@ bool DBManager::reportSuccess(const statstring &uuid)
 	q.printf("DELETE /* reportSuccess */ FROM objects WHERE content='' AND ");
 	where["uuid"]=uuid;
 	q.strcat(escapeforsql("=", " AND ", where));
-	
+
 	value dbres = dosqlite(q);
 
-	return true;
+  return true;
 }
-  
+
 bool DBManager::reportFailure(const statstring &uuid)
 {
 	value empty;
 	return updateObject(&empty, uuid, true, true, true);
-}
-
+    	}
+		
 // we iterate upwards from our logged-in user to find all
 // applying limits. a smaller limit overrides a bigger one,
 // any limit overrides infinity, infinity never overrides any limit

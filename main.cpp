@@ -150,6 +150,12 @@ int OpenCoreApp::main (void)
 	// Set up collection objects.
 	mdb = new ModuleDB;
 	sdb = new SessionDB (*mdb);
+	
+	if (fs.exists ("/var/opencore/db/session.xml"))
+	{
+		sdb->loadFromDisk ("/var/opencore/db/session.xml");
+	}
+	
 	rpc = NULL; // will be initialized by confRpc.
 		
 	// Add watcher value for event log. System will daemonize after
@@ -212,6 +218,8 @@ int OpenCoreApp::main (void)
 	}
 	
 	log (log::info, "Main", "Shutting down");
+
+	sdb->saveToDisk ("/var/opencore/db/session.xml");
 
 	sexp->shutdown();
 	ALERT->shutdown();

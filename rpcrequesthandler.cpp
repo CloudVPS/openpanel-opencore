@@ -37,15 +37,13 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
                  		    string &out, value &outhdr, value &env,
                 		    tcpsocket &s)
 {
-	static lock<value> peercache;
-	
 	try
 	{
 		DEBUG.storeFile ("RPCRequestHandler","postbody", postbody, "run");
 		CORE->log (log::debug, "RPC", "handle: %S %!" %format (uri, inhdr));
 		value indata;
 		value res;
-		string origin = "IPC";
+		string origin = "rpc";
 		uid_t uid = 0;
 		RPCHandler hdl (sdb);
 	
@@ -66,32 +64,15 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 			string peer_name = s.peer_name;
 			if (peer_name == "127.0.0.1")
 			{
-				statstring pid = "%i" %format ((int) s.peer_port);
-	
 				if (inhdr.exists ("X-Forwarded-For"))
 				{
-					peer_name = inhdr["X-Forwarded-For "];
-					exclusivesection (peercache)
-					{
-						peercache[pid] = peer_name;
-						if (peercache.count() > 128)
-						{
-							peercache.rmindex (0);
-						}
-					}
-				}
-				else
-				{
-					sharedsection (peercache)
-					{
-						if (peercache.exists (pid))
-							peer_name = peercache[pid];
-					}
+					peer_name = inhdr["X-Forwarded-For"];
 				}
 			}
 				
 			if (origin.strchr ('/') >0) origin = origin.cutat ('/');
 			if (! origin) origin = "RPC";
+
 			origin.strcat ("/src=%s" %format (peer_name));
 		}
 	
@@ -149,6 +130,17 @@ int IconRequestHandler::run (string &uri, string &postbody, value &inhdr,
 	uuid.cropat ('.');
 	
 	app->log (log::debug, "httpicon", "Request for <%s>" %format (uuid));
+	
+	if (inhdr.exists ("If-Modified-Since"))
+	{
+		s.puts ("HTTP/1.1 304 NOT CHANGED\r\n"
+				"Connection: %s\r\n"
+				"Content-length: 0\r\n\r\n"
+				%format (env["keepalive"].bval() ? "keepalive" : "close"));
+		
+		env["sentbytes"] = 0;
+		return -304;
+	}
 	
 	if (! app->mdb->classExistsUUID (uuid))
 	{
@@ -406,11 +398,15 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	proc.close();
 	proc.serialize();
 	
+	value skipfs = $("tmpfs") -> $("udev") -> $("none");
+	
 	for (int i=1; i<output.count(); ++i)
 	{
 		value splt = strutil::splitspace (output[i]);
 		if (splt.count() < 6) continue;
-		value &into = senv["mounts"][splt[0].sval()];
+		if (skipfs.exists (splt[0].sval())) continue;
+		
+		value &into = senv["mounts"][splt[5].sval()];
 		
 		into = $("device",splt[0])->
 			   $("size",splt[1].ival() / (1024 * 1024))->

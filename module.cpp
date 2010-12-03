@@ -130,10 +130,20 @@ bool CoreClass::normalize (value &mdata, string &error)
 		}
 		
 		value &p = param[node.id()];
+		
+		if ((p("type") == "password") && (node.sval().strlen() == 0)) continue;
+		
 		if (p("regexp").sval() && node.sval())
 		{
+			log::write (log::debug, "Module", "Checking param %s against "
+						"regexp %s" %format (node.id(), p("regexp")));
+			
 			string re = p("regexp");
 			re = CORE->regexp (re);
+			
+			log::write (log::debug, "Module", "String <%s> regexp <%s>"
+						%format (node.sval(), re));
+			
 			pcregexp RE (re);
 			
 			if (! RE.match (node.sval()))
@@ -152,7 +162,26 @@ bool CoreClass::normalize (value &mdata, string &error)
                 return false;
 		    }
 		}
-		
+		else
+		{
+			caseselector (p("type"))
+			{
+				incaseof ("integer") :
+					log::write (log::debug, "CoreClass", "Normalize %s to int"
+								%format (p.id()));
+					node = node.ival();
+					break;
+				
+				incaseof ("bool") :
+					log::write (log::debug, "CoreClass", "Normalize %s to bool"
+								%format (p.id()));
+					node = node.bval();
+					break;
+				
+				defaultcase :
+					break;
+			}
+		}
 	}
 	
 	value dbug =
@@ -168,6 +197,9 @@ bool CoreClass::normalize (value &mdata, string &error)
 		if (! normalizeLayoutNode (p, mdata, error))
 			return false;
 	}
+	
+	DEBUG.storeFile ("CoreClass", "endOfFunc", mdata, "normalize");
+	
 	return true;
 }
 
@@ -201,7 +233,7 @@ bool CoreClass::normalizeLayoutNode (value &p, value &mdata, string &error)
 	if (p.id() == "id") return true;
 	if (! param.exists (p.id())) return true;
 	
-	if ((p.attribexists ("required")))
+	if (p.attribexists ("required"))
 	{
 		// If the parameter is not in the primary lay-out, it must be
 		// grouped (negating many requirements).
@@ -213,6 +245,7 @@ bool CoreClass::normalizeLayoutNode (value &p, value &mdata, string &error)
 		bool exists = mdata.exists (p.id()) && mdata[p.id()].sval();
 		if ((! exists) && (! p("default").sval()))
 		{
+			if (p("type") == "password") return true;
 			DEBUG.storeFile ("CoreClass","req-no-default", p, "normalizeLayoutNode");
 			error = "Required element with no default: %s" %format (p.id());
 			return false;

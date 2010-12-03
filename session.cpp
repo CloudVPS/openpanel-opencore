@@ -37,6 +37,51 @@ SessionDB::~SessionDB (void)
 }
 
 // ==========================================================================
+// METHOD ::saveToDisk
+// ==========================================================================
+void SessionDB::saveToDisk (const string &path)
+{
+	value serialized;
+	
+	sharedsection (lck)
+	{
+		CoreSession *crsr = first;
+		while (crsr)
+		{
+			crsr->spinlock.lockr();
+			
+			timestamp t = crsr->heartbeat;
+			
+			serialized[crsr->id] =
+				$("meta",crsr->meta)->
+				$("errors",crsr->errors)->
+				$("quotamap",crsr->quotamap)->
+				$("heartbeat",t);
+			
+			crsr->spinlock.unlock();
+			
+			crsr = crsr->next;
+		}
+	}
+	
+	serialized.savexml (path);
+}
+
+// ==========================================================================
+// METHOD ::loadFromDisk
+// ==========================================================================
+void SessionDB::loadFromDisk (const string &path)
+{
+	value serialized;
+	
+	serialized.loadxml (path);
+	foreach (s, serialized)
+	{
+		createFromSerialized (s);
+	}
+}
+
+// ==========================================================================
 // METHOD SessionDB::get
 // ==========================================================================
 CoreSession *SessionDB::get (const statstring &id)
@@ -77,6 +122,37 @@ CoreSession *SessionDB::create (const value &meta)
 	}
 	log::write (log::debug, "Session", "SDB Create <%S>" %format (id));
 	
+	return s;
+}
+
+// ==========================================================================
+// METHOD ::createFromSerialized
+// ==========================================================================
+CoreSession *SessionDB::createFromSerialized (const value &ser)
+{
+	CoreSession *s;
+	statstring id = ser.id();
+	
+	exclusivesection (lck)
+	{
+		try
+		{
+			lck = 1;
+			s = demand (id);
+			s->meta = ser["meta"];
+			s->errors = ser["errors"];
+			s->quotamap = ser["quotamap"];
+			
+			timestamp t = ser["heartbeat"];
+			s->heartbeat = t.unixtime();
+		}
+		catch (...)
+		{
+			log::write (log::error, "Session", "Software bug in session "
+					    "database, exception caught");
+		}
+	}
+	log::write (log::debug, "Session", "SDB Recreate <%S>" %format (id));
 	return s;
 }
 
@@ -408,8 +484,6 @@ bool CoreSession::login (const string &user, const string &pass, bool superuser)
 	res = db.login (user, pass);
 	if (! res)
 	{
-		if (! user) return false;
-
 		setError (ERR_DBMANAGER_LOGINFAIL);
 		log::write (log::error, "Session", "Failed login user "
 				    "<%S> (%S)" %format (user, db.getLastError()));
@@ -918,15 +992,6 @@ bool CoreSession::updateObject (const statstring &parentid,
 		return false;
 	}
 	
-	// Handle any cryptable fields.
-	if (! handleCrypts (parentid, ofclass, withid, withparam))
-	{
-		// Crypting failed. Bummer.
-		log::write (log::error, "Session", "Update failed due to crypt error");
-		setError (ERR_SESSION_CRYPT);
-		return false;
-	}
-	
 	
 	CoreClass &cl = mdb.getClass (ofclass);
 	value oldobject;
@@ -987,7 +1052,18 @@ bool CoreSession::updateObject (const statstring &parentid,
 		return false;
 	}
 
+	// Handle any cryptable fields.
+	if (! handleCrypts (parentid, ofclass, withid, withparam))
+	{
+		// Crypting failed. Bummer.
+		log::write (log::error, "Session", "Update failed due to crypt error");
+		setError (ERR_SESSION_CRYPT);
+		return false;
+	}
+	
 	value ctx;
+	
+	DEBUG.storeFile ("Session", "postnormalize", withparam, "updateObject");
 
 	if (mdb.classIsDynamic (ofclass))
 	{
@@ -1024,6 +1100,8 @@ bool CoreSession::updateObject (const statstring &parentid,
 	{
 		bool updatesucceeded;
 		
+		DEBUG.storeFile ("Session", "parm0", withparam, "updateObject");
+
 		updatesucceeded = db.updateObject (withparam, uuid, immediate);
 		if (! updatesucceeded) // FIXME: get rid of bool var?
 		{
@@ -1059,9 +1137,12 @@ bool CoreSession::updateObject (const statstring &parentid,
 					$("objectid", withid ? withid.sval() : uuid)
 			   );
 	
+		DEBUG.storeFile ("Session", "parm1", ctx, "updateObject");
+	
 		// Merge the parameters
 		ctx << parm;
 	
+		DEBUG.storeFile ("Session", "parm2", ctx, "updateObject");
 	}
 
 	DEBUG.storeFile ("Session", "update-ctx", ctx, "updateObject");
