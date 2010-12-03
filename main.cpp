@@ -143,7 +143,7 @@ int OpenCoreApp::main (void)
 	gid_authd = gw["gid"].uval();
 	
 	// Fiddle the credentials we should get.
-	settargetgroups ($("authd"));
+	settargetgroups ($("openpanel-authd"));
 	settargetgid (gid_opencore, gid_opencore);
 	settargetuid (uid_opencore);
 
