@@ -1481,6 +1481,8 @@ value *CoreSession::callMethod (const statstring &parentid,
 	
 	if (mdb.isInternalClass (ofclass))
 	{
+		log::write (log::info, "Session", "Callmethod p=%s cl=%s id=%s m=%s"
+					%format (parentid,ofclass,withid,method));
 		InternalClass &cl = mdb.getInternalClass (ofclass);
 		bool bres = cl.callMethod (this, parentid, withid, method, withparam);
 		if (! bres)
