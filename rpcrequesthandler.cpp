@@ -229,7 +229,7 @@ int ItemIconRequestHandler::run (string &uri, string &postbody, value &inhdr,
 }
 
 WallpaperHandler::WallpaperHandler (class OpenCoreApp *papp, httpd &serv)
-	: httpdobject (serv, "/dynamic/wallpaper.jpg"), app (papp)
+	: httpdobject (serv, "/dynamic/wallpaper*"), app (papp)
 {
 }
 
@@ -237,10 +237,22 @@ int WallpaperHandler::run (string &uri, string &postbody, value &inhdr,
 						   string &out, value &outhdr, value &env,
 						   tcpsocket &s)
 {
-	string p = WallpaperClass::getCurrentWallpaper();
-	log::write (log::info, "WallP", "Serving %s" %format (p));
-	out = fs.load (p);
-	return 200;
+	outhdr["Content-type"] = "image/jpeg";
+	
+	if (uri == "/dynamic/wallpaper.jpg")
+	{
+		string p = WallpaperClass::getCurrentWallpaper();
+		log::write (log::info, "WallP", "Serving %s" %format (p));
+		out = fs.load (p);
+		return 200;
+	}
+	else
+	{
+		string fn = uri.copyafterlast ("/");
+		string path = "/var/openpanel/wallpaper/%s.preview" %format (fn);
+		out = fs.load (path);
+		return 200;
+	}
 }
 
 // ==========================================================================
