@@ -141,6 +141,7 @@ bool OpenCoreRPC::_confcreate (const value &conf, int update)
 			new EmblemRequestHandler (app, httpdTcp);
 			new ImagePreloader (app, httpdTcp);
 			new LandingPageHandler (app, httpdTcp);
+			new WallpaperHandler (app, httpdTcp);
 			new httpdfileshare (httpdTcp, "*", "/var/openpanel/http");
 		}
 		
