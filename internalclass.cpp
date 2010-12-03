@@ -543,13 +543,13 @@ value *WallpaperClass::listObjects (CoreSession *s, const statstring &pid)
 	returnclass (value) res retain;
 	
 	value &out = res["OpenCORE:Wallpaper"];
-	value dir = fs.dir ("/var/openpanel/wallpapers");
+	value dir = fs.dir ("/var/openpanel/wallpaper");
 	foreach (node, dir)
 	{
 		string ext = node.id().sval().copyafterlast(".");
 		if (ext == "jpg")
 		{
-			string descpath = "/var/openpanel/wallpapers/%s.desc"
+			string descpath = "/var/openpanel/wallpaper/%s.desc"
 							  %format (node.id());
 			
 			string desc;
@@ -579,7 +579,7 @@ bool WallpaperClass::callMethod (CoreSession *s, const statstring &pid,
 {
 	if (method != "set") return false;
 	
-	string path = "/var/openpanel/wallpapers/%s" %format (withid);
+	string path = "/var/openpanel/wallpaper/%s" %format (withid);
 	if (fs.exists (path))
 	{
 		exclusivesection (currentWallpaper) currentWallpaper = path;
