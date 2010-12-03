@@ -353,6 +353,7 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		if (l.sval().strncmp ("model name",10)) continue;
 		string scpu = l.sval().copyafter (": ");
 		scpu.replace ($("(R)","&reg;"));
+		scpu.replace ($("(tm)","&trade;"));
 		senv["os_cpu"] = scpu;
 		break;
 	}
