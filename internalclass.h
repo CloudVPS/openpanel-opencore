@@ -180,6 +180,8 @@ public:
 	value			*listObjects (CoreSession *s, const statstring &pid);
 };
 
+static lock<string> currentWallpaper;
+
 //  -------------------------------------------------------------------------
 /// Implementation of the OpenCORE:Wallpaper CoreClass.
 //  -------------------------------------------------------------------------

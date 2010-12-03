@@ -529,9 +529,9 @@ value *ClassListClass::listObjects (CoreSession *s, const statstring &pid)
 WallpaperClass::WallpaperClass (void)
 {
 	if (fs.exists ("/var/openpanel/db/wallpaper.dat"))
-		current.o = fs.load ("/var/openpanel/db/wallpaper.dat");
+		currentWallpaper.o = fs.load ("/var/openpanel/db/wallpaper.dat");
 	else
-		current.o = "/var/openpanel/wallpaper/default.jpg";
+		currentWallpaper.o = "/var/openpanel/wallpaper/default.jpg";
 }
 
 WallpaperClass::~WallpaperClass (void)
@@ -582,13 +582,13 @@ bool WallpaperClass::callMethod (CoreSession *s, const statstring &pid,
 	string path = "/var/openpanel/wallpapers/%s" %format (withid);
 	if (fs.exists (path))
 	{
-		exclusivesection (current) current = path;
+		exclusivesection (currentWallpaper) currentWallpaper = path;
 	}
 }
 
 string *WallpaperClass::getCurrentWallpaper (void)
 {
 	returnclass (string) res retain;
-	sharedsection (current) res = (const string &) current;
+	sharedsection (currentWallpaper) res = (const string &) currentWallpaper;
 	return &res;
 }
