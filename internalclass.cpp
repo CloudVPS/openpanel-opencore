@@ -605,6 +605,8 @@ bool WallpaperClass::updateObject (CoreSession *s,
 		exclusivesection (currentWallpaper) currentWallpaper = path;
 		fs.save ("/var/openpanel/db/wallpaper.dat", path);
 	}
+	
+	return true;
 }    
 
 string *WallpaperClass::getCurrentWallpaper (void)
