@@ -585,6 +585,7 @@ bool WallpaperClass::callMethod (CoreSession *s, const statstring &pid,
 	if (fs.exists (path))
 	{
 		exclusivesection (currentWallpaper) currentWallpaper = path;
+		fs.save ("/var/openpanel/db/wallpaper.dat", path);
 	}
 }
 
