@@ -22,6 +22,7 @@ case "$1" in
         rm -f /var/openpanel/log/opencore.*
         rm -f /var/openpanel/cache/module.cache
         rm -f /var/openpanel/db/panel/panel.db
+        rm -f /var/openpanel/db/session.xml
         rm -f /var/openpanel/db/alertq.db
         rm -rf /var/openpanel/conf/staging/*
         ;;
