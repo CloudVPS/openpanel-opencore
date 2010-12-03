@@ -581,6 +581,8 @@ bool WallpaperClass::callMethod (CoreSession *s, const statstring &pid,
 {
 	if (method != "set") return false;
 	
+	log::write (log::info, "WallP", "Set wallpaper: %s" %format (withid));
+	
 	string path = "/var/openpanel/wallpaper/%s" %format (withid);
 	if (fs.exists (path))
 	{
