@@ -541,6 +541,8 @@ WallpaperClass::~WallpaperClass (void)
 value *WallpaperClass::listObjects (CoreSession *s, const statstring &pid)
 {
 	returnclass (value) res retain;
+	string cur = getCurrentWallpaper();
+	cur.cropafterlast ("/");
 	
 	value &out = res["OpenCORE:Wallpaper"];
 	value dir = fs.dir ("/var/openpanel/wallpaper");
@@ -567,6 +569,7 @@ value *WallpaperClass::listObjects (CoreSession *s, const statstring &pid)
 				$("metaid", node.id()) ->
 				$("uuid", getUUID("@",node.id()))->
 				$("class", "OpenCORE:Wallpaper")->
+				$("active", node.id() == cur)->
 				$("description", desc);
 		}
 	}
@@ -574,22 +577,35 @@ value *WallpaperClass::listObjects (CoreSession *s, const statstring &pid)
 	return &res;
 }
 
-bool WallpaperClass::callMethod (CoreSession *s, const statstring &pid,
-								 const statstring &withid,
-								 const statstring &method,
-								 const value &withparam)
+bool WallpaperClass::updateObject (CoreSession *s,
+								   const statstring &_parentid,
+								   const statstring &withid,
+								   const value &withparam)
 {
-	if (method != "set") return false;
+	statstring parentid = _parentid;
+	bool active = withparam["active"];
 	
-	log::write (log::info, "WallP", "Set wallpaper: %s" %format (withid));
+	if (! active) return true;
 	
-	string path = "/var/openpanel/wallpaper/%s" %format (withid);
+    statstring mid;
+	if (withid.sval().strchr ('-') == 8)
+	{
+		mid = getMetaID (withid);
+		parentid = getParentID (withid);
+	}
+	else
+	{
+        mid = withid;
+    }
+    
+	log::write (log::info, "WallP", "Set wallpaper: %s" %format (mid));
+	string path = "/var/openpanel/wallpaper/%s" %format (mid);
 	if (fs.exists (path))
 	{
 		exclusivesection (currentWallpaper) currentWallpaper = path;
 		fs.save ("/var/openpanel/db/wallpaper.dat", path);
 	}
-}
+}    
 
 string *WallpaperClass::getCurrentWallpaper (void)
 {

@@ -192,10 +192,11 @@ public:
 					~WallpaperClass (void);
 					
 	value			*listObjects (CoreSession *s, const statstring &pid);
-	bool			 callMethod (CoreSession *s, const statstring &pid,
-								 const statstring &wid, const statstring &mt,
-								 const value &param);
-	
+	bool			 updateObject (CoreSession *s,
+								   const statstring &parentid,
+								   const statstring &withid,
+								   const value &withparam);
+
 	static string	*getCurrentWallpaper (void);
 	
 protected:
