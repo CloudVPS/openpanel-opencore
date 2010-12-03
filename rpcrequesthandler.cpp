@@ -237,7 +237,9 @@ int WallpaperHandler::run (string &uri, string &postbody, value &inhdr,
 						   string &out, value &outhdr, value &env,
 						   tcpsocket &s)
 {
-	out = fs.load (WallpaperClass::getCurrentWallpaper());
+	string p = WallpaperClass::getCurrentWallpaper();
+	log::write (log::info, "WallP", "Serving %s" %format (p));
+	out = fs.load (p);
 	return 200;
 }
 
