@@ -565,6 +565,8 @@ value *WallpaperClass::listObjects (CoreSession *s, const statstring &pid)
 			out[node.id()] =
 				$("id", node.id()) ->
 				$("metaid", node.id()) ->
+				$("uuid", getUUID("@",node.id()))->
+				$("class", "OpenCORE:Wallpaper")->
 				$("description", desc);
 		}
 	}
