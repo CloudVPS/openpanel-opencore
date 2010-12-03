@@ -136,6 +136,23 @@ private:
 };
 
 //  -------------------------------------------------------------------------
+/// Dynamic resolution of backdrop wallpaper.
+//  -------------------------------------------------------------------------
+class WallpaperHandler : public httpdobject
+{
+public:
+				 WallpaperHandler (class OpenCoreApp *papp, httpd &x);
+				~WallpaperHandler (void) {}
+
+	int			 run (string &uri, string &postbody, value &inhdr,
+					  string &out, value &outhdr, value &env,
+					  tcpsocket &s);
+
+private:
+	class OpenCoreApp *app;
+};
+
+//  -------------------------------------------------------------------------
 /// Generate javascript code for preloading images.
 //  -------------------------------------------------------------------------
 class ImagePreloader : public httpdobject

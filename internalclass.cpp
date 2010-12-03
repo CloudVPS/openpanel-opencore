@@ -84,6 +84,16 @@ bool InternalClass::updateObject (CoreSession *s,
 	return false;
 }
 
+bool InternalClass::callMethod (CoreSession *s,
+								const statstring &parentid,
+								const statstring &withid,
+								const statstring &method,
+								const value &withparam = "")
+{
+	setError ("Methods not implemented");
+	return false;
+}
+
 // ==========================================================================
 // METHOD InternalClass::getUUID
 // ==========================================================================
@@ -513,5 +523,72 @@ value *ClassListClass::listObjects (CoreSession *s, const statstring &pid)
 		}
 	}
 	
+	return &res;
+}
+
+WallpaperClass::WallpaperClass (void)
+{
+	if (fs.exists ("/var/openpanel/db/wallpaper.dat"))
+		current.o = fs.load ("/var/openpanel/db/wallpaper.dat");
+	else
+		current.o = "/var/openpanel/wallpaper/default.jpg";
+}
+
+WallpaperClass::~WallpaperClass (void)
+{
+}
+
+value *WallpaperClass::listObjects (CoreSession *s, const statstring &pid)
+{
+	returnclass (value) res retain;
+	
+	value &out = res["OpenCORE:Wallpaper"];
+	value dir = fs.dir ("/var/openpanel/wallpapers");
+	foreach (node, dir)
+	{
+		string ext = node.id().sval().copyafterlast(".");
+		if (ext == "jpg")
+		{
+			string descpath = "/var/openpanel/wallpapers/%s.desc"
+							  %format (node.id());
+			
+			string desc;
+			
+			if (! fs.exists (descpath))
+			{
+				desc = "No description given";
+			}
+			else
+			{
+				desc = fs.load (descpath);
+			}
+			out[node.id()] =
+				$("id", node.id()) ->
+				$("metaid", node.id()) ->
+				$("description", desc);
+		}
+	}
+	
+	return &res;
+}
+
+bool WallpaperClass::callMethod (CoreSession *s, const statstring &pid,
+								 const statstring &withid,
+								 const statstring &method,
+								 const value &withparam)
+{
+	if (method != "set") return false;
+	
+	string path = "/var/openpanel/wallpapers/%s" %format (withid);
+	if (fs.exists (path))
+	{
+		exclusivesection (current) current = path;
+	}
+}
+
+string *WallpaperClass::getCurrentWallpaper (void)
+{
+	returnclass (string) res retain;
+	sharedsection (current) res = (const string &) current;
 	return &res;
 }

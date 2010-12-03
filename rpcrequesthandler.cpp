@@ -228,6 +228,19 @@ int ItemIconRequestHandler::run (string &uri, string &postbody, value &inhdr,
 	return 200;
 }
 
+WallpaperHandler::WallpaperHandler (class OpenCoreApp *papp, httpd &serv)
+	: httpdobject (serv, "/dynamic/wallpaper.jpg"), app (papp)
+{
+}
+
+int WallpaperHandler::run (string &uri, string &postbody, value &inhdr,
+						   string &out, value &outhdr, value &env,
+						   tcpsocket &s)
+{
+	out = fs.load (WallpaperClass::getCurrentWallpaper());
+	return 200;
+}
+
 // ==========================================================================
 // CONSTRUCTOR EmblemRequestHandler
 // ==========================================================================

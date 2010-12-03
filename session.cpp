@@ -1479,6 +1479,17 @@ value *CoreSession::callMethod (const statstring &parentid,
 	
 	returnclass (value) res retain;
 	
+	if (mdb.isInternalClass (ofclass))
+	{
+		InternalClass &cl = mdb.getInternalClass (ofclass);
+		bool bres = cl.callMethod (this, parentid, withid, method, withparam);
+		if (! bres)
+		{
+			setError (ERR_MDB_ACTION_FAILED, "internal class method failed");
+		}
+		return &res;
+	}
+	
 	// If an id is given, the method wants the object's members and
 	// what not.
 	if (withid && (! mdb.classIsDynamic (ofclass)))

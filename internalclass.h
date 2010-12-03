@@ -61,6 +61,12 @@ public:
 								   const statstring &parentid,
 								   const statstring &withid,
 								   const value &withparam);
+								   
+	virtual bool	 callMethod (CoreSession *s,
+								 const statstring &parentid,
+								 const statstring &withid,
+								 const statstring &method,
+								 const value &withparam);
 	
 					 /// Return last reported error string.
 	const string	&error (void) { return err; }
@@ -174,5 +180,24 @@ public:
 	value			*listObjects (CoreSession *s, const statstring &pid);
 };
 
+//  -------------------------------------------------------------------------
+/// Implementation of the OpenCORE:Wallpaper CoreClass.
+//  -------------------------------------------------------------------------
+class WallpaperClass : public InternalClass
+{
+public:
+					 WallpaperClass (void);
+					~WallpaperClass (void);
+					
+	value			*listObjects (CoreSession *s, const statstring &pid);
+	bool			 callMethod (CoreSession *s, const statstring &pid,
+								 const statstring &wid, const statstring &mt,
+								 const value &param);
+	
+	static string	*getCurrentWallpaper (void);
+	
+protected:
+	static lock<string>	 current;
+};
 
 #endif
