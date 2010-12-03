@@ -115,7 +115,7 @@ int mkmodulexmlApp::main (void)
 	string corepath = "../opencore/rsrc";
 	if (! fs.exists (corepath))
 	{
-		corepath = "/var/openpanel/bin/opencore.app/Contents/Schemas";
+		corepath = "/var/openpanel/bin/openpaneld.app/Contents/Schemas";
 	}
 	if (! fs.exists (corepath))
 	{
