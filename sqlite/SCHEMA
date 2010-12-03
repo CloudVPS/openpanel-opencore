@@ -37,8 +37,6 @@ owner INTEGER,
 uniquecontext INTEGER,
 class NUMERIC NOT NULL,
 content TEXT NOT NULL,
-active BOOL DEFAULT 0,
-deleted BOOL DEFAULT 0,
 UNIQUE (uuid),
 UNIQUE (metaid,uniquecontext));
 
