@@ -184,6 +184,7 @@
           <text>bool</text>
           <text>password</text>
           <text>textarea</text>
+          <text>image</text>
         </match.data>
       </and>
       <match.id>clihide</match.id>
