@@ -379,6 +379,38 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		senv["os_distro"] = fs.load ("/etc/debian_version");
 	}
 	
+	if (fs.exists ("/var/openpanel/db/softwareupdate.db"))
+	{
+		value updates;
+		updates.loadshox ("/var/openpanel/db/softwareupdate.db");
+		int count = updates.count();
+		senv["updates_count"] = count;
+		
+		if (count)
+		{
+			string description = "<b>";
+			for (int i=0; (i<3) && (i<count); ++i)
+			{
+				if (i) description.strcat (", ");
+				description.strcat (updates[i].id());
+			}
+			
+			description.strcat ("</b>");
+			
+			if (count > 3)
+			{
+				if (count == 4)
+				{
+					description.strcat ("and one other");
+				}
+				else
+				{
+					description.strcat ("and %i others" %format (count-3));
+				}
+			}
+		}
+	}
+	
 	string suptime = fs.load ("/proc/uptime");
 	suptime.cropafter (' ');
 	int iuptime = suptime.toint(10);
