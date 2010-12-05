@@ -34,34 +34,34 @@ control_daemon( ) {
 
 case "$1" in
   start)
-    control_daemon start openpanel-ssl
-    control_daemon start openpanel-authd
-    control_daemon start openpanel-swupd
-    control_daemon start openpanel-core
+    control_daemon start ssl
+    control_daemon start authd
+    control_daemon start swupd
+    control_daemon start core
 	;;
 
   stop)
-    control_daemon stop openpanel-core
-    control_daemon stop openpanel-swupd
-    control_daemon stop openpanel-authd
-    control_daemon stop openpanel-ssl
+    control_daemon stop core
+    control_daemon stop swupd
+    control_daemon stop authd
+    control_daemon stop ssl
 	;;
   restart)
-    control_daemon stop openpanel-ssl
-    control_daemon stop openpanel-core
-    control_daemon stop openpanel-swupd
-    control_daemon stop openpanel-authd
+    control_daemon stop ssl
+    control_daemon stop core
+    control_daemon stop swupd
+    control_daemon stop authd
 
-    control_daemon restart openpanel-authd
-    control_daemon restart openpanel-swupd
-    control_daemon restart openpanel-core
-    control_daemon restart openpanel-ssl
+    control_daemon restart authd
+    control_daemon restart swupd
+    control_daemon restart core
+    control_daemon restart ssl
     ;;
   status)
-    control_daemon status openpanel-ssl || true
-    control_daemon status openpanel-authd || true
-    control_daemon status openpanel-swupd || true
-    control_daemon status openpanel-core || true
+    control_daemon status ssl || true
+    control_daemon status authd || true
+    control_daemon status swupd || true
+    control_daemon status core || true
     ;;
   *)
 	N=/etc/init.d/$NAME

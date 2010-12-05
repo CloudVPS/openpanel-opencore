@@ -19,12 +19,11 @@ set -e
 case "$1" in
     purge)
         update-rc.d openpanel-core remove > /dev/null
-        rm -f /var/openpanel/log/opencore.*
-        rm -f /var/openpanel/cache/module.cache
-        rm -f /var/openpanel/db/panel/panel.db
-        rm -f /var/openpanel/db/session.xml
-        rm -f /var/openpanel/db/alertq.db
-        rm -rf /var/openpanel/conf/staging/*
+        rm -f /var/opencore/log/opencore.*
+        rm -f /var/opencore/cache/module.cache
+        rm -f /var/opencore/db/panel/panel.db
+        rm -f /var/opencore/db/alertq.db
+        rm -rf /var/opencore/conf/staging/*
         ;;
 esac
 

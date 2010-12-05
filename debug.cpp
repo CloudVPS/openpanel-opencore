@@ -98,7 +98,7 @@ void Debugger::storeFile (const string &subsystem, const string &action,
 	if (! fs.exists (fname))
 	{
 		fs.mkdir (fname);
-		fs.chgrp (fname, "openpanel-core");
+		fs.chgrp (fname, "opencore");
 		fs.chmod (fname, 0700);
 	}
 	
@@ -108,7 +108,7 @@ void Debugger::storeFile (const string &subsystem, const string &action,
 		if (! fs.exists (fname))
 		{
 			fs.mkdir (fname);
-			fs.chgrp (fname, "openpanel-core");
+			fs.chgrp (fname, "opencore");
 			fs.chmod (fname, 0700);
 		}
 	}

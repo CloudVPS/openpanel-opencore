@@ -13,7 +13,7 @@ CoreModule::CoreModule (const string &moduleName)
 	: application (moduleName)
 {
 	string modid = moduleName.copyuntil (".module");
-	string spath = "/var/openpanel/conf/staging/%s" %format (modid);
+	string spath = "/var/opencore/conf/staging/%s" %format (modid);
 	fs.cd (spath);
 	chdir (spath);
 	

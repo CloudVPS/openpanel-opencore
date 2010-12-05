@@ -124,7 +124,7 @@ int OpenCoreApp::main (void)
 	value gw;
 	
 	// Find the opencore user.
-	pw = kernel.userdb.getpwnam ("openpanel-core");
+	pw = kernel.userdb.getpwnam ("opencore");
 	if (! pw)
 	{
 		ferr.writeln ("Could not find opencore user");
@@ -134,16 +134,16 @@ int OpenCoreApp::main (void)
 	gid_opencore = pw["gid"].uval();
 	
 	// Find the authd group
-	gw = kernel.userdb.getgrnam ("openpanel-authd");
+	gw = kernel.userdb.getgrnam ("authd");
 	if (! gw)
 	{
-		ferr.writeln ("Could not find openpanel-authd group");
+		ferr.writeln ("Could not find authd group");
 		return false;
 	}
 	gid_authd = gw["gid"].uval();
 	
 	// Fiddle the credentials we should get.
-	settargetgroups ($("openpanel-authd"));
+	settargetgroups ($("authd"));
 	settargetgid (gid_opencore, gid_opencore);
 	settargetuid (uid_opencore);
 
@@ -151,9 +151,9 @@ int OpenCoreApp::main (void)
 	mdb = new ModuleDB;
 	sdb = new SessionDB (*mdb);
 	
-	if (fs.exists ("/var/openpanel/db/session.xml"))
+	if (fs.exists ("/var/opencore/db/session.xml"))
 	{
-		sdb->loadFromDisk ("/var/openpanel/db/session.xml");
+		sdb->loadFromDisk ("/var/opencore/db/session.xml");
 	}
 	
 	rpc = NULL; // will be initialized by confRpc.
@@ -219,7 +219,7 @@ int OpenCoreApp::main (void)
 	
 	log (log::info, "Main", "Shutting down");
 
-	sdb->saveToDisk ("/var/openpanel/db/session.xml");
+	sdb->saveToDisk ("/var/opencore/db/session.xml");
 
 	sexp->shutdown();
 	ALERT->shutdown();
@@ -234,7 +234,7 @@ bool OpenCoreApp::checkAuthDaemon (void)
 {
 	tcpsocket sauth;
 	
-	if (! sauth.uconnect ("/var/openpanel/sockets/authd/authd.sock"))
+	if (! sauth.uconnect ("/var/opencore/sockets/authd/authd.sock"))
 	{
 		ferr.writeln ("% Error connecting to authd socket");
 		return false;
@@ -242,7 +242,7 @@ bool OpenCoreApp::checkAuthDaemon (void)
 	
 	try
 	{
-		sauth.writeln ("hello openpanel-core");
+		sauth.writeln ("hello opencore");
 		string line;
 		line = sauth.gets();
 		if (! line.strlen())

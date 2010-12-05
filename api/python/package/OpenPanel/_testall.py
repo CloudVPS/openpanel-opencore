@@ -214,7 +214,7 @@ def runtests(deleteuser=True):
         c.deleteobject(userid)
     
     print "%%% Checking database consistency"
-    dbverify = cmdtolist("/usr/bin/sqlite3 /var/openpanel/db/panel/panel.db < /usr/src/wharf/work/opencore/sqlite/VERIFY")
+    dbverify = cmdtolist("/usr/bin/sqlite3 /var/opencore/db/panel/panel.db < /usr/src/wharf/work/opencore/sqlite/VERIFY")
     dbok = True
     for l in dbverify:
         print l.strip()

@@ -11,7 +11,7 @@
 # Library code for using the opencore shell module API.
 #
 
-PATH=/var/openpanel/bin:${PATH}
+PATH=/var/opencore/bin:${PATH}
 
 try_authd() {
   line="$1"
@@ -124,7 +124,7 @@ listaliases() {
 implement() {
   MODULENAME=`echo "$1" | sed -e "s/\.module$//"`
   export MODULENAME
-  cd /var/openpanel/conf/staging/$MODULENAME
+  cd /var/opencore/conf/staging/$MODULENAME
   case "$COMMAND" in
 	create)
 	  module_create

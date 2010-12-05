@@ -21,7 +21,7 @@ void _dbmanager_sqlite3_trace_rcvr(void *ignore, const char *query); // namespac
 
 //  -------------------------------------------------------------------------
 /// Database manager class for OpenCORE. Offers abstract functions
-/// pertaining to classes and objects. Currently
+/// pertaining to classes, objects and versioning of same. Currently
 /// employs SQLite for backend storage.
 //  -------------------------------------------------------------------------
 class DBManager
@@ -80,7 +80,7 @@ public:
                     bool fetchObject(value &into, const statstring &uuid, bool formodule=false);
 
                     /// create object, possibly in the current uniqueness context
-					/// returns uuid
+                    /// returns value with items "uuid" and "version"
                     string *createObject(const statstring &parent,
                                         const value &withmembers,
                                         const statstring &ofclass,
@@ -153,7 +153,7 @@ protected:
           bool userisgone();
 
                 /// helper function for markaswanted, markasreality
-					bool markcolumn(const statstring &column, const statstring &uuid);
+                    bool markcolumn(const statstring &column, const statstring &uuid, int version);
 
                     /// uuid of authenticated user
                     string useruuid;
@@ -173,6 +173,9 @@ protected:
                     /// implementation of dosqlite (lockless version)
                     value *_dosqlite (const statstring &query);
 
+                    /// find version of previous metaid use
+                    int findObjectDeletedVersion (int uc, const statstring &withmetaid);
+                    
                     /// find local ID for a class, -1 if not found (because Class itself is 0)
                     int findclassid(const statstring &classname);
                     
@@ -251,6 +254,9 @@ protected:
                     /// checks whether one metaid fits into another domainwise
                     bool _checkdomainsuffix(const string &child, const string &parent, const char sep);
                     
+                    /// mark object as reality
+                    bool _reportSuccess(const statstring &uuid);
+
                     /// copy tree from prototype, return uuid of copy root
                     string *copyprototype(int fromid, int parentid, int ownerid, value &repl, bool rootobj = true, const value &members = emptyvalue);
 

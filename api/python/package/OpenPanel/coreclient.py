@@ -56,7 +56,7 @@ class CoreRPCClient(object):
             else:
                 self._conn = httplib.HTTPConnection(host, port)
         else:
-            self._conn = UHTTPConnection("/var/openpanel/sockets/openpanel-core.sock")
+            self._conn = UHTTPConnection("/var/opencore/sockets/opencore.sock")
             
         self._connmutex = thread.allocate_lock()
         self._ser = simplejson.dumps

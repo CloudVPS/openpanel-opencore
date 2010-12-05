@@ -173,7 +173,7 @@ value *RPCHandler::bind (const value &v, uid_t uid, const string &origin)
 			log::write (log::info, "RPC", "Login with pre-validated user %u "
 					    "(%s)" %format ((unsigned int) uid, username));
 	
-			if (username == "root") username = "openpanel-admin"; // FIXME: HAX
+			if (username == "root") username = "openadmin"; // FIXME: HAX
 	
 			if (cs->userLogin (username))
 			{

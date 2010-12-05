@@ -42,7 +42,6 @@ ModuleDB::ModuleDB (void)
 	InternalClasses.set ("OpenCORE:ErrorLog", new ErrorLogClass);
 	InternalClasses.set ("OpenCORE:System", new CoreSystemClass);
 	InternalClasses.set ("OpenCORE:ClassList", new ClassListClass);
-	InternalClasses.set ("OpenCORE:Wallpaper", new WallpaperClass);
 }
 
 // ==========================================================================

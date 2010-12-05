@@ -228,33 +228,6 @@ int ItemIconRequestHandler::run (string &uri, string &postbody, value &inhdr,
 	return 200;
 }
 
-WallpaperHandler::WallpaperHandler (class OpenCoreApp *papp, httpd &serv)
-	: httpdobject (serv, "/dynamic/wallpaper*"), app (papp)
-{
-}
-
-int WallpaperHandler::run (string &uri, string &postbody, value &inhdr,
-						   string &out, value &outhdr, value &env,
-						   tcpsocket &s)
-{
-	outhdr["Content-type"] = "image/jpeg";
-	
-	if (uri == "/dynamic/wallpaper.jpg")
-	{
-		string p = WallpaperClass::getCurrentWallpaper();
-		log::write (log::info, "WallP", "Serving %s" %format (p));
-		out = fs.load (p);
-		return 200;
-	}
-	else
-	{
-		string fn = uri.copyafterlast ("/");
-		string path = "/var/openpanel/wallpaper/%s.preview" %format (fn);
-		out = fs.load (path);
-		return 200;
-	}
-}
-
 // ==========================================================================
 // CONSTRUCTOR EmblemRequestHandler
 // ==========================================================================
@@ -380,7 +353,6 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		if (l.sval().strncmp ("model name",10)) continue;
 		string scpu = l.sval().copyafter (": ");
 		scpu.replace ($("(R)","&reg;"));
-		scpu.replace ($("(tm)","&trade;"));
 		senv["os_cpu"] = scpu;
 		break;
 	}
@@ -389,13 +361,22 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	{
 		senv["os_distro"] = fs.load ("/etc/redhat-release");
 	}
-	else if (fs.exists ("/etc/debian_version"))
-	{
-		senv["os_distro"] = "Debian %s" %format(fs.load ("/etc/debian_version"));
-	}
 	else if (fs.exists ("/etc/lsb-release"))
 	{
-		senv["os_distro"] = fs.load ("/etc/lsb-release");
+		value lsb;
+		lsb.loadini ("/etc/lsb-release");
+		if (lsb.exists ("DISTRIB_DESCRIPTION"))
+		{
+			senv["os_distro"] = lsb["DISTRIB_DESCRIPTION"];
+		}
+		else
+		{
+			senv["os_distro"] = "Unknown LSB distribution";
+		}
+	}
+	else if (fs.exists ("/etc/debian_version"))
+	{
+		senv["os_distro"] = fs.load ("/etc/debian_version");
 	}
 	
 	string suptime = fs.load ("/proc/uptime");
@@ -443,7 +424,10 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 			   $("mountpoint",splt[5]);
 	}
 	
-	value rss = getRSS ("http://blog.openpanel.com/feed/");
+	httpsocket hs;
+	value rss;
+	string rssdat = hs.get ("http://blog.openpanel.com/feed/");
+	rss.fromxml (rssdat, schema);
 	
 	foreach (item, rss[0])
 	{
@@ -456,7 +440,8 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		}
 	}
 	
-	rss = getRSS ("http://forum.openpanel.com/index.php?type=rss;action=.xml");
+	rssdat = hs.get ("http://forum.openpanel.com/index.php?type=rss;action=.xml");
+	rss.fromxml (rssdat, schema);
 	
 	foreach (item, rss[0])
 	{
@@ -476,40 +461,4 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	p.run (senv, out);
 	outhdr["Content-type"] = "text/html";
 	return 200;
-}
-
-value *LandingPageHandler::getRSS (const string &url)
-{
-	returnclass (value) res retain;
-	
-	timestamp tnow = core.time.now();
-	sharedsection (rsscache)
-	{
-		if (rsscache.exists (url))
-		{
-			timestamp tcache = rsscache[url]["ts"];
-			tcache += 300;
-			
-			if (tnow > tcache)
-			{
-				res = rsscache[url]["data"];
-				return &res;
-			}
-		}
-	}
-	
-	httpsocket hs;
-	value rss;
-	
-	string rssdat = hs.get (url);
-	rss.fromxml (rssdat, schema);
-	
-	exclusivesection (rsscache)
-	{
-		rsscache[url]["ts"] = tnow;
-		rsscache[url]["data"] = rss;
-	}
-	
-	res = (const value &) rss;
-	return &res;
 }

@@ -1,4 +1,4 @@
 /usr/bin/mkmodulexml
 /usr/include/*
 /usr/lib/libgrace-coreapi.a
-/usr/lib/openpanel-core/*
+/usr/lib/opencore/*

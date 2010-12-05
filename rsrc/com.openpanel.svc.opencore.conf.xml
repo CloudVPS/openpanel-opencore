@@ -13,8 +13,8 @@
 
 <com.openpanel.svc.opencore.conf>
   <system>
-    <eventlog>/var/openpanel/log/opencore.event.log</eventlog>
-    <debuglog>/var/openpanel/log/opencore.debug.log</debuglog>
+    <eventlog>/var/opencore/log/opencore.event.log</eventlog>
+    <debuglog>/var/opencore/log/opencore.debug.log</debuglog>
   </system>
   <alert>
     <routing>smtp</routing>

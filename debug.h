@@ -39,7 +39,7 @@ public:
 //  -------------------------------------------------------------------------
 /// Class for dispatching debugging information in a usable format. A
 /// thread can distinguish a new session, then log string or value objects
-/// to numbered files in /var/openpanel/debug/$subsystem.
+/// to numbered files in /var/opencore/debug/$subsystem.
 //  -------------------------------------------------------------------------
 class Debugger
 {
