@@ -431,11 +431,11 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 			{
 				if (count == 4)
 				{
-					description.strcat ("and one other");
+					description.strcat (" and one other");
 				}
 				else
 				{
-					description.strcat ("and %i others" %format (count-3));
+					description.strcat (" and %i others" %format (count-3));
 				}
 			}
 			
