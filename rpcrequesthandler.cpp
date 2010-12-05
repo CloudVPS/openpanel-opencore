@@ -408,6 +408,8 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 					description.strcat ("and %i others" %format (count-3));
 				}
 			}
+			
+			senv["updates_description"] = description;
 		}
 	}
 	
