@@ -435,7 +435,7 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 				}
 				else
 				{
-					description.strcat (" and %i others" %format (count-3));
+					description.strcat (" and %i others" %format (count-5));
 				}
 			}
 			
