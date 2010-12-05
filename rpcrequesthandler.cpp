@@ -419,7 +419,7 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		if (count)
 		{
 			string description = "<b>";
-			for (int i=0; (i<3) && (i<count); ++i)
+			for (int i=0; (i<5) && (i<count); ++i)
 			{
 				if (i) description.strcat (", ");
 				description.strcat (updates[i].id());
@@ -427,9 +427,9 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 			
 			description.strcat ("</b>");
 			
-			if (count > 3)
+			if (count > 5)
 			{
-				if (count == 4)
+				if (count == 6)
 				{
 					description.strcat (" and one other");
 				}
