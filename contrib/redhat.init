@@ -33,7 +33,7 @@ prog="opencore"
 # Check that networking is up.
 [ "${NETWORKING}" = "no" ] && exit 1
 
-DAEMON=/var/opencore/bin/opencore
+DAEMON=/var/openpanel/bin/opencore
 NAME=com.openpanel.svc.opencore
 
 # Check if executable exists

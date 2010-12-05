@@ -128,8 +128,28 @@ public:
 				  tcpsocket &s);
 
 private:
+	lock<value>		   rsscache;
 	class OpenCoreApp *app;
 	xmlschema		   schema;
+	
+	value			  *getRSS (const string &url);
+};
+
+//  -------------------------------------------------------------------------
+/// Dynamic resolution of backdrop wallpaper.
+//  -------------------------------------------------------------------------
+class WallpaperHandler : public httpdobject
+{
+public:
+				 WallpaperHandler (class OpenCoreApp *papp, httpd &x);
+				~WallpaperHandler (void) {}
+
+	int			 run (string &uri, string &postbody, value &inhdr,
+					  string &out, value &outhdr, value &env,
+					  tcpsocket &s);
+
+private:
+	class OpenCoreApp *app;
 };
 
 //  -------------------------------------------------------------------------

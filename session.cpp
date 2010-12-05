@@ -544,7 +544,7 @@ bool CoreSession::userLogin (const string &user)
 
 bool CoreSession::isAdmin(void) const
 {
-	bool isadmin = meta["user"] == "openadmin";
+	bool isadmin = meta["user"] == "openpanel-admin";
 	return isadmin;
 }
 
@@ -1478,6 +1478,19 @@ value *CoreSession::callMethod (const statstring &parentid,
 	corestatus_t st;
 	
 	returnclass (value) res retain;
+	
+	if (mdb.isInternalClass (ofclass))
+	{
+		log::write (log::info, "Session", "Callmethod p=%s cl=%s id=%s m=%s"
+					%format (parentid,ofclass,withid,method));
+		InternalClass &cl = mdb.getInternalClass (ofclass);
+		bool bres = cl.callMethod (this, parentid, withid, method, withparam);
+		if (! bres)
+		{
+			setError (ERR_MDB_ACTION_FAILED, "internal class method failed");
+		}
+		return &res;
+	}
 	
 	// If an id is given, the method wants the object's members and
 	// what not.

@@ -6,7 +6,4 @@
 -- Please note that use of the OpenPanel trademark may be subject to additional 
 -- restrictions. For more information, please visit the Legal Information 
 -- section of the OpenPanel website on http://www.openpanel.com/
-
-INSERT INTO objects (id,uuid,version,metaid,parent,uniquecontext,class,content,wanted,reality) VALUES(1,'b43c9cdc-0dc8-11db-9475-080020a846a9',1,'Class',1,1,1,'FIXME',1,1);
--- INSERT INTO objects (id,uuid,version,metaid,parent,uniquecontext,class,content,wanted,reality) VALUES(2,'dc3f48c6-0d9a-11db-9475-080020a846a9',1,'User',1,1,1,'FIXME',1,1);
--- INSERT INTO objects (id,uuid,version,metaid,parent,uniquecontext,class,content,wanted,reality) VALUES(3,'a3f7045f-0d9b-11db-9475-080020a846a9',1,'openadmin',2,2,2,'<dict><string id="password">foobar</string><string id="username">admin@example.net</string></dict>',1,1);
+INSERT INTO objects (id,uuid,metaid,parent,uniquecontext,class,content) VALUES(1,'b43c9cdc-0dc8-11db-9475-080020a846a9','Class',1,1,1,'FIXME');

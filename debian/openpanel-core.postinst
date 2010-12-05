@@ -20,33 +20,33 @@ set -e
 case "$1" in
     configure)
 
-        ln -sf /var/opencore/bin/opencore.app/exec /var/opencore/bin/opencore
+        ln -sf /var/openpanel/bin/opencore.app/exec /var/openpanel/bin/opencore
         # It's already created in openpanel-authd package, so just commenting
-        # ln -s /var/opencore/log /var/log/opencore
+        # ln -s /var/openpanel/log /var/log/opencore
         
-        getent group opencore  > /dev/null  || groupadd -f opencore > /dev/null
-        getent passwd opencore > /dev/null  || useradd opencore -r -g opencore > /dev/null
-        getent group paneluser > /dev/null  || groupadd -f paneluser
-        getent passwd openadmin > /dev/null || useradd -m -G paneluser openadmin
+        getent group openpanel-core  > /dev/null  || groupadd -f openpanel-core > /dev/null
+        getent passwd openpanel-core > /dev/null  || useradd openpanel-core -r -g openpanel-core > /dev/null
+        getent group openpaneluser > /dev/null  || groupadd -f openpaneluser
+        getent passwd openpanel-admin > /dev/null || useradd -m -G openpaneluser openpanel-admin
         
         update-rc.d openpanel-core start 94 2 3 4 5 . stop 74 0 1 6 . > /dev/null
         
-        chown opencore:opencore /var/opencore/cache
-        chmod 750 /var/opencore/cache
-        if [ ! -f /var/opencore/db/panel/panel.db ]; then
-                cp /var/opencore/db/panel/panel.db.setup /var/opencore/db/panel/panel.db
+        chown openpanel-core:openpanel-core /var/openpanel/cache
+        chmod 750 /var/openpanel/cache
+        if [ ! -f /var/openpanel/db/panel/panel.db ]; then
+                cp /var/openpanel/db/panel/panel.db.setup /var/openpanel/db/panel/panel.db
         fi
-        chown -R opencore:opencore /var/opencore/db
-        chmod 700 /var/opencore/db
-        chown -R opencore:opencore /var/opencore/debug
-        chmod -R 750 /var/opencore/debug
-        chown opencore:opencore /var/opencore/log
-        chmod 750 /var/opencore/log
-        chown -R opencore:authd /var/opencore/sockets
-        chmod 750 /var/opencore/conf/rollback
-        chown opencore:opencore /var/opencore/conf/rollback
-        chown root:opencore /var/opencore/conf/staging
-        chmod 770 /var/opencore/conf/staging
+        chown -R openpanel-core:openpanel-core /var/openpanel/db
+        chmod 700 /var/openpanel/db
+        chown -R openpanel-core:openpanel-core /var/openpanel/debug
+        chmod -R 750 /var/openpanel/debug
+        chown openpanel-core:openpanel-core /var/openpanel/log
+        chmod 750 /var/openpanel/log
+        chown -R openpanel-core:openpanel-authd /var/openpanel/sockets
+        chmod 750 /var/openpanel/conf/rollback
+        chown openpanel-core:openpanel-core /var/openpanel/conf/rollback
+        chown root:openpanel-core /var/openpanel/conf/staging
+        chmod 770 /var/openpanel/conf/staging
 
         invoke-rc.d openpanel-core restart
 

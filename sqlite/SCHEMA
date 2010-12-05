@@ -16,7 +16,7 @@
 -- refer to the class object; class objects have class 1
 -- 
 -- UNIQUE index on
--- * (uuid,version)
+-- * (uuid)
 -- * (uniquecontext,metaid); adding class to this one is up for debate
 -- 
 -- content is always a serialized GRACE value, according to some 
@@ -28,28 +28,17 @@
 -- the serialization
 --
 -- TODO: indexes!
--- maybe make reality and wanted NULL for false so we can enforce
--- through indexes that only one version of an object is ever marked
--- although we guarantee that through smart update-queries right now
 CREATE TABLE objects (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 uuid TEXT NOT NULL,
-version NUMERIC NOT NULL,
 metaid TEXT COLLATE NOCASE,
 parent INTEGER,
 owner INTEGER,
 uniquecontext INTEGER,
 class NUMERIC NOT NULL,
 content TEXT NOT NULL,
-reality BOOL DEFAULT 0,
-wanted BOOL DEFAULT 0,
-deleted BOOL DEFAULT 0,
-postponed BOOL DEFAULT 0,
-UNIQUE (uuid,version),
-UNIQUE (uniquecontext,metaid,version));
-
-CREATE INDEX ometaid ON objects (metaid);
-CREATE INDEX owanteddeleted ON objects (wanted,deleted);
+UNIQUE (uuid),
+UNIQUE (metaid,uniquecontext));
 
 CREATE TABLE classquota (
 id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -20,7 +20,7 @@
 ### END INIT INFO
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-DAEMON=/var/opencore/bin/opencore
+DAEMON=/var/openpanel/bin/openpaneld
 LONGNAME=com.openpanel.svc.opencore
 NAME=openpanel-core
 DESC="Openpanel core daemon"
@@ -38,7 +38,6 @@ case "$1" in
   start)
  	log_daemon_msg "Starting $DESC" $NAME
 	if start_daemon -p $PIDFILE $DAEMON $DAEMON_OPTS; then
-		#mv `ls -1tr /var/run/pound.pid | tail -1` $PIDFILE
 	    log_success_msg
 	else
 	    log_failure_msg

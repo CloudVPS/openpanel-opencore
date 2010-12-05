@@ -105,7 +105,7 @@ class panelmodule(object):
 
     def run(self):
         try:
-            os.chdir(os.path.join("/var/opencore/conf/staging", self.modname))
+            os.chdir(os.path.join("/var/openpanel/conf/staging", self.modname))
         
             self.req = self.getrequest()
         
