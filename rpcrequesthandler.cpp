@@ -379,6 +379,8 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		senv["os_distro"] = fs.load ("/etc/debian_version");
 	}
 	
+	senv["updates_count"] = "unavailable";
+	
 	if (fs.exists ("/var/openpanel/db/softwareupdate.db"))
 	{
 		value updates;
