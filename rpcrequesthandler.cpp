@@ -389,13 +389,58 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	{
 		senv["os_distro"] = fs.load ("/etc/redhat-release");
 	}
+	else if (fs.exists ("/etc/lsb-release"))
+	{
+		value lsb;
+		lsb.loadini ("/etc/lsb-release");
+		if (lsb.exists ("DISTRIB_DESCRIPTION"))
+		{
+			senv["os_distro"] = lsb["DISTRIB_DESCRIPTION"];
+		}
+		else
+		{
+			senv["os_distro"] = "Unknown LSB distribution";
+		}
+	}
 	else if (fs.exists ("/etc/debian_version"))
 	{
 		senv["os_distro"] = "Debian %s" %format(fs.load ("/etc/debian_version"));
 	}
-	else if (fs.exists ("/etc/lsb-release"))
+	
+	senv["updates_count"] = "unavailable";
+	
+	if (fs.exists ("/var/openpanel/db/softwareupdate.db"))
 	{
-		senv["os_distro"] = fs.load ("/etc/lsb-release");
+		value updates;
+		updates.loadshox ("/var/openpanel/db/softwareupdate.db");
+		int count = updates.count();
+		senv["updates_count"] = count;
+		
+		if (count)
+		{
+			string description = "<b>";
+			for (int i=0; (i<3) && (i<count); ++i)
+			{
+				if (i) description.strcat (", ");
+				description.strcat (updates[i].id());
+			}
+			
+			description.strcat ("</b>");
+			
+			if (count > 3)
+			{
+				if (count == 4)
+				{
+					description.strcat ("and one other");
+				}
+				else
+				{
+					description.strcat ("and %i others" %format (count-3));
+				}
+			}
+			
+			senv["updates_description"] = description;
+		}
 	}
 	
 	string suptime = fs.load ("/proc/uptime");
