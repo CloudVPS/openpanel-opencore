@@ -1435,13 +1435,18 @@ value *DBManager::_dosqlite (const statstring &query)
 		}
 	}
 	
-	if(sqlite3_finalize(qhandle) != SQLITE_OK)
+	qres = sqlite3_finalize(qhandle);
+	if (qres != SQLITE_OK)
 	{
     // CORE->log (log::debug, "DB", "sqlite3_finalize(%s) failed (%s): "
     //      "%s" %format (query, sqlite3_errmsg(dbhandle.o)));
 				  
 		lasterror.crop();
 		lasterror.printf("sqlite3_finalize(%s) failed: %s", query.cval(), sqlite3_errmsg(dbhandle.o));
+		if (qres == SQLITE_CONSTRAINT)
+		{
+			lasterror = "object already exists";
+		}
 		errorcode = ERR_DBMANAGER_FAILURE;
 		res.clear();
 		return &res;
