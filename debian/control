@@ -29,5 +29,5 @@ Description: Open panel minimal meta package
  
 Package: openpanel-suggested
 Architecture: all
-Depends: openpanel-core, openpanel-mod-user, openpanel-gui, openpanel-cli, openpanel-ssl, openpanel-mod-domain, openpanel-mod-postfixcourier, openpanel-mod-apache2, openpanel-mod-apacheforward, openpanel-mod-dnsdomain openpanel-mod-ftp openpanel-mod-iptables, openpanel-mod-mysql, openpanel-mod-softwareupdate, openpanel-mod-ssh
+Depends: openpanel-core, openpanel-mod-user, openpanel-gui, openpanel-cli, openpanel-ssl, openpanel-mod-domain, openpanel-mod-postfixcourier, openpanel-mod-apache2, openpanel-mod-apacheforward, openpanel-mod-dnsdomain, openpanel-mod-ftp, openpanel-mod-iptables, openpanel-mod-mysql, openpanel-mod-softwareupdate, openpanel-mod-ssh
 Description: OpenPanel installation with suggested set of basic modules
