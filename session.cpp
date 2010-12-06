@@ -145,6 +145,7 @@ CoreSession *SessionDB::createFromSerialized (const value &ser)
 			
 			timestamp t = ser["heartbeat"];
 			s->heartbeat = t.unixtime();
+			s->inuse = 0;
 		}
 		catch (...)
 		{
@@ -152,7 +153,6 @@ CoreSession *SessionDB::createFromSerialized (const value &ser)
 					    "database, exception caught");
 		}
 	}
-	log::write (log::debug, "Session", "SDB Recreate <%S>" %format (id));
 	return s;
 }
 
@@ -261,7 +261,6 @@ CoreSession *SessionDB::find (const statstring &key, bool noreport)
 {
 	if (! first)
 	{
-		log::write (log::debug, "Session", "Find on empty list");
 		return NULL;
 	}
 	
