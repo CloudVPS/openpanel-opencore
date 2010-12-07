@@ -546,6 +546,7 @@ value *WallpaperClass::listObjects (CoreSession *s, const statstring &pid)
 	
 	value &out = res["OpenCORE:Wallpaper"];
 	value dir = fs.dir ("/var/openpanel/wallpaper");
+	dir.sort (labelSort);
 	foreach (node, dir)
 	{
 		string ext = node.id().sval().copyafterlast(".");
