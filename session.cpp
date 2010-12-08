@@ -146,6 +146,7 @@ CoreSession *SessionDB::createFromSerialized (const value &ser)
 			timestamp t = ser["heartbeat"];
 			s->heartbeat = t.unixtime();
 			s->inuse = 0;
+			s->db.userLogin (ser["meta"]["user"]);
 		}
 		catch (...)
 		{
