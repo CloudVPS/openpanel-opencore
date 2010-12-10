@@ -124,6 +124,11 @@ bool CoreClass::normalize (value &mdata, string &error)
 		if (! param.exists (node.id()))
 		{
 			// That's a no.
+			if (node.id() == "id")
+			{
+				mdata.rmval ("id");
+				continue;
+			}
 			error = "Unknown parameter: ";
 			error.strcat (node.id().sval());
 			return false;
