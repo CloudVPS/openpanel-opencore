@@ -115,15 +115,17 @@ CoreClass::~CoreClass (void)
 // ==========================================================================
 // METHOD ::normalize
 // ==========================================================================
-bool CoreClass::normalize (value &mdata, string &error)
+bool CoreClass::normalize (value &mdata, string &error, bool forupdate)
 {
 	// Go over the data elements
 	foreach (node, mdata)
 	{
+		// disregard the id-field for updates, period.
+		if (forupdate && (node.id() == "id")) continue;
 		// Verify that the parameter was defined in the class definition.
 		if (! param.exists (node.id()))
 		{
-			// That's a no.
+			// That's a no. Disregard the id-field, in this instance, though.
 			if (node.id() == "id")
 			{
 				mdata.rmval ("id");

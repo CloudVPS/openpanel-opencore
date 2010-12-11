@@ -1044,9 +1044,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 		}
 	}
 	
-	withparam["id"] = withid;
-	
-	if (! cl.normalize (withparam, err))
+	if (! cl.normalize (withparam, err, true))
 	{
 		log::write (log::error, "Session", "Input data validation error: "
 				    "%S" %format (err));

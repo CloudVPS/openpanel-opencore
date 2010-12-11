@@ -137,8 +137,12 @@ public:
 					 /// \param param (in/out) The parameters as passed from
 					 ///              the user interface / rpc layer.
 					 /// \param error (out) An error string.
+					 /// \param forupdate If true, the object is normalized
+					 ///                  for updates, disregarding the
+					 ///				  id-field.
 					 /// \return False on failure.
-	bool			 normalize (value &param, string &error);
+	bool			 normalize (value &param, string &error,
+								bool forupdate=false);
 	
 					 /// Set up all of the data needed by the rpc layer
 					 /// for handling the classinfo-call. This presents
