@@ -116,8 +116,8 @@ CoreSession *SessionDB::create (const value &meta)
 		}
 		catch (...)
 		{
-			log::write (log::error, "Session", "Software bug in session "
-					    "database, exception caught");
+			CORE->logError ("Session", "Software bug in session "
+					    	"database, exception caught");
 		}
 	}
 	log::write (log::debug, "Session", "SDB Create <%S>" %format (id));
@@ -150,8 +150,8 @@ CoreSession *SessionDB::createFromSerialized (const value &ser)
 		}
 		catch (...)
 		{
-			log::write (log::error, "Session", "Software bug in session "
-					    "database, exception caught");
+			CORE->logError ("Session", "Software bug in session "
+					    	"database, exception caught");
 		}
 	}
 	return s;
@@ -249,8 +249,8 @@ void SessionDB::remove (CoreSession *s)
 		}
 		catch (...)
 		{
-			log::write (log::error, "Session", "Software bug in session "
-					    "database, exception caught.");
+			CORE->logError ("Session", "Software bug in session "
+							"database, exception caught.");
 		}
 	}
 }
@@ -433,8 +433,8 @@ int SessionDB::expire (void)
 		}
 		catch (...)
 		{
-			log::write (log::error, "Session", "Software bug in session "
-					    "database expiration, exception caught.");
+			CORE->logError ("Session", "Software bug in session "
+							"database expiration, exception caught.");
 		}
 	}
 	
@@ -452,8 +452,8 @@ CoreSession::CoreSession (const statstring &myid, class ModuleDB &pmdb)
 	inuse = 0;
 	if (! db.init ())
 	{
-		log::write (log::error, "Session", "Error initializing the sqlite3 "
-				    "database");
+		CORE->logError ("Session", "Error initializing the sqlite3 "
+								   "database");
 		throw (sqliteInitException());
 	}
 }
@@ -485,8 +485,8 @@ bool CoreSession::login (const string &user, const string &pass, bool superuser)
 	if (! res)
 	{
 		setError (ERR_DBMANAGER_LOGINFAIL);
-		log::write (log::error, "Session", "Failed login user "
-				    "<%S> (%S)" %format (user, db.getLastError()));
+		CORE->logError ("Session", "Failed login user "
+				    	"<%S> (%S)" %format (user, db.getLastError()));
 		
 	}
 	else
@@ -526,8 +526,8 @@ bool CoreSession::userLogin (const string &user)
 	res = db.userLogin (user);
 	if (! res)
 	{
-		log::write (log::error, "Session", "Failed login "
-				    "user <%S> (%S)" %format (user, db.getLastError()));
+		CORE->logError ("Session", "Failed login "
+				    	"user <%S> (%S)" %format (user, db.getLastError()));
 	}
 	else
 	{
@@ -589,8 +589,8 @@ string *CoreSession::createObject (const statstring &parentid,
 	// Check for the class.
 	if (! mdb.classExists (ofclass))
 	{
-		log::write (log::error, "Session", "Create request for class <%S> "
-				    "which does not exist" %format (ofclass));
+		CORE->logError ("Session", "Create request for class <%S> "
+				    	"which does not exist" %format (ofclass));
 		setError (ERR_SESSION_CLASS_UNKNOWN);
 		return NULL;
 	}
@@ -604,16 +604,16 @@ string *CoreSession::createObject (const statstring &parentid,
 	// Make sure the indexing makes sense.
 	if ( (! cl.manualindex) && (withid) )
 	{
-		log::write (log::error, "Session", "Create request with manual id "
-				    "on class <%S> with autoindex" %format (ofclass));
+		CORE->logError ("Session", "Create request with manual id "
+				    	"on class <%S> with autoindex" %format (ofclass));
 		setError (ERR_SESSION_INDEX);
 		return NULL;
 	}
 	
 	if (cl.manualindex && (! withid))
 	{
-		log::write (log::error, "Session", "Create request with no required "
-				    "manual id on class <%S>" %format (ofclass));
+		CORE->logError ("Session", "Create request with no required "
+				    	"manual id on class <%S>" %format (ofclass));
 		setError (ERR_SESSION_NOINDEX);
 		return NULL;
 	}
@@ -625,8 +625,8 @@ string *CoreSession::createObject (const statstring &parentid,
 		
 		if (! db.fetchObject (vparent, parentid, /* formodule */ false))
 		{
-			log::write (log::error, "Session", "Lookup failed for "
-					    "fetchObject on parentid=<%S>" %format (parentid));
+			CORE->logError ("Session", "Lookup failed for "
+							"fetchObject on parentid=<%S>" %format (parentid));
 			setError (ERR_SESSION_PARENTREALM);
 			return NULL;
 		}
@@ -634,17 +634,17 @@ string *CoreSession::createObject (const statstring &parentid,
 		pmid = vparent[0]["metaid"];
 		if (! pmid)
 		{
-			log::write (log::error, "Session", "Error getting metaid "
-					    "from resolved parent object: %J" %format (vparent));
+			CORE->logError ("Session", "Error getting metaid "
+							"from resolved parent object: %J" %format (vparent));
 			setError (ERR_SESSION_PARENTREALM, "Error finding metaid");
 			return NULL;
 		}
 		
 		if ((! cl.hasprototype) && (pmid.strstr ("$prototype$") >= 0))
 		{
-			log::write (log::error, "Session", "Blocking attempt to "
-					    "create new prototype records under"
-					    " id=%S" %format (pmid));
+			CORE->logError ("Session", "Blocking attempt to "
+					    	"create new prototype records under"
+					    	" id=%S" %format (pmid));
 			setError (ERR_SESSION_CREATEPROTO);
 			return NULL;
 		}
@@ -689,7 +689,7 @@ string *CoreSession::createObject (const statstring &parentid,
 	
 	if (! cl.normalize (withparam, err))
 	{
-		log::write (log::error, "Session", "Input data validation "
+		CORE->logError ("Session", "Input data validation "
 				    "error: %s " %format (err));
 		setError (ERR_SESSION_VALIDATION, err);
 		return NULL;
@@ -700,7 +700,7 @@ string *CoreSession::createObject (const statstring &parentid,
 	// Handle any module-bound crypting voodoo on the fields.
 	if (! handleCrypts (parentid, ofclass, withid, withparam))
 	{
-		log::write (log::error, "Session", "Create failed due to crypt error");
+		CORE->logError ("Session", "Create failed due to crypt error");
 		// handleCrypts already sets the error
 		return NULL;
 	}
@@ -749,8 +749,8 @@ string *CoreSession::createObject (const statstring &parentid,
 		uuid = db.createObject(parentid, withparam, ofclass, withid, false, immediate);
 		if (! uuid)
 		{
-			log::write (log::error, "Session", "Database error: %s"
-						%format (db.getLastError()));
+			CORE->logError ("Session", "Database error: %s"
+							%format (db.getLastError()));
 			setError (db.getLastErrorCode(), db.getLastError());
 			return NULL;
 		}
@@ -808,8 +808,8 @@ string *CoreSession::createObject (const statstring &parentid,
 			{
 				// Failed. Not sure if this is what we want.
 				setError (db.getLastErrorCode(), db.getLastError());
-				log::write (log::error, "session ", "Database failure on marking "
-						    "record: %s" %format (db.getLastError()));
+				CORE->logError ("session ", "Database failure on marking "
+						    	"record: %s" %format (db.getLastError()));
 				
 				(void) mdb.deleteObject (ofclass, uuid, parm, moderr);
 				return NULL;
@@ -822,8 +822,8 @@ string *CoreSession::createObject (const statstring &parentid,
 			if (! db.reportFailure (uuid))
 			{
 				string err = db.getLastError();
-				log::write (log::error, "session ", "Database failure on "
-						    "marking delete %s" %format (err));
+				CORE->logError ("session ", "Database failure on "
+						    	"marking delete %s" %format (err));
 			}
 			return NULL;
 			
@@ -897,8 +897,8 @@ bool CoreSession::handleCrypts (const statstring &parentid,
 						if (mdb.makeCrypt (ofclass, opt.id(),
 								param[opt.id()].sval(), crypted) != status_ok)
 						{
-							log::write (log::error, "Session", "Could not "
-									    "get crypt-result from module");
+							CORE->logError ("Session", "Could not "
+									    	"get crypt-result from module");
 							setError (ERR_SESSION_CRYPT);
 							return false;
 						}
@@ -914,9 +914,9 @@ bool CoreSession::handleCrypts (const statstring &parentid,
 						break;
 					
 					defaultcase:
-						log::write (log::error, "Session", "Unknown crypt-"
-								    "type: %S"
-								   %format (C.param[opt.id()]("crypt")));
+						CORE->logError ("Session", "Unknown crypt-"
+								    	"type: %S"
+								   		%format (C.param[opt.id()]("crypt")));
 						return false;
 				}
 				param[opt.id()] = crypted;
@@ -936,11 +936,11 @@ bool CoreSession::handleCrypts (const statstring &parentid,
 				{
 					// Completely failed to find it, something fishy's
 					// going on.
-					log::write (log::error, "Session", "Object submitted "
-							    "with externally crypted field, no data "
-							    "for the field and no pre-existing "
-							    "object, member=<%S::%S>"
-							    %format (ofclass, opt.id()));
+					CORE->logError ("Session", "Object submitted "
+							    	"with externally crypted field, no data "
+							    	"for the field and no pre-existing "
+							    	"object, member=<%S::%S>"
+							    	%format (ofclass, opt.id()));
 							   
 					setError (ERR_SESSION_CRYPT_ORIG);
 					return false;
@@ -986,8 +986,8 @@ bool CoreSession::updateObject (const statstring &parentid,
 	// Complain if the class does not exist.
 	if (! mdb.classExists (ofclass))
 	{
-		log::write (log::error, "Session", "Could not update object, class "
-				    "<%S> does not exist" %format (ofclass));
+		CORE->logError ("Session", "Could not update object, class "
+				    	"<%S> does not exist" %format (ofclass));
 		setError (ERR_SESSION_CLASS_UNKNOWN);
 		return false;
 	}
@@ -1013,9 +1013,9 @@ bool CoreSession::updateObject (const statstring &parentid,
 		if (! uuid)
 		{
 			// Report the problem.
-			log::write (log::error, "Session", "Update of object with id/metaid <%S> "
-						"which could not be found in the database: %s"
-						%format (withid, db.getLastError()));
+			CORE->logError ("Session", "Update of object with id/metaid <%S> "
+							"which could not be found in the database: %s"
+							%format (withid, db.getLastError()));
 					   
 			setError (ERR_SESSION_OBJECT_NOT_FOUND);
 			return false;
@@ -1023,8 +1023,9 @@ bool CoreSession::updateObject (const statstring &parentid,
 	
 		if (! db.fetchObject (oldobject, uuid, false))
 		{
-			log::write (log::error, "Session", "Object disappeared while trying "
-						"to update class=<%S> uuid=<%S>" %format (ofclass, uuid));
+			CORE->logError ("Session", "Object disappeared while trying "
+							"to update class=<%S> uuid=<%S>"
+							%format (ofclass, uuid));
 			
 			setError (ERR_SESSION_OBJECT_NOT_FOUND);
 			return false;
@@ -1046,8 +1047,8 @@ bool CoreSession::updateObject (const statstring &parentid,
 	
 	if (! cl.normalize (withparam, err, true))
 	{
-		log::write (log::error, "Session", "Input data validation error: "
-				    "%S" %format (err));
+		CORE->logError ("Session", "Input data validation error: "
+				    	"%S" %format (err));
 		setError (ERR_SESSION_VALIDATION, err);
 		return false;
 	}
@@ -1056,7 +1057,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 	if (! handleCrypts (parentid, ofclass, withid, withparam))
 	{
 		// Crypting failed. Bummer.
-		log::write (log::error, "Session", "Update failed due to crypt error");
+		CORE->logError ("Session", "Update failed due to crypt error");
 		setError (ERR_SESSION_CRYPT);
 		return false;
 	}
@@ -1106,8 +1107,8 @@ bool CoreSession::updateObject (const statstring &parentid,
 		if (! updatesucceeded) // FIXME: get rid of bool var?
 		{
 			setError (db.getLastErrorCode(), db.getLastError());
-			log::write (log::error, "session ", "Database failure on updating "
-						"object: %s" %format (db.getLastError()));
+			CORE->logError ("session ", "Database failure on updating "
+							"object: %s" %format (db.getLastError()));
 			return false;
 		}
 		
@@ -1158,8 +1159,8 @@ bool CoreSession::updateObject (const statstring &parentid,
 			if (! db.reportSuccess (nuuid))
 			{
 				setError (db.getLastErrorCode(), db.getLastError());
-				log::write (log::error, "Session", "Database failure on marking "
-						    "record: %s" %format (db.getLastError()));
+				CORE->logError ("Session", "Database failure on marking "
+						    	"record: %s" %format (db.getLastError()));
 				
 				if (! db.fetchObject (parm, uuid, true))
 				{
@@ -1185,9 +1186,9 @@ bool CoreSession::updateObject (const statstring &parentid,
 			if (mdb.isInternalClass (ofclass)) return false;
 			if (! db.reportFailure (uuid))
 			{
-				log::write (log::error, "Session", "Database failure on "
-						    "rolling back reality objects: %s"
-						    %format (db.getLastError()));
+				CORE->logError ("Session", "Database failure on "
+						    	"rolling back reality objects: %s"
+						    	%format (db.getLastError()));
 			}
 			return false;
 			
@@ -1248,8 +1249,8 @@ bool CoreSession::deleteObject (const statstring &parentid,
 	
 	if (! uuidt)
 	{
-		log::write (log::error, "Session", "Error deleting object '%S': not "
-				    "found: %s" %format (uuidt, db.getLastError()));
+		CORE->logError ("Session", "Error deleting object '%S': not "
+				    	"found: %s" %format (uuidt, db.getLastError()));
 				   
 		setError (db.getLastErrorCode(), db.getLastError());
 		return false;
@@ -1257,8 +1258,8 @@ bool CoreSession::deleteObject (const statstring &parentid,
 
 	if (!db.isDeleteable (uuidt))
 	{
-		log::write (log::error, "Session", "Error deleting object '%S': "
-				    "%s" %format (uuidt, db.getLastError()));
+		CORE->logError ("Session", "Error deleting object '%S': "
+				    	"%s" %format (uuidt, db.getLastError()));
 		setError (db.getLastErrorCode(), db.getLastError());
 		return false;
 	}
@@ -1267,9 +1268,9 @@ bool CoreSession::deleteObject (const statstring &parentid,
 	
 	if (!db.listObjectTree(uuidlist, uuidt))
 	{
-		log::write (log::error, "Session", "Error deleting object '%S':"
-					"recursive listing failed: %s" %format (uuidt,
-					db.getLastError()));
+		CORE->logError ("Session", "Error deleting object '%S':"
+						"recursive listing failed: %s" %format (uuidt,
+						db.getLastError()));
 				   
 		setError (db.getLastErrorCode(), db.getLastError());
 		return false;
@@ -1284,8 +1285,8 @@ bool CoreSession::deleteObject (const statstring &parentid,
 		bool deletesucceeded = db.deleteObject (uuid, immediate, true);
 		if (! deletesucceeded) // FIXME: get rid of bool var?
 		{
-			log::write (log::error, "Session", "Error deleting object '%S': %s"
-					    %format (uuid, db.getLastError()));
+			CORE->logError ("Session", "Error deleting object '%S': %s"
+					    	%format (uuid, db.getLastError()));
 			
 			setError (db.getLastErrorCode(), db.getLastError());
 			return false;
@@ -1304,8 +1305,8 @@ bool CoreSession::deleteObject (const statstring &parentid,
 		{
 			if (parm[0]["metaid"].sval().strstr("$prototype$") >= 0)
 			{
-				log::write (log::error, "Session", "Denied delete of "
-						    "prototype object");
+				CORE->logError ("Session", "Denied delete of "
+						    	"prototype object");
 				setError (ERR_SESSION_NOTALLOWED);
 				return false;
 			}
@@ -1345,8 +1346,8 @@ bool CoreSession::deleteObject (const statstring &parentid,
 				{
 					setError (db.getLastErrorCode(), db.getLastError());
 					
-					log::write (log::error, "session ", "Database failure "
-							    "on marking record: %s"
+					CORE->logError ("session ", "Database failure "
+							    	"on marking record: %s"
 							   		%format (db.getLastError()));
 			
 					db.fetchObject (parm, uuid, true);
@@ -1382,8 +1383,8 @@ value *CoreSession::getClassInfo (const string &forclass)
 	// track of classes that don't have parent objects.
 	if ( (forclass != "ROOT") && (! mdb.classExists (forclass)) )
 	{
-		log::write (log::error, "Session", "Info for class <%S> requested "
-				    "where no such class exists" %format (forclass));
+		CORE->logError ("Session", "Info for class <%S> requested "
+				    	"where no such class exists" %format (forclass));
 		
 		setError (ERR_SESSION_CLASS_UNKNOWN);
 		return NULL;
@@ -1502,8 +1503,8 @@ value *CoreSession::callMethod (const statstring &parentid,
 		// The id was not a valid metaid/uuid, let's moan and exit.
 		if (! uuid)
 		{
-			log::write (log::error, "Session", "Callmethod: object not found "
-					    "class=<%S> id=<%S>" %format (ofclass, withid));
+			CORE->logError ("Session", "Callmethod: object not found "
+					    	"class=<%S> id=<%S>" %format (ofclass, withid));
 			setError (ERR_SESSION_OBJECT_NOT_FOUND);
 			return &res;
 		}
@@ -1521,8 +1522,8 @@ value *CoreSession::callMethod (const statstring &parentid,
 	if (st != status_ok)
 	{
 		setError (ERR_MDB_ACTION_FAILED, moderr);
-		log::write (log::error, "Session", "Callmethod: Error from ModuleDB "
-				    "<%S::%S> id=<%S>" %format (ofclass, method, withid));
+		CORE->logError ("Session", "Callmethod: Error from ModuleDB "
+				    	"<%S::%S> id=<%S>" %format (ofclass, method, withid));
 	}
 	
 	return &res;
@@ -1848,9 +1849,9 @@ value *CoreSession::getObject (const statstring &parentid,
 	// Not found under any method.
 	if (! uuid)
 	{
-		log::write (log::error, "Session", "Could not resolve object at "
-				    "parentid=<%S> class=<%S> key=<%S>"
-				    %format (parentid, ofclass, withid));
+		CORE->logError ("Session", "Could not resolve object at "
+				    	"parentid=<%S> class=<%S> key=<%S>"
+				    	%format (parentid, ofclass, withid));
 
 		setError (ERR_SESSION_OBJECT_NOT_FOUND);
 		return &res;

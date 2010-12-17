@@ -122,8 +122,8 @@ void ModuleDB::init (const value &reloadmods)
 				}
 				catch (exception e)
 				{
-					log::write (log::error, "ModuleDB", "Error loading "
-							   "'%s': %s" %format (mname, e.description));
+					CORE->logError ("ModuleDB", "Error loading "
+							   		"'%s': %s" %format (mname, e.description));
 					
 					// Re-throw on user.module, without that one
 					// there's little use starting up at all.
@@ -279,9 +279,9 @@ void ModuleDB::loadDependencies (const string &mname, value &cache,
 		}
 		catch (exception e)
 		{
-			log::write (log::error, "ModuleDB", "Error loading required "
-					   "module <%S>, disabling depending module <%S>"
-					   %format (m->meta["requires"], mname));
+			CORE->logError ("ModuleDB", "Error loading required "
+					   		"module <%S>, disabling depending module <%S>"
+					   		%format (m->meta["requires"], mname));
 			
 			delete m;
 			throw (moduleInitException ("Dependency failed"));
@@ -515,10 +515,10 @@ void ModuleDB::handleGetConfig (const string &mname, value &cache,
 			// Henny penny the sky is falling!
 			if (! uuid)
 			{
-				log::write (log::error, "ModuleDB",
-						  "Error importing external data for "
-						  "class <%S> with metaid <%S>"
-						  %format (oclass, metaid));
+				CORE->logError ("ModuleDB",
+								"Error importing external data for "
+								"class <%S> with metaid <%S>"
+								%format (oclass, metaid));
 				break;
 			}
 			else // AOK
@@ -679,8 +679,8 @@ corestatus_t ModuleDB::callMethod (const statstring &parentid,
 	
 	if (! byclass.exists (ofclass))
 	{
-		log::write (log::error, "ModuleDB", "Callmethod '%S.%S': class "
-				   "not found" %format (ofclass, method));
+		CORE->logError ("ModuleDB", "Callmethod '%S.%S': class "
+				   		"not found" %format (ofclass, method));
 		
 		return status_failed;
 	}
@@ -699,8 +699,8 @@ corestatus_t ModuleDB::callMethod (const statstring &parentid,
 	
 	if (! cl.methods.exists (method))
 	{
-		log::write (log::error, "ModuleDB", "Methodcall for %s.%s is "
-					"not defined in module.xml" %format (ofclass,method));
+		CORE->logError ("ModuleDB", "Methodcall for %s.%s is "
+						"not defined in module.xml" %format (ofclass,method));
 		return status_failed;
 	}
 	
@@ -743,8 +743,8 @@ corestatus_t ModuleDB::setSpecialPhysicalQuota
     
 	if (! byclass.exists (ofclass))
 	{
-		log::write (log::error, "ModuleDB", "Cannot resolve class for "
-					"quota tag %S" %format (tag));
+		CORE->logError ("ModuleDB", "Cannot resolve class for "
+						"quota tag %S" %format (tag));
 		return status_failed;
 	}
 	
@@ -865,8 +865,8 @@ value *ModuleDB::listDynamicObjects (const statstring &parentid,
 	
 	if (rez != status_ok)
 	{
-		log::write (log::error, "ModuleDB", "Error listing dynamic objects "
-				   "for class <%S>" %format (ofclass));
+		CORE->logError ("ModuleDB", "Error listing dynamic objects "
+				   		"for class <%S>" %format (ofclass));
 				   
 		err = "%[error]i:%[message]s" %format (returnp["OpenCORE:Result"]);
 		return NULL;
@@ -889,8 +889,8 @@ value *ModuleDB::listParamsForMethod (const statstring &parentid,
 	// Complain if it's an unknown class.
 	if (! classExists (ofclass))
 	{
-		log::write (log::error, "ModuleDB", "listParamsForMethod called "
-				   "for class=<%S>, class not found" %format (ofclass));
+		CORE->logError ("ModuleDB", "listParamsForMethod called "
+				   		"for class=<%S>, class not found" %format (ofclass));
 		
 		return NULL;
 	}
@@ -899,9 +899,9 @@ value *ModuleDB::listParamsForMethod (const statstring &parentid,
 	CoreClass &cl = getClass (ofclass);
 	if (! cl.methods.exists (methodname))
 	{
-		log::write (log::error, "ModuleDB", "listParamsForMethod called "
-				   "for class=<%S> methodname=<%S>, method not found"
-				   %format (ofclass, methodname));
+		CORE->logError ("ModuleDB", "listParamsForMethod called "
+				   		"for class=<%S> methodname=<%S>, method not found"
+				   		%format (ofclass, methodname));
 		
 		return NULL;
 	}
@@ -925,10 +925,10 @@ value *ModuleDB::listParamsForMethod (const statstring &parentid,
 		
 		if (rez != status_ok)
 		{
-			log::write (log::error, "ModuleDB", "Error getting list of "
-					   "parameters for a call to class=<%S> method=<%S> "
-					   "parentid=<%S> objectid=<%S>" %format (ofclass,
-					   methodname, parentid, withid));
+			CORE->logError ("ModuleDB", "Error getting list of "
+					   		"parameters for a call to class=<%S> method=<%S> "
+					   		"parentid=<%S> objectid=<%S>" %format (ofclass,
+					   		methodname, parentid, withid));
 			return NULL;
 		}
 		
@@ -940,9 +940,9 @@ value *ModuleDB::listParamsForMethod (const statstring &parentid,
 		return &res;
 	}
 
-	log::write (log::error, "ModuleDB", "listParamsForMethod called "
-			   "for class=<%S> method=<%S>, not dynamic" %format (ofclass,
-			   methodname));
+	CORE->logError ("ModuleDB", "listParamsForMethod called "
+			   		"for class=<%S> method=<%S>, not dynamic" %format (ofclass,
+			  		 methodname));
 	return NULL;
 }
 
@@ -954,8 +954,9 @@ unsigned int ModuleDB::synchronizeClass (const statstring &ofclass,
 {
 	if (! classExists (ofclass))
 	{
-		log::write (log::error, "ModuleDB", "Got synchronization request "
-				   "for class <%S> which does not exist" %format (ofclass));
+		CORE->logError ("ModuleDB", "Got synchronization request "
+				   		"for class <%S> which does not exist"
+				   		%format (ofclass));
 		return withserial;
 	}
 	
@@ -973,8 +974,8 @@ unsigned int ModuleDB::synchronizeClass (const statstring &ofclass,
 	
 	if (rez != status_ok)
 	{
-		log::write (log::error, "ModuleDB", "Error syncing class "
-				  "<%S>" %format (ofclass));
+		CORE->logError ("ModuleDB", "Error syncing class "
+				 		"<%S>" %format (ofclass));
 		return withserial;
 	}
 
@@ -1141,8 +1142,8 @@ value *ModuleDB::getClassInfo (const statstring &classname, bool foradmin)
 			}
 			else if (pclass != "ROOT")
 			{
-				log::write (log::error, "ModuleDB", "Error resolving module "
-						   "for class <%S>" %format (pclass));
+				CORE->logError ("ModuleDB", "Error resolving module "
+								"for class <%S>" %format (pclass));
 			}
 		}
 	}
@@ -1166,8 +1167,8 @@ value *ModuleDB::getClassInfo (const statstring &classname, bool foradmin)
 		}
 		else if (cclass != "ROOT") // This shouldn't happen.
 		{
-			log::write (log::error, "ModuleDB", "Error resolving module for "
-					   "class <%S>" %format (cclass));
+			CORE->logError ("ModuleDB", "Error resolving module for "
+							"class <%S>" %format (cclass));
 		}
 	}
 
@@ -1236,8 +1237,8 @@ const value &ModuleDB::getMetaClassChildren (const statstring &baseid)
 	static value none;
 	if (! metachildren.exists (baseid))
 	{
-		log::write (log::error, "ModuleDB", "No implementations found for "
-					"alleged meta-class <%S>" %format (baseid));
+		CORE->logError ("ModuleDB", "No implementations found for "
+						"alleged meta-class <%S>" %format (baseid));
 		DEBUG.storeFile ("ModuleDB", "metachildren", metachildren, "getMetaClassChildren");
 		return none;
 	}

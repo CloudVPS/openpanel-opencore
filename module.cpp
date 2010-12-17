@@ -617,8 +617,8 @@ bool CoreModule::verify (void)
 			errstr = tmpb;
 		}
 		errstr = strutil::regexp (errstr, "s/\n$//;s/\n/ -- /g");
-		log::write (log::error, "Module", "Verify failed for '%s': %s"
-				    %format (path, errstr));
+		CORE->logError ("Module", "Verify failed for '%s': %s"
+				    	%format (path, errstr));
 		return false;
 	}
 	return true;
@@ -658,9 +658,9 @@ corestatus_t CoreModule::action (const statstring &command,
         	}
         	catch (exception e)
         	{
-        		log::write (log::error, "rpc", "Exception caught while trying"
-                    		"to create modulesession: %s" 
-                    		%format (e.description));
+        		CORE->logError ("rpc", "Exception caught while trying"
+                    			"to create modulesession: %s" 
+                    			%format (e.description));
                     		
                 breaksection return status_failed;
             }
