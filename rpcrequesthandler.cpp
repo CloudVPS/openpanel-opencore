@@ -444,7 +444,7 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	}
 	
 	string suptime = fs.load ("/proc/uptime");
-	suptime.cropafter (' ');
+	suptime.cropat (' ');
 	int iuptime = suptime.toint(10);
 	
 	senv["uptime_days"] = iuptime / 86400;
