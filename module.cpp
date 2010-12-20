@@ -642,6 +642,19 @@ corestatus_t CoreModule::action (const statstring &command,
 	string mName = meta["name"];
 	mName = mName.cutat (".module");
 
+	// shortcut listobjects to something a bit less blocking
+	if (command == "listobjects")
+	{
+		sharedsection (serlock)
+		{
+            vin["OpenCORE:Session"].rmval("sessionid");
+			result = API::execute (mName, apitype, path, "action",
+								   vin, returndata);
+		}
+		
+		return (corestatus_t) result;
+	}
+
     exclusivesection (serlock)
     {
     	// Modules with the wantsrpc attribute set to true want a
@@ -662,7 +675,7 @@ corestatus_t CoreModule::action (const statstring &command,
                     			"to create modulesession: %s" 
                     			%format (e.description));
                     		
-                breaksection return status_failed;
+                return status_failed;
             }
         
             usersession = CORE->sdb->get(vin["OpenCORE:Session"]["sessionid"]);
