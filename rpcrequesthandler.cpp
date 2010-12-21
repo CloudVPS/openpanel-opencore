@@ -74,6 +74,7 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 			if (! origin) origin = "RPC";
 
 			origin.strcat ("/src=%s" %format (peer_name));
+			env["ip"] = peer_name;
 		}
 	
 		res = hdl.handle (indata, s.peer_uid, origin);	
