@@ -74,7 +74,7 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 			if (! origin) origin = "RPC";
 
 			origin.strcat ("/src=%s" %format (peer_name));
-			env["ip"] = peer_name;
+			env["ip"] = s.peer_name = peer_name;
 		}
 
 		if (indata.exists ("header") && indata["header"].exists ("command"))
