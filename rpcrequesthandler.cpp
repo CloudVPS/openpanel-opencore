@@ -76,6 +76,11 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 			origin.strcat ("/src=%s" %format (peer_name));
 			env["ip"] = peer_name;
 		}
+
+		if (indata.exists ("header") && indata["header"].exists ("command"))
+		{
+			uri.strcat ("/%s" %format (indata["header"]["command"]));
+		}
 	
 		res = hdl.handle (indata, s.peer_uid, origin);	
 		out = res.tojson ();
