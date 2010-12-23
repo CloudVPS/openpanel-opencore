@@ -683,6 +683,8 @@ string *CoreSession::createObject (const statstring &parentid,
 				withid = "%s@%s" %format (withid, pmid);
 			}
 		}
+
+		if (withparam.exists ("id")) withparam["id"] = withid;
 	}
 	
 	DEBUG.storeFile ("Session", "normalize-pre", withparam, "createObject");
@@ -1045,7 +1047,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 		}
 	}
 	
-	if (! cl.normalize (withparam, err, true))
+	if (! cl.normalize (withparam, err))
 	{
 		CORE->logError ("Session", "Input data validation error: "
 				    	"%S" %format (err));
