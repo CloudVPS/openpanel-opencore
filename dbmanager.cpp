@@ -1924,8 +1924,8 @@ bool DBManager::reportSuccess(const statstring &uuid)
 bool DBManager::reportFailure(const statstring &uuid)
 {
 	value empty;
-	return updateObject(&empty, uuid, true, true, true);
-    	}
+	return updateObject(empty, uuid, true, true, true);
+}
 		
 // we iterate upwards from our logged-in user to find all
 // applying limits. a smaller limit overrides a bigger one,
