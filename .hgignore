@@ -21,3 +21,8 @@ configure.log
 graceclient/opencli.app
 api/python/package/OpenPanel/error.py
 rsrc/resources.xml
+debian/tmp
+debian/openpanel*
+debian/files
+*.exe
+mkmodulexml
