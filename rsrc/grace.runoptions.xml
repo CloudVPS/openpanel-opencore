@@ -18,6 +18,9 @@
   <grace.option id="-d">
     <grace.long>--debugging-console</grace.long>
   </grace.option>
+  <grace.option id="-f">
+    <grace.long>--foreground</grace.long>
+  </grace.option>
   <grace.option id="--reinitialize-module-config">
     <grace.argc>0</grace.argc>
     <grace.help>Force a module to resubmit its initial configuration</grace.help>
@@ -32,6 +35,10 @@
   <grace.option id="--debugging-console">
     <grace.argc>0</grace.argc>
     <grace.help>Enable debugging console</grace.help>
+  </grace.option>
+  <grace.option id="--foreground">
+    <grace.argc>0</grace.argc>
+    <grace.help>Don't daemonize to the background</grace.help>
   </grace.option>
   <grace.option id="--debug">
     <grace.argc>1</grace.argc>
