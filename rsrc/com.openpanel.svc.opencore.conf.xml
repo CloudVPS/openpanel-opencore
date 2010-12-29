@@ -30,10 +30,11 @@
       <minthreads>2</minthreads>
       <maxthreads>8</maxthreads>
     </unixsocket>
-    <httpsocket>
-      <listenport>4088</listenport>
+    <httpssocket>
+      <listenport>4089</listenport>
       <minthreads>6</minthreads>
-      <maxthreads>32</maxthreads>    
-    </httpsocket>
+      <maxthreads>32</maxthreads> 
+      <certificate>/etc/openpanel/pound.pem</certificate>   
+    </httpssocket>    
   </rpc>
 </com.openpanel.svc.opencore.conf>

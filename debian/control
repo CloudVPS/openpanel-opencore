@@ -2,14 +2,17 @@ Source: openpanel-core
 Section: misc
 Priority: optional
 Maintainer: OpenPanel packager <packages@openpanel.com>
-Build-Depends: debhelper (>= 5), libgrace-dev, libgrace-pcre-dev, zlib1g-dev, sqlite3, libpcre3-dev, libsqlite3-dev
+Build-Depends: debhelper (>= 5), libgrace-dev, libgrace-pcre-dev, libgrace-ssl-dev, zlib1g-dev, sqlite3, libpcre3-dev, libsqlite3-dev
 Standards-Version: 3.7.2
 
 Package: openpanel-core
 Architecture: any
 Pre-Depends: adduser, debconf
-Depends: openpanel-authd, libgrace, libgrace-dbfile, libgrace-pcre, ${shlibs:Depends}, ${misc:Depends}
-Recommends: openpanel-ssl, openpanel-gui, openpanel-mod-user, openpanel-cli
+Depends: openpanel-authd, libgrace, libgrace-dbfile, libgrace-ssl, libgrace-pcre, ${shlibs:Depends}, ${misc:Depends}
+Recommends: openpanel-gui, openpanel-mod-user, openpanel-cli
+Provides: openpanel-ssl
+Replaces: openpanel-ssl
+Conflicts: openpanel-ssl
 Description: OpenPanel main files
  the openpanel core
 
