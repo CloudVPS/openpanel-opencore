@@ -132,7 +132,7 @@ value *RPCHandler::bind (const value &v, uid_t uid, const string &origin)
 	}
 	catch (exception e)
 	{
-		log::write (log::error, "RPC", "Exception caught while trying to "
+		CORE->logError ("RPC", "Exception caught while trying to "
 				    "bind session: %S" %format (e.description));
 				   
 		return $("header",
@@ -213,7 +213,7 @@ value *RPCHandler::getLanguages (const value &v)
 	}
 	catch (exception e)
 	{
-		log::write (log::error, "RPC", "Exception caught while trying to "
+		CORE->logError ("RPC", "Exception caught while trying to "
 				    "get languages: %S" %format (e.description));
 				   
 		return $("header",

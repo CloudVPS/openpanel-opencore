@@ -74,6 +74,12 @@ int RPCRequestHandler::run (string &uri, string &postbody, value &inhdr,
 			if (! origin) origin = "RPC";
 
 			origin.strcat ("/src=%s" %format (peer_name));
+			env["ip"] = s.peer_name = peer_name;
+		}
+
+		if (indata.exists ("header") && indata["header"].exists ("command"))
+		{
+			uri.strcat ("/%s" %format (indata["header"]["command"]));
 		}
 	
 		res = hdl.handle (indata, s.peer_uid, origin);	
@@ -444,7 +450,7 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	}
 	
 	string suptime = fs.load ("/proc/uptime");
-	suptime.cropafter (' ');
+	suptime.cropat (' ');
 	int iuptime = suptime.toint(10);
 	
 	senv["uptime_days"] = iuptime / 86400;

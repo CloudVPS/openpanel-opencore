@@ -115,22 +115,14 @@ CoreClass::~CoreClass (void)
 // ==========================================================================
 // METHOD ::normalize
 // ==========================================================================
-bool CoreClass::normalize (value &mdata, string &error, bool forupdate)
+bool CoreClass::normalize (value &mdata, string &error)
 {
 	// Go over the data elements
 	foreach (node, mdata)
 	{
-		// disregard the id-field for updates, period.
-		if (forupdate && (node.id() == "id")) continue;
 		// Verify that the parameter was defined in the class definition.
 		if (! param.exists (node.id()))
 		{
-			// That's a no. Disregard the id-field, in this instance, though.
-			if (node.id() == "id")
-			{
-				mdata.rmval ("id");
-				continue;
-			}
 			error = "Unknown parameter: ";
 			error.strcat (node.id().sval());
 			return false;
@@ -617,8 +609,8 @@ bool CoreModule::verify (void)
 			errstr = tmpb;
 		}
 		errstr = strutil::regexp (errstr, "s/\n$//;s/\n/ -- /g");
-		log::write (log::error, "Module", "Verify failed for '%s': %s"
-				    %format (path, errstr));
+		CORE->logError ("Module", "Verify failed for '%s': %s"
+				    	%format (path, errstr));
 		return false;
 	}
 	return true;
@@ -642,6 +634,19 @@ corestatus_t CoreModule::action (const statstring &command,
 	string mName = meta["name"];
 	mName = mName.cutat (".module");
 
+	// shortcut listobjects to something a bit less blocking
+	if (command == "listobjects")
+	{
+		sharedsection (serlock)
+		{
+            vin["OpenCORE:Session"].rmval("sessionid");
+			result = API::execute (mName, apitype, path, "action",
+								   vin, returndata);
+		}
+		
+		return (corestatus_t) result;
+	}
+
     exclusivesection (serlock)
     {
     	// Modules with the wantsrpc attribute set to true want a
@@ -658,11 +663,11 @@ corestatus_t CoreModule::action (const statstring &command,
         	}
         	catch (exception e)
         	{
-        		log::write (log::error, "rpc", "Exception caught while trying"
-                    		"to create modulesession: %s" 
-                    		%format (e.description));
+        		CORE->logError ("rpc", "Exception caught while trying"
+                    			"to create modulesession: %s" 
+                    			%format (e.description));
                     		
-                breaksection return status_failed;
+                return status_failed;
             }
         
             usersession = CORE->sdb->get(vin["OpenCORE:Session"]["sessionid"]);

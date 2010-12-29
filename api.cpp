@@ -25,7 +25,7 @@ int API::execute (const string &mname, const statstring &apitype,
 	
 	if (! fs.exists (fullcmd))
 	{
-		log::write (log::error, "API", "Error executing '%S': not found"
+		CORE->logError ("API", "Error executing '%S': not found"
 				    %format (fullcmd));
 		return status_failed;
 	}
@@ -294,7 +294,7 @@ int API::grace (const string &mname, const string &fullcmd, const value &in, val
 		// Give a warning moan on size mismatches.
 		if (dt.strlen() != expectedsize)
 		{
-			log::write (log::error, "API", "Call to Grace-API module "
+			CORE->logError ("API", "Call to Grace-API module "
 					    "script <%s> return data size mismatch" %format (fullcmd));
 		}
 		
@@ -306,7 +306,7 @@ int API::grace (const string &mname, const string &fullcmd, const value &in, val
 	if (! out.exists ("OpenCORE:Result"))
 	{
 		// Not found, bitch & whine.
-		log::write (log::error, "API", "Call to Grace-API module "
+		CORE->logError ("API", "Call to Grace-API module "
 				    "with no result-block");
 		
 		DEBUG.storeFile ("API","no-result",out,"grace");
@@ -320,7 +320,7 @@ int API::grace (const string &mname, const string &fullcmd, const value &in, val
 	string errmsg = out["OpenCORE:Result"]["message"];
 	errmsg = strutil::regexp (errmsg, "s/\n/ -- /g");
 	
-	log::write (log::error, "API", "Module error %i from module %s: %s"
+	CORE->logError ("API", "Module error %i from module %s: %s"
 				%format (out["OpenCORE:Result"]["error"],mname,errmsg));
 	return 1;
 }

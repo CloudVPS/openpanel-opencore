@@ -1,3 +1,12 @@
+# This file is part of the OpenPanel API
+# OpenPanel is free software: you can redistribute it and/or modify it 
+# under the terms of the GNU Lesser General Public License as published by the
+# Free Software Foundation, using version 3 of the License.
+#
+# Please note that use of the OpenPanel trademark may be subject to additional 
+# restrictions. For more information, please visit the Legal Information 
+# section of the OpenPanel website on http://www.openpanel.com/
+
 from OpenPanel.coreclient import CoreSession
 from OpenPanel.exception import CoreException
 
@@ -31,7 +40,7 @@ class Tester(object):
             '-q',
             key,
             '/etc/postfix/openpanel/'+mapname
-            ], stdout=subprocess.PIPE).communicate()[0]
+            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
     
     def smtpauthcheck(self, box, password):
         s = smtplib.SMTP()
@@ -52,20 +61,21 @@ class Tester(object):
             print 'Mail class not found, skipping tests'
             return
     
-        if self.postmapq('virtual_mailbox_domains', self.domain):
+        if self.postmapq('virtual_mailbox_domains', self.domain)[0]:
             print 'Mail domain already present, ERROR'
             return False
             
         mailuuid = c.rpc.create(classid="Mail", objectid=self.domain, parentid=self.domainuuid)['body']['data']['objid']
         print 'created Mail %s (%s)' % (self.domain, mailuuid)
 
-        if self.postmapq('virtual_mailbox_domains', self.domain) == 'VIRTUAL\n':
+        if self.postmapq('virtual_mailbox_domains', self.domain)[0] == 'VIRTUAL\n':
             print 'Mail %s spotted in postfix config' % (self.domain)
         else:
             print 'Mail %s missing in postfix config' % (self.domain)
             return False
             
         box=self.username+'@'+self.domain
+        alias='a_'+self.username+'+alias@'+self.domain
         
         if self.smtpauthcheck(box, self.password):
             print 'smtp auth works before creation of box, ERROR'
@@ -78,6 +88,13 @@ class Tester(object):
     
         if not self.smtpauthcheck(box, self.password):
             print 'smtp auth does not work, ERROR'
+            return False
+
+        aliasuuid = c.rpc.create(classid="Mail:Alias", objectid=alias, parentid=mailuuid, data=dict(pridest='test@example.com'))['body']['data']['objid']
+        c.rpc.delete(classid="Mail:Alias", objectid=aliasuuid)
+
+        if self.postmapq('virtual_alias', alias)[1]:
+            print 'create+delete of alias leaves entry behind, ERROR'
             return False
         
         return True

@@ -98,6 +98,11 @@ int OpenCoreApp::main (void)
 		setforeground(); // No daemonizing to background for now.
 	}
 	
+	if (argv.exists ("--foreground"))
+	{
+		setforeground();
+	}
+	
 	if (argv.exists ("--debug"))
 	{
 		ferr.writeln ("Using debugging flags: %s" %format (argv["--debug"]));
