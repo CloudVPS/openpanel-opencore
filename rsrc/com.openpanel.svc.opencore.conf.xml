@@ -34,7 +34,7 @@
       <listenport>4089</listenport>
       <minthreads>6</minthreads>
       <maxthreads>32</maxthreads> 
-      <certificate>/etc/openpanel/pound.pem</certificate>   
+      <certificate>/etc/openpanel/certificate.pem</certificate>   
     </httpssocket>    
   </rpc>
 </com.openpanel.svc.opencore.conf>

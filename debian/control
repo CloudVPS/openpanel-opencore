@@ -8,7 +8,7 @@ Standards-Version: 3.7.2
 Package: openpanel-core
 Architecture: any
 Pre-Depends: adduser, debconf
-Depends: openpanel-authd, libgrace, libgrace-dbfile, libgrace-ssl, libgrace-pcre, ${shlibs:Depends}, ${misc:Depends}
+Depends: openpanel-authd, ssl-cert, libgrace, libgrace-dbfile, libgrace-ssl, libgrace-pcre, ${shlibs:Depends}, ${misc:Depends}
 Recommends: openpanel-gui, openpanel-mod-user, openpanel-cli
 Provides: openpanel-ssl
 Replaces: openpanel-ssl
@@ -32,5 +32,5 @@ Description: Open panel minimal meta package
  
 Package: openpanel-suggested
 Architecture: all
-Depends: openpanel-core, openpanel-mod-user, openpanel-gui, openpanel-cli, openpanel-ssl, openpanel-mod-domain, openpanel-mod-postfixcourier, openpanel-mod-apache2, openpanel-mod-apacheforward, openpanel-mod-dnsdomain, openpanel-mod-ftp, openpanel-mod-iptables, openpanel-mod-mysql, openpanel-mod-softwareupdate, openpanel-mod-ssh
+Recommends: openpanel-core, openpanel-mod-user, openpanel-gui, openpanel-cli, openpanel-ssl, openpanel-mod-domain, openpanel-mod-postfixcourier, openpanel-mod-apache2, openpanel-mod-apacheforward, openpanel-mod-dnsdomain, openpanel-mod-ftp, openpanel-mod-iptables, openpanel-mod-mysql, openpanel-mod-softwareupdate, openpanel-mod-ssh
 Description: OpenPanel installation with suggested set of basic modules

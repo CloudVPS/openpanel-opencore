@@ -1,3 +1,4 @@
 /var/openpanel/*
 /etc/init.d/*
+/etc/openpanel
 
