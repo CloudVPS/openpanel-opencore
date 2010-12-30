@@ -552,6 +552,8 @@ value *LandingPageHandler::getRSS (const string &url)
 	httpsocket hs;
 	value rss;
 	
+	hs.setheader ("User-Agent", "OpenPanel/%s" %format (version::release));
+	
 	string rssdat = hs.get (url);
 	rss.fromxml (rssdat, schema);
 	
