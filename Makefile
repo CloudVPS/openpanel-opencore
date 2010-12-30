@@ -55,7 +55,7 @@ clean:
 	rm -f kickstart.panel.db
 	rm -rf openpanel-core.app techsupport.app
 	rm -f openpanel-core techsupport
-	rm -f version.cpp version.id
+	rm -f version.cpp
 	rm -f api/python/package/OpenPanel/error.py rsrc/resources.xml
 	rm -f mkmodulexml
 	cd "api/c++/src" && $(MAKE) clean
