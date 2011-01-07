@@ -12,6 +12,7 @@ from OpenPanel.exception import CoreException
 import OpenPanel.test.modules
 
 import random, string, imp, os
+import logging
 
 class Tester(object):
     def __init__(self, c):
@@ -23,24 +24,35 @@ class Tester(object):
         
         self.modules = dict()
         self.order = []
-        self.ok = dict()
-        self.failed = dict()
+        self.failed = []
 
-        print 'Prefix: %s' % self.prefix
-        print 'Username: %s' % self.username
-        print 'Password: %s' % self.password
+        logging.basicConfig(level=logging.DEBUG)
+        self.mainlogger = logging.getLogger("openpanel-test")
+
+        self.mainlogger.info('Prefix=%s, Username=%s, Password=%s' % (self.prefix, self.username, self.password))
+        
+    def fail(self, title, desc):
+        self.failed.append((title,desc))
+        self.logger.error("test %s failed: %s" % (title, desc))
         
     def run(self):
         self.gatherModuleInfo()
-
-        print self.modules
+        self.mainlogger.debug("modules=%s order=%s" % (self.modules, self.order))
+        
         for module in self.order:
-            print "testing module %s" % module
-            print self.modules[module]
+            self.mainlogger.info("testing module %s" % module)
+            self.logger = logging.getLogger(module)
             self.modules[module].test(self)
 
         for module in reversed(self.order):
+            self.mainlogger.debug("cleaning up module %s" % module)
+            self.logger = logging.getLogger(module)
             self.modules[module].cleanup(self)
+    
+        if(self.failed):
+            self.mainlogger.critical("%d tests failed" % len(self.failed))
+        else:
+            self.mainlogger.info("all tests passed!")
         
         # if not self.testDBManagerDomain():
         #     print "FAIL testDBManagerDomain"
@@ -53,7 +65,7 @@ class Tester(object):
         modules = self.conn.rpc.listmodules()['body']['data']['modules']
         for module in modules:
             name = module.rsplit('.',1)[0]
-            print 'module %s' % name
+            self.mainlogger.debug('attempting import of module %s' % name)
             try:
                 info = imp.find_module('test',[os.path.join("/var/openpanel/modules",module,"tests")])
                 self.modules[name]=imp.load_module('OpenPanel.test.modules.'+name,info[0],info[1],info[2])
