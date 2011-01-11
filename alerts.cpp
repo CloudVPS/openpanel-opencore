@@ -33,7 +33,7 @@ void AlertHandler::run (void)
 {
 	try
 	{
-		if (fs.exists (PATH_ALERTYQ)) q.loadshox (PATH_ALERTQ);
+		if (fs.exists (PATH_ALERTQ)) q.loadshox (PATH_ALERTQ);
 		log::write (log::info, "alerthdl", "Starting thread, %i alerts in queue"
 														%format (q.count()));
 		value ev;
