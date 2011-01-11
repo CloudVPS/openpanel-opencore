@@ -1899,36 +1899,45 @@ statstring *CoreSession::getClass (const statstring &parentid)
 // ==========================================================================
 void SessionExpireThread::run (void)
 {
-	log::write (log::info, "expire", "Thread started");
-	
-	while (true)
+	try
 	{
-		// Wait either 60 seconds or until the next event.
-		value ev = waitevent (60000);
-		if (ev)
+		log::write (log::info, "expire", "Thread started");
+		
+		while (true)
 		{
-			// A 'die' event is a shutdown request.
-			if (ev.type() == "shutdown")
+			// Wait either 60 seconds or until the next event.
+			value ev = waitevent (60000);
+			if (ev)
 			{
-				log::write (log::info, "expire", "Thread shutting down");
-				shutdownCondition.broadcast();
-				return;
+				// A 'die' event is a shutdown request.
+				if (ev.type() == "shutdown")
+				{
+					log::write (log::info, "expire", "Thread shutting down");
+					shutdownCondition.broadcast();
+					return;
+				}
+				else // Unknown event.
+				{
+					log::write (log::warning, "expire", "Received unrecognized "
+								"event: %S" %format (ev.type()));
+				}
 			}
-			else // Unknown event.
+			else // Not an event, so it was a timeout, do our thing.
 			{
-				log::write (log::warning, "expire", "Received unrecognized "
-						    "event: %S" %format (ev.type()));
+				int cnt = sdb->expire ();
+				if (cnt)
+				{
+					log::write (log::info, "expire", "Cleaned %i sessions"
+								%format(cnt));
+				}
 			}
 		}
-		else // Not an event, so it was a timeout, do our thing.
-		{
-			int cnt = sdb->expire ();
-			if (cnt)
-			{
-				log::write (log::info, "expire", "Cleaned %i sessions"
-							%format(cnt));
-			}
-		}
+	}
+	catch (...)
+	{
+		log::write (log::error, "expire", "Thread exited on unknown "
+					"exception.");
+		shutdownCondition.broadcast();
 	}
 }
 
