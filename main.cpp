@@ -253,13 +253,24 @@ bool OpenCoreApp::checkAuthDaemon (void)
 		if (! line.strlen())
 		{
 			ferr.writeln ("% Error getting reply from authd socket");
+			sauth.close ();
 			return false;
 		}
 		if (line[0] != '+')
 		{
 			ferr.writeln ("%% Error from authd: %s\n" %format (line));
+			sauth.close ();
 			return false;
 		}
+		sauth.writeln ("runtaskqueue");
+		line = sauth.gets();
+		if (line[0] != '+')
+		{
+			ferr.writeln ("%% Error from authd: %s\n" %format (line));
+			sauth.close ();
+			return false;
+		}
+		
 		sauth.writeln ("quit");
 		line = sauth.gets();
 	}
