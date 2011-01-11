@@ -249,14 +249,14 @@ int WallpaperHandler::run (string &uri, string &postbody, value &inhdr,
 	{
 		string p = WallpaperClass::getCurrentWallpaper();
 		log::write (log::info, "WallP", "Serving %s" %format (p));
-		out = fs.load (p);
+		if (fs.exists (p)) out = fs.load (p);
 		return 200;
 	}
 	else
 	{
 		string fn = uri.copyafterlast ("/");
 		string path = "/var/openpanel/wallpaper/%s.preview" %format (fn);
-		out = fs.load (path);
+		if (fs.exists (path)) out = fs.load (path);
 		return 200;
 	}
 }
@@ -379,7 +379,8 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		   $("os_release",name.release)->
 		   $("openpanel_release",version::release);
 
-	string scpuinfo = fs.load ("/proc/cpuinfo");
+	string scpuinfo;
+	if (fs.exists ("/proc/cpuinfo")) scpuinfo = fs.load ("/proc/cpuinfo");
 	value lcpuinfo = strutil::splitlines (scpuinfo);
 	foreach (l,lcpuinfo)
 	{
@@ -449,7 +450,8 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		}
 	}
 	
-	string suptime = fs.load ("/proc/uptime");
+	string suptime;
+	if (fs.exists ("/proc/uptime")) suptime = fs.load ("/proc/uptime");
 	suptime.cropat (' ');
 	int iuptime = suptime.toint(10);
 	
@@ -460,7 +462,8 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	senv["uptime_hms"] = "%i:%02i:%02i" %format (senv["uptime_hours"],
 							senv["uptime_minutes"], senv["uptime_seconds"]);
 	
-	string sload = fs.load ("/proc/loadavg");
+	string sload;
+	if (fs.exists ("/proc/loadavg")) sload = fs.load ("/proc/loadavg");
 	value vload = strutil::splitspace (sload);
 	senv["load_1"] = vload[0];
 	senv["load_5"] = vload[1];
@@ -520,11 +523,18 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		}
 	}
 	
-	string script = fs.load ("/var/openpanel/http/dynamic/welcome.html");
-	scriptparser p;
-	p.build (script);
+	try
+	{
+		string script = fs.load ("/var/openpanel/http/dynamic/welcome.html");
+		scriptparser p;
+		p.build (script);
 	
-	p.run (senv, out);
+		p.run (senv, out);
+	}
+	catch (...)
+	{
+		out = "Exception caught";
+	}
 	outhdr["Content-type"] = "text/html";
 	return 200;
 }

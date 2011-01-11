@@ -91,7 +91,13 @@ CoreClass::CoreClass (const value &imeta, CoreModule *p)
 	if (imeta.exists ("explanation") && imeta["explanation"].sval())
 	{
 		string fn = "%s/%s" %format (module.path, imeta["explanation"]);
-		explanation = fs.load (fn);
+		try
+		{
+			explanation = fs.load (fn);
+		}
+		catch (...)
+		{
+		}
 	}
 	
 	if (imeta["metatype"] == "derived")
