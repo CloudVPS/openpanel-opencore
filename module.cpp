@@ -97,6 +97,8 @@ CoreClass::CoreClass (const value &imeta, CoreModule *p)
 		}
 		catch (...)
 		{
+			log::write (log::error, "Module", "Error loading explanation file "
+						"for class %s" %format (name));
 		}
 	}
 	
