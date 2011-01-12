@@ -24,6 +24,16 @@ Replaces: openpanel-devel, openpanel-mkmodulexml
 Conflicts: openpanel-devel, openpanel-mkmodulexml
 Description: OpenPanel development files
  OpenPanel module development libraries and includes
+
+Package: openpanel-api-sh
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: OpenPanel shell bindings
+
+Package: openpanel-api-python
+Architecture: any
+Depends: ${misc:Depends}
+Description: OpenPanel python bindings
  
 Package: openpanel-minimal
 Architecture: all

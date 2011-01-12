@@ -17,7 +17,7 @@ TSOBJ = techsupport.o dbmanager.o debug.o
 
 MKOBJ = mkmodulexml.o
 
-all: cpp-api grace-api openpaneld.exe techsupport.exe mkmodulexml api/python/package/OpenPanel/error.py kickstart.panel.db
+all: cpp-api grace-api openpaneld.exe techsupport.exe mkmodulexml api/python/package/OpenPanel/error.py kickstart.panel.db coreval
 	grace mkapp openpaneld
 	grace mkapp techsupport
 
@@ -35,6 +35,9 @@ api/python/package/OpenPanel/error.py: error.h
 
 rsrc/resources.xml: error.h
 	./makeresourcesxml
+
+coreval: coreval.o
+	$(LD) $(LDFLAGS) -o coreval $(OBJ) $(LIBS) -lz
 
 openpaneld.exe: $(OBJ) rsrc/resources.xml
 	$(LD) $(LDFLAGS) -o openpaneld.exe $(OBJ) $(LIBS) -lz
@@ -97,8 +100,12 @@ install:
 	install -m 600 kickstart.panel.db ${DESTDIR}/var/openpanel/db/panel/panel.db.setup
 	install -m 755 openpaneld ${DESTDIR}/var/openpanel/bin/openpaneld
 	install -m 755 techsupport ${DESTDIR}/var/openpanel/bin/techsupport
+	
 	cp -r api/python ${DESTDIR}/var/openpanel/api/
+	
 	cp -r api/sh ${DESTDIR}/var/openpanel/api/
+	install -m 755 coreval ${DESTDIR}/usr/bin/coreval
+	
 	#
 	install -m 644 api/c++/include/authdclient.h ${DESTDIR}/usr/include/openpanel-core/authdclient.h
 	install -m 644 api/c++/include/moduleapp.h ${DESTDIR}/usr/include/openpanel-core/moduleapp.h
