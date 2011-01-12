@@ -119,7 +119,7 @@ bool OpenCoreRPC::_confcreate (const value &conf, int update)
 			_huds = new RPCRequestHandler (app, httpdUds, pdb);
 			
 		// Start the server
-		// httpdUds.start();
+		httpdUds.start();
 		fs.chmod (PATH_RPCSOCK, 0666);
 		
 	}
