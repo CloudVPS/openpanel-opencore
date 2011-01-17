@@ -37,7 +37,7 @@ rsrc/resources.xml: error.h
 	./makeresourcesxml
 
 coreval: coreval.o
-	$(LD) $(LDFLAGS) -o coreval $(OBJ) $(LIBS) -lz
+	$(LD) $(LDFLAGS) -o coreval coreval.o $(LIBS) -lz
 
 openpaneld.exe: $(OBJ) rsrc/resources.xml
 	$(LD) $(LDFLAGS) -o openpaneld.exe $(OBJ) $(LIBS) -lz

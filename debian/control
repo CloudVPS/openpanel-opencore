@@ -25,6 +25,9 @@ Description: OpenPanel development files
 Package: openpanel-api-sh
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Provides: openpanel-coreval
+Conflicts: openpanel-coreval
+Replaces: openpanel-coreval
 Description: OpenPanel shell bindings
 
 Package: openpanel-api-python
