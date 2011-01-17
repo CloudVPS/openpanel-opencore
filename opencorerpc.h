@@ -57,7 +57,7 @@ class OpenCoreRPC
 				
 	private:
 				 httpd				 httpdUds;	///< HTTP Unix Domain Socket server
-				 httpd				 httpdTcp;	///< HTTP TCP Server
+				 httpsd				 httpdSSL;	///< HTTP TCP Server
 				 
 		class	 SessionDB			*pdb; ///< Link to the session database.
 		class	 OpenCoreApp		*app; ///< Link to the application.

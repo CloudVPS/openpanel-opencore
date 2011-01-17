@@ -38,6 +38,7 @@ OpenCoreRPC::~OpenCoreRPC (void)
 	// Finish all activities and stop accepting 
 	// new connections.
 	httpdUds.shutdown();
+	httpdSSL.shutdown();
 }
 
 
@@ -80,10 +81,10 @@ bool OpenCoreRPC::confcheck  (const value &conf)
 		fs.rm (PATH_RPCSOCK);
 	
 	// Check min max values and if there is a port number given
-	if( conf["httpsocket"]["minthreads"].ival() == 0 ||
-		conf["httpsocket"]["maxthreads"].ival() == 0 ||
-		(conf["httpsocket"]["minthreads"].ival() > 
-		 conf["httpsocket"]["maxthreads"].ival()))
+	if( conf["httpssocket"]["minthreads"].ival() == 0 ||
+		conf["httpssocket"]["maxthreads"].ival() == 0 ||
+		(conf["httpssocket"]["minthreads"].ival() > 
+		 conf["httpssocket"]["maxthreads"].ival()))
 	{
 		error = "Invalid number of threads assigned in rpc::httpsocket";
 		return false;
@@ -121,37 +122,63 @@ bool OpenCoreRPC::_confcreate (const value &conf, int update)
 		httpdUds.start();
 		fs.chmod (PATH_RPCSOCK, 0666);
 		
-		ipaddress listenaddr = "127.0.0.1";
-		
-		if (conf["httpsocket"].exists ("listenaddr"))
-		{
-			listenaddr = conf["httpsocket"]["listenaddr"];
-		}
-		
-		httpdTcp.listento (listenaddr, conf["httpsocket"]["listenport"]);
-		CORE->log (log::info, "RPC", "Setting up tcp-rpc on 127.0.0.1:4088");
-		
-		if (! update)
-		{
-			_htcp = new RPCRequestHandler (app, httpdTcp, pdb);
-			httpdTcp.systempath ("/var/openpanel");
-			new httpdlogger (httpdTcp, "/var/openpanel/log/opencore.access.log");
-			new IconRequestHandler (app, httpdTcp);
-			new ItemIconRequestHandler (app, httpdTcp);
-			new EmblemRequestHandler (app, httpdTcp);
-			new ImagePreloader (app, httpdTcp);
-			new LandingPageHandler (app, httpdTcp);
-			new WallpaperHandler (app, httpdTcp);
-			new httpdfileshare (httpdTcp, "*", "/var/openpanel/http");
-		}
-		
-		httpdTcp.start();
 	}
 	catch (exception e)
 	{
 		CORE->log (log::critical, "RPC", "Exception setting up unix-rpc: %s",
 				   e.description);
 		error = "Fatal exception during setup of UnixDomainSocket";
+			
+		return false;	
+	}
+	
+	try
+	{		
+		if (conf["httpssocket"].exists ("certificate"))
+		{
+			string certificate = conf["httpssocket"]["certificate"];
+			httpdSSL.loadkeyfile(certificate);
+		}
+		else
+		{
+			CORE->log (log::critical, "RPC", "No certificate available for SSL");
+			error = "Fatal exception during setup of SSL";
+			return false;	
+		}
+		
+		string listenaddr = "0.0.0.0";
+		
+		if (conf["httpssocket"].exists ("listenaddr"))
+		{
+			listenaddr = conf["httpssocket"]["listenaddr"];
+		}
+		
+		httpdSSL.listento (ipaddress(listenaddr), conf["httpssocket"]["listenport"]);
+		CORE->log (log::info, "RPC", "Setting up ssl-rpc on %s:%d", 
+			(const char*)listenaddr,
+			(int)conf["httpssocket"]["listenport"] );
+		
+		if (! update)
+		{
+			_htcp = new RPCRequestHandler (app, httpdSSL, pdb);
+			httpdSSL.systempath ("/var/openpanel");
+			new httpdlogger (httpdSSL, "/var/openpanel/log/opencore.access.log");
+			new IconRequestHandler (app, httpdSSL);
+			new ItemIconRequestHandler (app, httpdSSL);
+			new EmblemRequestHandler (app, httpdSSL);
+			new ImagePreloader (app, httpdSSL);
+			new LandingPageHandler (app, httpdSSL);
+			new WallpaperHandler (app, httpdSSL);
+			new httpdfileshare (httpdSSL, "*", "/var/openpanel/http");
+		}
+		
+		httpdSSL.start();
+	}
+	catch (exception e)
+	{
+		CORE->log (log::critical, "RPC", "Exception setting up ssl-rpc: %s",
+				   e.description);
+		error = "Fatal exception during setup of SSL";
 			
 		return false;	
 	}
@@ -171,7 +198,7 @@ bool OpenCoreRPC::confupdate (const value &conf)
 	{	
 		// Do a graceful shutdown of the http daemons
 		httpdUds.shutdown();
-		httpdTcp.shutdown();
+		httpdSSL.shutdown();
 		
 		// Restart deamons, if failes there should alread been
 		// set an error string

@@ -30,7 +30,7 @@
   	<xml.type>dict</xml.type>
   	<xml.proplist>
 	  	<xml.member class="unixsocket"	id="unixsocket"/>
-  		<xml.member class="httpsocket" 	id="httpsocket"/> 
+  		<xml.member class="httpssocket" 	id="httpssocket"/> 
   	</xml.proplist>
   </xml.class>
   
@@ -42,13 +42,14 @@
   	</xml.proplist>
   </xml.class>
   
-  <xml.class name="httpsocket">
+  <xml.class name="httpssocket">
   	<xml.type>dict</xml.type>
   	<xml.proplist>
   		<xml.member class="listenaddr" id="listenaddr"/>
 	  	<xml.member class="minthreads"	id="minthreads"/>
   		<xml.member class="maxthreads"	id="maxthreads"/>
-		<xml.member class="listenport"	id="listenport"/>  
+		  <xml.member class="listenport"	id="listenport"/>  
+		  <xml.member class="certificate"	id="certificate"/>  
 	</xml.proplist>
   </xml.class>
   
@@ -56,7 +57,8 @@
   <xml.class name="minthreads"><xml.type>integer</xml.type></xml.class>
   <xml.class name="maxthreads"><xml.type>integer</xml.type></xml.class>  
   <xml.class name="listenport"><xml.type>integer</xml.type></xml.class>
-
+  <xml.class name="certificate"><xml.type>string</xml.type></xml.class>
+ 
   <xml.class name="alert">
     <xml.type>dict</xml.type>
     <xml.proplist>

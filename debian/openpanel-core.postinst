@@ -48,12 +48,23 @@ case "$1" in
         chown root:openpanel-core /var/openpanel/conf/staging
         chmod 770 /var/openpanel/conf/staging
 
+	    if [ ! -e "/etc/ssl/private/ssl-openpanel.key" ]; then
+		    ln -s /etc/ssl/private/ssl-cert-snakeoil.key /etc/ssl/private/ssl-openpanel.key
+	    fi
+	    if [ ! -e "/etc/ssl/certs/ssl-openpanel.pem" ]; then
+		    ln -s /etc/ssl/certs/ssl-cert-snakeoil.pem /etc/ssl/certs/ssl-openpanel.pem
+	    fi
+
         invoke-rc.d openpanel-core restart
+
 
         ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
-
+        ;;
+        
+    triggered)
+        invoke-rc.d openpanel-core reload        
         ;;
 
     *)
