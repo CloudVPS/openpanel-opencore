@@ -55,8 +55,7 @@ case "$1" in
 		    ln -s /etc/ssl/certs/ssl-cert-snakeoil.pem /etc/ssl/certs/ssl-openpanel.pem
 	    fi
 
-        invoke-rc.d openpanel-core restart
-
+        dpkg-trigger /var/openpanel/modules
 
         ;;
 
