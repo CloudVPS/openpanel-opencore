@@ -115,7 +115,9 @@ public:
                     bool reportSuccess(const statstring &uuid);
                     
                     /// delete pending object (this is realtime and interactive for the user)
-                    bool reportFailure(const statstring &uuid);
+                    bool reportCreateFailure(const statstring &uuid);
+                    bool reportUpdateFailure(const statstring &uuid);
+                    bool reportDeleteFailure(const statstring &uuid);
                     
                     /// mark object as postponed, with reason (asynchronous!)
                     // TODO: implement

@@ -13,7 +13,7 @@ OBJ =	alerts.o api.o dbmanager.o main.o module.o moduledb.o \
 		internalclass.o session.o debug.o opencorerpc.o \
 		rpcrequesthandler.o rpc.o version.o
 
-TSOBJ = techsupport.o dbmanager.o debug.o
+TSOBJ = techsupport.o dbmanager.o debug.o alerts.o
 
 MKOBJ = mkmodulexml.o
 

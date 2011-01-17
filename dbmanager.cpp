@@ -24,6 +24,7 @@
 #include "opencore.h"
 #include "debug.h"
 #include "error.h"
+#include "alerts.h"
 
 // TODO: check that we handle all relevant table columns at all places
 // TODO: make sure 'wanted' and 'reality' are in all the necessary WHERE-clauses
@@ -1918,15 +1919,48 @@ bool DBManager::reportSuccess(const statstring &uuid)
 
 	value dbres = dosqlite(q);
 
-  return true;
+    return true;
 }
 
-bool DBManager::reportFailure(const statstring &uuid)
+bool DBManager::reportDeleteFailure(const statstring &uuid)
 {
-	value empty;
-	return updateObject(empty, uuid, true, true, true);
+	string q;
+	value where;
+
+	ALERT->alert("Object delete failed (%s), deleting from database anyway"% format(uuid));
+
+	q.printf("DELETE /* reportDeleteFailure */ FROM objects WHERE ");
+	where["uuid"]=uuid;
+	q.strcat(escapeforsql("=", " AND ", where));
+
+	value dbres = dosqlite(q);
+
+    return true;
+}
+
+bool DBManager::reportCreateFailure(const statstring &uuid)
+{
+	string q;
+	value where;
+
+	ALERT->alert("Object create failed (%s), deleting from database"% format(uuid));
+
+	q.printf("DELETE /* reportCreateFailure */ FROM objects WHERE ");
+	where["uuid"]=uuid;
+	q.strcat(escapeforsql("=", " AND ", where));
+
+	value dbres = dosqlite(q);
+
+    return true;
+	
 }
 		
+bool DBManager::reportUpdateFailure(const statstring &uuid)
+{
+	ALERT->alert("Object update failed (%s), leaving database object updated"% format(uuid));
+    return true;
+}
+
 // we iterate upwards from our logged-in user to find all
 // applying limits. a smaller limit overrides a bigger one,
 // any limit overrides infinity, infinity never overrides any limit

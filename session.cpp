@@ -761,7 +761,7 @@ string *CoreSession::createObject (const statstring &parentid,
 		{
 			if (! chown (uuid, owner))
 			{
-				db.reportFailure (uuid);
+				db.reportCreateFailure (uuid);
 				setError (ERR_SESSION_CHOWN);
 				return NULL;
 			}
@@ -821,7 +821,7 @@ string *CoreSession::createObject (const statstring &parentid,
 		case status_failed:
 			setError (ERR_MDB_ACTION_FAILED, moderr);
 			
-			if (! db.reportFailure (uuid))
+			if (! db.reportCreateFailure (uuid))
 			{
 				string err = db.getLastError();
 				CORE->logError ("session ", "Database failure on "
@@ -1186,7 +1186,7 @@ bool CoreSession::updateObject (const statstring &parentid,
 		case status_failed:
 			setError (ERR_MDB_ACTION_FAILED, moderr);
 			if (mdb.isInternalClass (ofclass)) return false;
-			if (! db.reportFailure (uuid))
+			if (! db.reportUpdateFailure (uuid))
 			{
 				CORE->logError ("Session", "Database failure on "
 						    	"rolling back reality objects: %s"
@@ -1335,7 +1335,7 @@ bool CoreSession::deleteObject (const statstring &parentid,
 			case status_failed:
 				if (firstobject)
 				{
-					db.reportFailure (uuid);
+					db.reportDeleteFailure (uuid);
 					setError (ERR_MDB_ACTION_FAILED);
 					return false;
 				}
