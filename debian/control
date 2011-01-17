@@ -8,7 +8,7 @@ Standards-Version: 3.7.2
 Package: openpanel-core
 Architecture: any
 Pre-Depends: adduser, debconf
-Depends: openpanel-authd, ssl-cert, libgrace, libgrace-dbfile, libgrace-ssl, libgrace-pcre, ${shlibs:Depends}, ${misc:Depends}
+Depends: openpanel-authd, ssl-cert, ${shlibs:Depends}, ${misc:Depends}
 Recommends: openpanel-gui, openpanel-mod-user, openpanel-cli
 Provides: openpanel-ssl
 Replaces: openpanel-ssl
@@ -18,10 +18,7 @@ Description: OpenPanel main files
 
 Package: openpanel-dev
 Architecture: any
-Depends: libgrace-dev, libgrace, libgrace-pcre, libgrace-ssl-dev, ${shlibs:Depends}, ${misc:Depends}
-Provides: openpanel-devel, openpanel-mkmodulexml
-Replaces: openpanel-devel, openpanel-mkmodulexml
-Conflicts: openpanel-devel, openpanel-mkmodulexml
+Depends: libgrace-dev, libgrace-ssl-dev, ${shlibs:Depends}, ${misc:Depends}
 Description: OpenPanel development files
  OpenPanel module development libraries and includes
 
