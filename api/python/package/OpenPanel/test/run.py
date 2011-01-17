@@ -73,8 +73,9 @@ class Tester(object):
 
                 for p in prereq:
                     if p not in self.order:
-                        self.order.insert(p)
-                self.order.append(name)
+                        self.order.insert(0,p)
+                if name not in self.order:
+                    self.order.append(name)
                             
             except ImportError:
                 pass        
