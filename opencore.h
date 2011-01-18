@@ -97,7 +97,7 @@ protected:
 	
 						 /// Checks whether authd runs.
 						 /// \return False if authd is unavailable.
-	bool				 checkAuthDaemon (void);
+	bool				 checkAuthDaemon (bool runtaskqueue = false);
 	
 	bool				 runAuthDaemonTaskQueue (void);
 	
