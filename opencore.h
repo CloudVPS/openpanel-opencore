@@ -99,6 +99,8 @@ protected:
 						 /// \return False if authd is unavailable.
 	bool				 checkAuthDaemon (void);
 	
+	bool				 runAuthDaemonTaskQueue (void);
+	
 	static void			 memoryLeakHandler (void);
 	
 	appconfig			 conf; ///< Configuration database.

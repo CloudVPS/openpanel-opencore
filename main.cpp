@@ -203,6 +203,9 @@ int OpenCoreApp::main (void)
 	// Load modules.
 	mdb->init (initlist);
 	
+	// Let authdaemon run through its taskqueue now.
+	runAuthDaemonTaskQueue();
+	
 	if (dconsole)
 	{
 		commandline (); // This will go :)
@@ -235,7 +238,7 @@ int OpenCoreApp::main (void)
 // ==========================================================================
 // METHOD OpenCoreApp::checkAuthDaemon
 // ==========================================================================
-bool OpenCoreApp::checkAuthDaemon (void)
+bool OpenCoreApp::checkAuthDaemon (bool runtaskqueue)
 {
 	tcpsocket sauth;
 	
@@ -262,13 +265,16 @@ bool OpenCoreApp::checkAuthDaemon (void)
 			sauth.close ();
 			return false;
 		}
-		sauth.writeln ("runtaskqueue");
-		line = sauth.gets();
-		if (line[0] != '+')
+		if (runtaskqueue)
 		{
-			ferr.writeln ("%% Error from authd: %s\n" %format (line));
-			sauth.close ();
-			return false;
+			sauth.writeln ("runtaskqueue");
+			line = sauth.gets();
+			if (line[0] != '+')
+			{
+				ferr.writeln ("%% Error from authd: %s\n" %format (line));
+				sauth.close ();
+				return false;
+			}
 		}
 		
 		sauth.writeln ("quit");
@@ -276,10 +282,16 @@ bool OpenCoreApp::checkAuthDaemon (void)
 	}
 	catch (...)
 	{
+		return false;
 	}
 	
 	sauth.close ();
 	return true;
+}
+
+bool OpenCoreApp::runAuthDaemonTaskQueue (void)
+{
+	return checkAuthDaemon (true);
 }
 
 // ==========================================================================
