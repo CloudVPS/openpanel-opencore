@@ -146,17 +146,20 @@ bool OpenCoreRPC::_confcreate (const value &conf, int update)
 			return false;	
 		}
 		
-		string listenaddr = "0.0.0.0";
-		
 		if (conf["httpssocket"].exists ("listenaddr"))
 		{
-			listenaddr = conf["httpssocket"]["listenaddr"];
+			string listenaddr = conf["httpssocket"]["listenaddr"];
+			httpdSSL.listento (ipaddress(listenaddr), conf["httpssocket"]["listenport"]);
+			CORE->log (log::info, "RPC", "Setting up ssl-rpc on %s:%d", 
+				(const char*)listenaddr,
+				(int)conf["httpssocket"]["listenport"] );
 		}
-		
-		httpdSSL.listento (ipaddress(listenaddr), conf["httpssocket"]["listenport"]);
-		CORE->log (log::info, "RPC", "Setting up ssl-rpc on %s:%d", 
-			(const char*)listenaddr,
-			(int)conf["httpssocket"]["listenport"] );
+		else
+		{
+			httpdSSL.listento (conf["httpssocket"]["listenport"]);
+			CORE->log (log::info, "RPC", "Setting up ssl-rpc on port %d",
+					   (int)conf["httpssocket"]["listenport"]);
+		}
 		
 		if (! update)
 		{
