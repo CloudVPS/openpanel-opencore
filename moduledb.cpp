@@ -58,7 +58,9 @@ void ModuleDB::init (const value &reloadmods)
 	if (! db.init ())
 	{
 		log::write (log::critical, "ModuleDB", "Could not init database");
-		return;
+		CORE->delayedexiterror ("Error initializing database");
+		sleep(2);
+		exit (1);
 	}
 	
 	// Indicate to the database that we're bypassing the authorization layer
