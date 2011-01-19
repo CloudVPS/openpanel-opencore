@@ -17,7 +17,7 @@
 RETVAL=0
 prog="openpaneld"
 DAEMON=/var/openpanel/bin/openpaneld
-NAME=com.openpanel.svc.openpaneld
+NAME=com.openpanel.svc.opencore
 
 [ "${NETWORKING}" = "no" ] && exit 1
 [ -x $DAEMON ] || exit 0
@@ -34,7 +34,7 @@ start()
 stop()
 {
 	echo -n $"Stopping $prog: "
-	if [ -n "`pidfileofproc $DAEMON`" ] ; then
+	if [ -n "`pidfileofproc $NAME`" ] ; then
 	    killproc $DAEMON
 	else
 	    failure $"Stopping $prog"
@@ -47,7 +47,7 @@ stop()
 reload()
 {
 	echo -n $"Reloading $prog: "
-	if [ -n "`pidfileofproc $DAEMON`" ] ; then
+	if [ -n "`pidfileofproc $NAME`" ] ; then
 	    killproc $DAEMON -HUP
 	else
 	    failure $"Reloading $prog"
@@ -76,7 +76,7 @@ case "$1" in
 		start
 		;;
 	status)
-		status -p $PID_FILE openpaneld-daemon
+		status $NAME
 		RETVAL=$?
 		;;
 	*)
