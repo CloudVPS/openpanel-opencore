@@ -156,7 +156,7 @@ bool OpenCoreRPC::_confcreate (const value &conf, int update)
 		}
 		else
 		{
-			httpdSSL.listento (conf["httpssocket"]["listenport"]);
+			httpdSSL.listento (conf["httpssocket"]["listenport"].ival());
 			CORE->log (log::info, "RPC", "Setting up ssl-rpc on port %d",
 					   (int)conf["httpssocket"]["listenport"]);
 		}
