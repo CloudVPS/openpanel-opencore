@@ -57,6 +57,12 @@ exitok() {
   exit 0
 }
 
+exitquiet() {
+  trap - EXIT
+  rm -rf $STDERRFILE
+  exit 0
+}
+
 exittrap() {
   if [ $? = 0 ]
   then
