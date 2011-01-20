@@ -60,7 +60,7 @@ clean:
 	rm -f openpanel-core techsupport
 	rm -f version.cpp
 	rm -f api/python/package/OpenPanel/error.py rsrc/resources.xml
-	rm -f mkmodulexml
+	rm -f mkmodulexml coreval
 	cd "api/c++/src" && $(MAKE) clean
 	cd "api/grace/src" && $(MAKE) clean
 
