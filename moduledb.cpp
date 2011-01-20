@@ -148,6 +148,7 @@ bool ModuleDB::init (const value &reloadmods)
 	
 	// Save the cache.
 	cache.saveshox (cachepath);
+	return true;
 }
 
 // ==========================================================================
