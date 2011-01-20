@@ -17,7 +17,6 @@
 
 void breakme (void) {}
 
-$exception (moduleInitException, "Error initializing module");
 
 // cache layout:
 // modules {
@@ -50,7 +49,7 @@ ModuleDB::ModuleDB (void)
 //
 // TODO: detect double class registration
 // ==========================================================================
-void ModuleDB::init (const value &reloadmods)
+bool ModuleDB::init (const value &reloadmods)
 {
 	value cache;
 	
@@ -59,8 +58,7 @@ void ModuleDB::init (const value &reloadmods)
 	{
 		log::write (log::critical, "ModuleDB", "Could not init database");
 		CORE->delayedexiterror ("Error initializing database");
-		sleep(2);
-		exit (1);
+		return false;
 	}
 	
 	// Indicate to the database that we're bypassing the authorization layer
@@ -122,7 +120,7 @@ void ModuleDB::init (const value &reloadmods)
 				{
 					loadModule (mname, cache, db);
 				}
-				catch (exception e)
+				catch (moduleInitException e)
 				{
 					CORE->logError ("ModuleDB", "Error loading "
 							   		"'%s': %s" %format (mname, e.description));
@@ -130,6 +128,13 @@ void ModuleDB::init (const value &reloadmods)
 					// Re-throw on user.module, without that one
 					// there's little use starting up at all.
 					if (mname == "User.module") throw (e);
+				}
+				catch (moduleCriticalException e)
+				{
+					cache.saveshox (cachepath);
+					CORE->delayedexiterror ("Error loading %s: %s"
+											%format (mname, e.description));
+					return false;
 				}
 			}
 		}

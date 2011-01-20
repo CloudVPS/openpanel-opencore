@@ -201,7 +201,15 @@ int OpenCoreApp::main (void)
 	}
 
 	// Load modules.
-	mdb->init (initlist);
+	if (! mdb->init (initlist))
+	{
+		log (log::info, "Main", "Shutting down on initialization error");
+		APP_SHOULDRUN = false;
+		sexp->shutdown();
+		ALERT->shutdown();
+		stoplog();
+		return 0;
+	}
 	
 	// Let authdaemon run through its taskqueue now.
 	runAuthDaemonTaskQueue();

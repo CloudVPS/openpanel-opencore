@@ -525,8 +525,7 @@ CoreModule::CoreModule (const string &mpath, const string &mname,
 	#define CRIT_FAILURE(foo) { \
 			string err = foo; \
 			CORE->log (log::critical, "Module", err); \
-			CORE->delayedexiterror (err); \
-			sleep (2); exit (1); \
+			throw moduleCriticalException(err); \
 		}
 	
 	// Don't allow html-style data with mixed tags, this is much more
