@@ -75,11 +75,11 @@ OpenPanel with a suggested set of modules
 Summary:        OpenPanel with a suggested set of modules
 Group:          Application/Internet
 Requires:       openpanel-core = %{version}
-Requires: 	openpanel-mod-user = %{version}
-Requires: 	openpanel-gui = %{version}
-Requires: 	openpanel-cli = %{version}
-Requires: 	openpanel-mod-domain = %{version}
-Requires:	openpanel-authd = %{version}
+Requires: 	openpanel-mod-user
+Requires: 	openpanel-gui
+Requires: 	openpanel-cli
+Requires: 	openpanel-mod-domain
+Requires:	openpanel-authd
 
 %description minimal
 OpenPanel with a minimal set of modules
@@ -157,7 +157,7 @@ if [ $1 = 0 ]; then
 	/usr/sbin/groupdel openpanel-core >/dev/null 2>&1 || :
 	/usr/sbin/groupdel openpaneluser >/dev/null 2>&1 || :
 fi
-if [ "$1" ge "1" ]; then
+if [ "$1" -ge "1" ]; then
 	service openpaneld condrestart >/dev/null 2>&1 || :
 fi
 
