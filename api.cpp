@@ -36,7 +36,7 @@ int API::execute (const string &mname, const statstring &apitype,
 		incaseof ("cgi") : return cgi (mname, fullcmd, in, out);
 		incaseof ("grace") : return grace (mname, fullcmd, in, out);
 		incaseof ("xml") : return grace (mname, fullcmd, in, out);
-		defaultcase : return status_failed;
+		defaultcase : return stdio (apitype, mname, fullcmd, in, out);
 	}
 }
 
@@ -222,12 +222,34 @@ int API::cgi (const string &mname, const string &fullcmd, const value &in, value
 // ==========================================================================
 int API::grace (const string &mname, const string &fullcmd, const value &in, value &out)
 {
+	return stdio("grace",mname,fullcmd,in,out);
+}
+// ==========================================================================
+// METHOD API::grace
+// ==========================================================================
+int API::stdio (const statstring &apitype, const string &mname, const string &fullcmd, const value &in, value &out)
+{
 	value argv;
 	string outdat;
 	
 	DEBUG.storeFile ("API", "parm", in, "grace");
 	
-	outdat = in.toxml();
+	caseselector (apitype)
+	{
+		incaseof ("json") : outdat = in.tojson(); break;
+		incaseof ("shox") : outdat = in.toshox(); break;
+		incaseof ("php") : outdat = in.phpserialize(); break;
+		incaseof ("msgpack") : outdat = in.tomsgpack(); break;
+		incaseof ("grace"): outdat = in.toxml(); break;
+		incaseof ("xml") : outdat = in.toxml(); break;
+		incaseof ("plist") :
+			value in_copy = in;
+		 	outdat = in_copy.toplist(); 
+		 	break;
+//		incaseof ("cxml") : outdat = in.tocxml(); break;
+		defaultcase : return status_failed;
+	}	
+	
 	
 	argv.newval() = fullcmd;
 	tcpsocket s;
@@ -287,29 +309,40 @@ int API::grace (const string &mname, const string &fullcmd, const value &in, val
 	
 	proc.serialize();
 
-	DEBUG.storeFile ("API", "result", dt, "grace");
+	DEBUG.storeFile ("API", "result", dt, apitype);
 	
 	if (dt.strlen())
 	{
 		// Give a warning moan on size mismatches.
 		if (dt.strlen() != expectedsize)
 		{
-			CORE->logError ("API", "Call to Grace-API module "
-					    "script <%s> return data size mismatch" %format (fullcmd));
+			CORE->logError ("API", "Call to %s-API module <%s> return data "
+									" size mismatch" %format (apitype,fullcmd));
 		}
 		
-		// Decode the xml in any case.
-		out.fromxml (dt);
+		// Decode the output in any case.
+		caseselector (apitype)
+		{
+			incaseof ("json") : out.fromjson(dt); break;
+			incaseof ("shox") : out.fromshox(dt); break;
+			incaseof ("php") : out.phpdeserialize(dt); break;
+			incaseof ("msgpack") : out.frommsgpack(dt); break;
+			incaseof ("grace"): out.fromxml(dt); break;
+			incaseof ("xml") : out.fromxml(dt); break;
+			incaseof ("plist") : out.fromplist(dt); break;
+//			incaseof ("cxml") : out.fromcxml(dt,schema); break;
+			defaultcase : return status_failed;
+		}			
+		
 	}
 	
 	// Look for a result block.
 	if (! out.exists ("OpenCORE:Result"))
 	{
 		// Not found, bitch & whine.
-		CORE->logError ("API", "Call to Grace-API module "
-				    "with no result-block");
+		CORE->logError ("API", "Call to %s-API module with no result-block" %format(apitype) );
 		
-		DEBUG.storeFile ("API","no-result",out,"grace");
+		DEBUG.storeFile ("API","no-result",out,apitype);
 		return 1;
 	}
 	
