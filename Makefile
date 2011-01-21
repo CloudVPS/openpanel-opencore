@@ -79,6 +79,7 @@ install:
 	mkdir -p ${DESTDIR}/usr/bin/
 	mkdir -p ${DESTDIR}/var/openpanel/
 	mkdir -p ${DESTDIR}/var/openpanel/api
+	mkdir -p ${DESTDIR}/var/openpanel/modules
 	mkdir -p ${DESTDIR}/var/openpanel/bin
 	mkdir -p ${DESTDIR}/var/openpanel/conf/rollback
 	mkdir -p ${DESTDIR}/var/openpanel/conf/staging
