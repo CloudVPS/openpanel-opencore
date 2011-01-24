@@ -542,6 +542,7 @@ bool DBManager::fetchObject (value &into, const statstring &uuid, bool formodule
 		into[id]["uuid"]=row["uuid"];
 		into[id]("type")="object";
 		into[id]("owner")=_findmetaid(row["owner"]);
+		into[id]["owner-metaid"]=into[id]("owner");
 		if(row["parentuuid"].sval().strlen())
 			into[id]["parentid"]=row["parentuuid"];
 		if(row["owneruuid"].sval().strlen())
