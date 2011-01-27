@@ -128,6 +128,7 @@ bool CoreClass::normalize (value &mdata, string &error)
 	// Go over the data elements
 	foreach (node, mdata)
 	{
+		if (node.id() == "owner-metaid") continue;
 		// Verify that the parameter was defined in the class definition.
 		if (! param.exists (node.id()))
 		{
