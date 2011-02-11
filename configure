@@ -804,42 +804,13 @@ int main (int argc, char *argv[])
 	sendfile (1, 1, &offs, 1);
 }
 EOF
-if $CXX $CXXFLAGS -o conftest conftest.cpp >> configure.log 2>&1; then
+if $CXX $CXXFLAGS -Wl,--fatal-warnings -o conftest conftest.cpp >> configure.log 2>&1; then
   HAVE_SENDFILE="#define HAVE_SENDFILE 1"
   saypass "yes"
 else
   saypass "no"
 fi
 rm -f conftest.cpp conftest >/dev/null 2>&1
-# ---------------------------------------------------------------------------
-# Figure out if the system supports linux-style PASSCRED voudon
-# ---------------------------------------------------------------------------
-
-
-saypending "checking for SO_PASSCRED support"
-cat > conftest.cpp << EOF
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <sys/un.h>
-#include <sys/socket.h>
-#include <linux/socket.h>
-#include <sys/uio.h>
-
-int main (void)
-{
-    int foo;
-    setsockopt (1, SOL_SOCKET, SO_PASSCRED, (char *) &foo, sizeof(int));
-}
-
-EOF
-
-if $CXX $CXXFLAGS -o conftest.o -c conftest.cpp >> configure.log 2>&1; then
-  HAVE_PASSCRED="#define HAVE_PASSCRED 1"
-  saypass "yes"
-else
-  saypass "no"
-fi
-rm -f conftest.cpp conftest.o >/dev/null 2>&1
 # ---------------------------------------------------------------------------
 # Figure out path to Grace include
 # ---------------------------------------------------------------------------
@@ -992,7 +963,6 @@ $CRYPTH
 $CRYPTDEFINE
 $HAVE_GMTOFF
 $HAVE_SENDFILE
-$HAVE_PASSCRED
 #endif
 EOF
 
