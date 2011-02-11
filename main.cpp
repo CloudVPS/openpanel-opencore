@@ -153,7 +153,7 @@ int OpenCoreApp::main (void)
 	settargetuid (uid_opencore);
 
 	// Set up collection objects.
-	mdb = new ModuleDB;
+	mdb = new ModuleDB( argv.exists ("--demo") );
 	sdb = new SessionDB (*mdb);
 	
 	if (fs.exists ("/var/openpanel/db/session.xml"))

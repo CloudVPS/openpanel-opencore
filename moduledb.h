@@ -29,7 +29,7 @@ class ModuleDB
 {
 public:
 						 /// Constructor. Initializes linked list.
-						 ModuleDB (void);
+						 ModuleDB (bool demomode);
 						 
 						 /// Destructor. Clean up modules.
 						~ModuleDB (void);
@@ -433,6 +433,9 @@ protected:
 						 /// Dictionary of pointers to internally handled
 						 /// classes.
 	InternalClassdb		 InternalClasses;
+	
+						 /// If TRUE, all modules are loaded in demomode.
+	bool				 demomode;
 };
 
 #endif

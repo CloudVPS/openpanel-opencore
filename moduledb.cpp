@@ -32,9 +32,8 @@ void breakme (void) {}
 // ==========================================================================
 // CONSTRUCTOR ModuleDB
 // ==========================================================================
-ModuleDB::ModuleDB (void)
+ModuleDB::ModuleDB ( bool demo ) : first(NULL), last(NULL), demomode(demo) 
 {
-	first = last = NULL;
 	
 	InternalClasses.set ("OpenCORE:Quota", new QuotaClass);
 	InternalClasses.set ("OpenCORE:ActiveSession", new SessionListClass);
@@ -175,7 +174,7 @@ void ModuleDB::loadModule (const string &mname, value &cache, DBManager &db)
 	}
 	
 	// Create a new CoreModule object
-	CoreModule *m = new CoreModule (path, mname, this);
+	CoreModule *m = new CoreModule (path, mname, this, demomode);
 	
 	// Run the module's verify script. Refrain from loading it if the
 	// verify failed.

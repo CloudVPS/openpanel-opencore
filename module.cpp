@@ -19,7 +19,7 @@
 // CONSTRUCTOR CoreClass
 // ==========================================================================
 CoreClass::CoreClass (void)
-	: module (*(new CoreModule ("","",NULL)))
+	: module (*(new CoreModule ("","",NULL,false)))
 {
 	// Should never be initialized without metadata, but a default
 	// constructor is necessary if you want iteration to work.
@@ -515,7 +515,7 @@ value *CoreClass::getregistration (void)
 // CONSTRUCTOR CoreModule
 // ==========================================================================
 CoreModule::CoreModule (const string &mpath, const string &mname,
-						ModuleDB *pp) : mdb (*pp)
+						ModuleDB *pp, bool demo) : demo (demo), mdb (*pp)
 {
 	string metapath;
 	string xmlerr;
@@ -653,6 +653,11 @@ corestatus_t CoreModule::action (const statstring &command,
 		}
 		
 		return (corestatus_t) result;
+	}
+	
+	if (demo)
+	{
+		return status_ok;
 	}
 
     exclusivesection (serlock)

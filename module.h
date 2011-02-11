@@ -213,7 +213,7 @@ public:
 					 /// \param mpath The path to the module directory.
 					 /// \param mname The name of the module.
 					 CoreModule (const string &mpath, const string &mname,
-					 			 class ModuleDB *pparent);
+					 			 class ModuleDB *pparent, bool demo);
 					 
 					 /// Destructor.
 					~CoreModule (void);
@@ -266,6 +266,7 @@ public:
 	void             getCredentials(value &creds);
     void             setCredentials(const value &creds);
     
+	bool  			 demo;
     string			 name; ///< The module's name.
 	string			 path; ///< Path to the module.
 	statstring		 primaryclass; ///< Track primary class. \todo Do we need this?
