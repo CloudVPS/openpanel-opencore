@@ -17,7 +17,6 @@
 
 void breakme (void) {}
 
-$exception (moduleInitException, "Error initializing module");
 
 // cache layout:
 // modules {
@@ -33,9 +32,8 @@ $exception (moduleInitException, "Error initializing module");
 // ==========================================================================
 // CONSTRUCTOR ModuleDB
 // ==========================================================================
-ModuleDB::ModuleDB (void)
+ModuleDB::ModuleDB ( bool demo ) : first(NULL), last(NULL), demomode(demo) 
 {
-	first = last = NULL;
 	
 	InternalClasses.set ("OpenCORE:Quota", new QuotaClass);
 	InternalClasses.set ("OpenCORE:ActiveSession", new SessionListClass);
@@ -50,7 +48,7 @@ ModuleDB::ModuleDB (void)
 //
 // TODO: detect double class registration
 // ==========================================================================
-void ModuleDB::init (const value &reloadmods)
+bool ModuleDB::init (const value &reloadmods)
 {
 	value cache;
 	
@@ -58,7 +56,8 @@ void ModuleDB::init (const value &reloadmods)
 	if (! db.init ())
 	{
 		log::write (log::critical, "ModuleDB", "Could not init database");
-		return;
+		CORE->delayedexiterror ("Error initializing database");
+		return false;
 	}
 	
 	// Indicate to the database that we're bypassing the authorization layer
@@ -120,7 +119,7 @@ void ModuleDB::init (const value &reloadmods)
 				{
 					loadModule (mname, cache, db);
 				}
-				catch (exception e)
+				catch (moduleInitException e)
 				{
 					CORE->logError ("ModuleDB", "Error loading "
 							   		"'%s': %s" %format (mname, e.description));
@@ -128,6 +127,13 @@ void ModuleDB::init (const value &reloadmods)
 					// Re-throw on user.module, without that one
 					// there's little use starting up at all.
 					if (mname == "User.module") throw (e);
+				}
+				catch (moduleCriticalException e)
+				{
+					cache.saveshox (cachepath);
+					CORE->delayedexiterror ("Error loading %s: %s"
+											%format (mname, e.description));
+					return false;
 				}
 			}
 		}
@@ -141,6 +147,7 @@ void ModuleDB::init (const value &reloadmods)
 	
 	// Save the cache.
 	cache.saveshox (cachepath);
+	return true;
 }
 
 // ==========================================================================
@@ -167,7 +174,7 @@ void ModuleDB::loadModule (const string &mname, value &cache, DBManager &db)
 	}
 	
 	// Create a new CoreModule object
-	CoreModule *m = new CoreModule (path, mname, this);
+	CoreModule *m = new CoreModule (path, mname, this, demomode);
 	
 	// Run the module's verify script. Refrain from loading it if the
 	// verify failed.

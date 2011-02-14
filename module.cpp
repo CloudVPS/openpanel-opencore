@@ -19,7 +19,7 @@
 // CONSTRUCTOR CoreClass
 // ==========================================================================
 CoreClass::CoreClass (void)
-	: module (*(new CoreModule ("","",NULL)))
+	: module (*(new CoreModule ("","",NULL,false)))
 {
 	// Should never be initialized without metadata, but a default
 	// constructor is necessary if you want iteration to work.
@@ -91,7 +91,15 @@ CoreClass::CoreClass (const value &imeta, CoreModule *p)
 	if (imeta.exists ("explanation") && imeta["explanation"].sval())
 	{
 		string fn = "%s/%s" %format (module.path, imeta["explanation"]);
-		explanation = fs.load (fn);
+		try
+		{
+			explanation = fs.load (fn);
+		}
+		catch (...)
+		{
+			log::write (log::error, "Module", "Error loading explanation file "
+						"for class %s" %format (name));
+		}
 	}
 	
 	if (imeta["metatype"] == "derived")
@@ -120,6 +128,7 @@ bool CoreClass::normalize (value &mdata, string &error)
 	// Go over the data elements
 	foreach (node, mdata)
 	{
+		if (node.id() == "owner-metaid") continue;
 		// Verify that the parameter was defined in the class definition.
 		if (! param.exists (node.id()))
 		{
@@ -506,7 +515,7 @@ value *CoreClass::getregistration (void)
 // CONSTRUCTOR CoreModule
 // ==========================================================================
 CoreModule::CoreModule (const string &mpath, const string &mname,
-						ModuleDB *pp) : mdb (*pp)
+						ModuleDB *pp, bool demo) : demo (demo), mdb (*pp)
 {
 	string metapath;
 	string xmlerr;
@@ -517,8 +526,7 @@ CoreModule::CoreModule (const string &mpath, const string &mname,
 	#define CRIT_FAILURE(foo) { \
 			string err = foo; \
 			CORE->log (log::critical, "Module", err); \
-			CORE->delayedexiterror (err); \
-			sleep (2); exit (1); \
+			throw moduleCriticalException(err); \
 		}
 	
 	// Don't allow html-style data with mixed tags, this is much more
@@ -645,6 +653,11 @@ corestatus_t CoreModule::action (const statstring &command,
 		}
 		
 		return (corestatus_t) result;
+	}
+	
+	if (demo)
+	{
+		return status_ok;
 	}
 
     exclusivesection (serlock)
