@@ -27,7 +27,8 @@ case "$1" in
         getent group openpanel-core  > /dev/null  || groupadd -f openpanel-core > /dev/null
         getent passwd openpanel-core > /dev/null  || useradd openpanel-core -r -g openpanel-core > /dev/null
         getent group openpaneluser > /dev/null  || groupadd -f openpaneluser
-        getent passwd openpanel-admin > /dev/null || useradd -m -G openpaneluser openpanel-admin
+        getent group openpanel-admin > /dev/null  || groupadd -f openpanel-admin
+        getent passwd openpanel-admin > /dev/null || useradd -mNG openpaneluser -gopenpanel-admin openpanel-admin
         
         update-rc.d openpanel-core start 94 2 3 4 5 . stop 74 0 1 6 . > /dev/null
         
