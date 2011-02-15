@@ -153,7 +153,7 @@ int OpenCoreApp::main (void)
 	settargetuid (uid_opencore);
 
 	// Set up collection objects.
-	mdb = new ModuleDB;
+	mdb = new ModuleDB( argv.exists ("--demo") );
 	sdb = new SessionDB (*mdb);
 	
 	if (fs.exists ("/var/openpanel/db/session.xml"))
@@ -201,7 +201,18 @@ int OpenCoreApp::main (void)
 	}
 
 	// Load modules.
-	mdb->init (initlist);
+	if (! mdb->init (initlist))
+	{
+		log (log::info, "Main", "Shutting down on initialization error");
+		APP_SHOULDRUN = false;
+		sexp->shutdown();
+		ALERT->shutdown();
+		stoplog();
+		return 0;
+	}
+	
+	// Let authdaemon run through its taskqueue now.
+	runAuthDaemonTaskQueue();
 	
 	if (dconsole)
 	{
@@ -235,7 +246,7 @@ int OpenCoreApp::main (void)
 // ==========================================================================
 // METHOD OpenCoreApp::checkAuthDaemon
 // ==========================================================================
-bool OpenCoreApp::checkAuthDaemon (void)
+bool OpenCoreApp::checkAuthDaemon (bool runtaskqueue)
 {
 	tcpsocket sauth;
 	
@@ -253,22 +264,42 @@ bool OpenCoreApp::checkAuthDaemon (void)
 		if (! line.strlen())
 		{
 			ferr.writeln ("% Error getting reply from authd socket");
+			sauth.close ();
 			return false;
 		}
 		if (line[0] != '+')
 		{
 			ferr.writeln ("%% Error from authd: %s\n" %format (line));
+			sauth.close ();
 			return false;
 		}
+		if (runtaskqueue)
+		{
+			sauth.writeln ("runtaskqueue");
+			line = sauth.gets();
+			if (line[0] != '+')
+			{
+				ferr.writeln ("%% Error from authd: %s\n" %format (line));
+				sauth.close ();
+				return false;
+			}
+		}
+		
 		sauth.writeln ("quit");
 		line = sauth.gets();
 	}
 	catch (...)
 	{
+		return false;
 	}
 	
 	sauth.close ();
 	return true;
+}
+
+bool OpenCoreApp::runAuthDaemonTaskQueue (void)
+{
+	return checkAuthDaemon (true);
 }
 
 // ==========================================================================

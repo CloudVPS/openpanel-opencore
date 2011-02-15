@@ -47,7 +47,7 @@
   <datarule id="rpc">
   	<match.mandatory>
   		<mandatory type="child" key="unixsocket"/>
-  		<mandatory type="child" key="httpsocket"/>
+  		<mandatory type="child" key="httpssocket"/>
   	</match.mandatory>
   	<match.child>
 		<and>
@@ -55,8 +55,8 @@
 		  <match.rule>unixsocket</match.rule>
 		</and>
 		<and>
-		  <match.id>httpsocket</match.id>
-		  <match.rule>httpsocket</match.rule>
+		  <match.id>httpssocket</match.id>
+		  <match.rule>httpssocket</match.rule>
 		</and>
   	</match.child>
   </datarule>
@@ -72,7 +72,7 @@
     </match.child>
   </datarule>
 
-  <datarule id="httpsocket">
+  <datarule id="httpssocket">
     <match.mandatory>
       <mandatory type="child" key="listenport"/>
       <mandatory type="child" key="minthreads"/>
@@ -83,6 +83,7 @@
       <and><match.id>minthreads</match.id></and>
       <and><match.id>maxthreads</match.id></and>
       <and><match.id>listenaddr</match.id></and>
+      <and><match.id>certificate</match.id></and>
     </match.child>
   </datarule>
 

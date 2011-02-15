@@ -16,6 +16,8 @@
 #include "internalclass.h"
 
 $exception (CoreClassNotFoundException, "Core class not found");
+$exception (moduleInitException, "Error initializing module");
+$exception (moduleCriticalException, "Critical error loading module");
 typedef dictionary<class CoreModule*> moduledict;
 
 //  -------------------------------------------------------------------------
@@ -27,7 +29,7 @@ class ModuleDB
 {
 public:
 						 /// Constructor. Initializes linked list.
-						 ModuleDB (void);
+						 ModuleDB (bool demomode);
 						 
 						 /// Destructor. Clean up modules.
 						~ModuleDB (void);
@@ -38,7 +40,7 @@ public:
 						 ///            names of modules that should
 						 ///            go through a new round of
 						 ///            getconfig initialization.
-	void				 init (const value &forcereloadmodules = emptyvalue);
+	bool				 init (const value &forcereloadmodules = emptyvalue);
 							
 						 /// Command a CoreModule to create an object.
 						 /// \param ofclass The object's class.
@@ -431,6 +433,9 @@ protected:
 						 /// Dictionary of pointers to internally handled
 						 /// classes.
 	InternalClassdb		 InternalClasses;
+	
+						 /// If TRUE, all modules are loaded in demomode.
+	bool				 demomode;
 };
 
 #endif
