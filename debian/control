@@ -2,32 +2,48 @@ Source: openpanel-core
 Section: misc
 Priority: optional
 Maintainer: OpenPanel packager <packages@openpanel.com>
-Build-Depends: debhelper (>= 5), libgrace-dev, libgrace-pcre-dev, zlib1g-dev, sqlite3, libpcre3-dev, libsqlite3-dev
+Build-Depends: debhelper (>= 5), libgrace-dev, libgrace-pcre-dev, libgrace-ssl-dev, zlib1g-dev, sqlite3, libpcre3-dev, libsqlite3-dev
 Standards-Version: 3.7.2
 
 Package: openpanel-core
 Architecture: any
 Pre-Depends: adduser, debconf
-Depends: openpanel-authd, libgrace, libgrace-dbfile, libgrace-pcre, ${shlibs:Depends}, ${misc:Depends}
-Recommends: openpanel-ssl, openpanel-gui, openpanel-mod-user, openpanel-cli
+Depends: openpanel-authd, ssl-cert, ${shlibs:Depends}, ${misc:Depends}
+Recommends: openpanel-gui, openpanel-mod-user, openpanel-cli
+Provides: openpanel-ssl
+Replaces: openpanel-ssl
+Conflicts: openpanel-ssl
 Description: OpenPanel main files
  the openpanel core
 
 Package: openpanel-dev
 Architecture: any
-Depends: libgrace-dev, libgrace, libgrace-pcre, ${shlibs:Depends}, ${misc:Depends}
-Provides: openpanel-devel, openpanel-mkmodulexml
-Replaces: openpanel-devel, openpanel-mkmodulexml
-Conflicts: openpanel-devel, openpanel-mkmodulexml
+Depends: libgrace-dev, libgrace-ssl-dev, ${shlibs:Depends}, ${misc:Depends}
+Provides: openpanel-mkmodulexml
+Conflicts: openpanel-mkmodulexml
+Replaces: openpanel-mkmodulexml
 Description: OpenPanel development files
  OpenPanel module development libraries and includes
+
+Package: openpanel-api-sh
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Provides: openpanel-coreval
+Conflicts: openpanel-coreval
+Replaces: openpanel-coreval
+Description: OpenPanel shell bindings
+
+Package: openpanel-api-python
+Architecture: any
+Depends: ${misc:Depends}
+Description: OpenPanel python bindings
  
 Package: openpanel-minimal
 Architecture: all
-Depends: openpanel-core, openpanel-mod-user, openpanel-gui, openpanel-cli, openpanel-ssl, openpanel-mod-domain
+Depends: openpanel-core, openpanel-mod-user, openpanel-gui, openpanel-cli, openpanel-mod-domain
 Description: Open panel minimal meta package
  
 Package: openpanel-suggested
 Architecture: all
-Depends: openpanel-core, openpanel-mod-user, openpanel-gui, openpanel-cli, openpanel-ssl, openpanel-mod-domain, openpanel-mod-postfixcourier, openpanel-mod-apache2, openpanel-mod-apacheforward, openpanel-mod-dnsdomain, openpanel-mod-ftp, openpanel-mod-iptables, openpanel-mod-mysql, openpanel-mod-softwareupdate, openpanel-mod-ssh
+Depends: openpanel-core, openpanel-mod-user, openpanel-gui, openpanel-cli, openpanel-mod-domain, openpanel-mod-postfixcourier, openpanel-mod-apache2, openpanel-mod-apacheforward, openpanel-mod-dnsdomain, openpanel-mod-ftp, openpanel-mod-iptables, openpanel-mod-mysql, openpanel-mod-softwareupdate, openpanel-mod-ssh
 Description: OpenPanel installation with suggested set of basic modules

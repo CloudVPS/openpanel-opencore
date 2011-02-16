@@ -26,3 +26,4 @@ debian/openpanel*
 debian/files
 *.exe
 mkmodulexml
+coreval

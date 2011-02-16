@@ -49,6 +49,9 @@ public:
 	
 	/// Implements the Grace-XML API
 	static int grace (const string &nmame, const string &cmd, const value &in, value &out);
+
+	/// Implements the Grace-XML API
+	static int stdio ( const statstring& apitype, const string &nmame, const string &cmd, const value &in, value &out);
 	
 	/// Turn a tree into a flat namespace by transcribing variable names
 	/// using array-notation, i.e. foo[bar];

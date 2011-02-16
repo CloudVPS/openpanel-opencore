@@ -31,44 +31,52 @@ void AlertHandler::alert (const string &alertstr)
 // ==========================================================================
 void AlertHandler::run (void)
 {
-	q.loadshox (PATH_ALERTQ);
-	log::write (log::info, "alerthdl", "Starting thread, %i alerts in queue"
-								   						%format (q.count()));
-	value ev;
-	
-	while (true)
+	try
 	{
-		while (q.count())
+		if (fs.exists (PATH_ALERTQ)) q.loadshox (PATH_ALERTQ);
+		log::write (log::info, "alerthdl", "Starting thread, %i alerts in queue"
+														%format (q.count()));
+		value ev;
+		
+		while (true)
 		{
-			if (sendAlert (q[0]))
+			while (q.count())
 			{
-				q.rmindex (0);
+				if (sendAlert (q[0]))
+				{
+					q.rmindex (0);
+				}
+				else
+				{
+					log::write (log::warning, "alerthdl", "Error routing an "
+								"alert, holding back 2 seconds");
+					sleep (2);
+					break;
+				}
 			}
-			else
+			ev = waitevent (1000);
+			if (ev)
 			{
-				log::write (log::warning, "alerthdl", "Error routing an "
-						    "alert, holding back 2 seconds");
-				sleep (2);
-				break;
+				if (ev["cmd"] == "die")
+				{
+					log::write (log::info, "alerthdl", "Shutting down thread "
+								"with %i alerts in queue" %format (q.count()));
+							   
+					q.saveshox (PATH_ALERTQ);
+					shutdownCondition.broadcast ();
+					return;
+				}
+				if (ev["cmd"] == "alert")
+				{
+					q.newval() = ev["data"];
+				}
 			}
 		}
-		ev = waitevent (1000);
-		if (ev)
-		{
-			if (ev["cmd"] == "die")
-			{
-				log::write (log::info, "alerthdl", "Shutting down thread "
-						    "with %i alerts in queue" %format (q.count()));
-						   
-				q.saveshox (PATH_ALERTQ);
-				shutdownCondition.broadcast ();
-				return;
-			}
-			if (ev["cmd"] == "alert")
-			{
-				q.newval() = ev["data"];
-			}
-		}
+	}
+	catch (...)
+	{
+		log::write (log::error, "alerthdl", "Thread exited on unknown exception");
+		shutdownCondition.broadcast ();
 	}
 }
 

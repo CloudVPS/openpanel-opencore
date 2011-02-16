@@ -249,14 +249,14 @@ int WallpaperHandler::run (string &uri, string &postbody, value &inhdr,
 	{
 		string p = WallpaperClass::getCurrentWallpaper();
 		log::write (log::info, "WallP", "Serving %s" %format (p));
-		out = fs.load (p);
+		if (fs.exists (p)) out = fs.load (p);
 		return 200;
 	}
 	else
 	{
 		string fn = uri.copyafterlast ("/");
 		string path = "/var/openpanel/wallpaper/%s.preview" %format (fn);
-		out = fs.load (path);
+		if (fs.exists (path)) out = fs.load (path);
 		return 200;
 	}
 }
@@ -379,17 +379,41 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		   $("os_release",name.release)->
 		   $("openpanel_release",version::release);
 
-	string scpuinfo = fs.load ("/proc/cpuinfo");
-	value lcpuinfo = strutil::splitlines (scpuinfo);
-	foreach (l,lcpuinfo)
+	if (fs.exists ("/proc/cpuinfo")) 
 	{
-		if (l.sval().strncmp ("model name",10)) continue;
-		string scpu = l.sval().copyafter (": ");
-		scpu.replace ($("(R)","&reg;"));
-		scpu.replace ($("(tm)","&trade;"));
-		senv["os_cpu"] = scpu;
-		break;
-	}
+		string scpuinfo;
+		scpuinfo = fs.load ("/proc/cpuinfo");
+		value lcpuinfo = strutil::splitlines (scpuinfo);	
+		foreach (l,lcpuinfo)
+		{
+			if (l.sval().strncasecmp ("model name",10) == 0)
+			{
+				string scpu = l.sval().copyafter (": ");
+				scpu.replace ($("(R)","&reg;"));
+				scpu.replace ($("(tm)","&trade;"));
+				scpu.replace ($("(TM)","&trade;"));
+				senv["os_cpu"] = scpu;
+			}
+			
+			if (l.sval().strncasecmp ("processor",9) == 0)
+			{
+				string scpu = l.sval().copyafter (": ");
+				scpu.replace ($("(R)","&reg;"));
+				scpu.replace ($("(tm)","&trade;"));
+				scpu.replace ($("(TM)","&trade;"));
+				senv["os_cpu"] = scpu;
+			} 
+			else if (l.sval().strncasecmp ("hardware",8) == 0)
+			{
+				string scpu = l.sval().copyafter (": ");
+				scpu.replace ($("(R)","&reg;"));
+				scpu.replace ($("(tm)","&trade;"));
+				scpu.replace ($("(TM)","&trade;"));
+				senv["os_hw"] = scpu;
+				
+			}			
+		}
+	}	
 	
 	if (fs.exists ("/etc/redhat-release"))
 	{
@@ -449,22 +473,53 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		}
 	}
 	
-	string suptime = fs.load ("/proc/uptime");
-	suptime.cropat (' ');
-	int iuptime = suptime.toint(10);
+	if (fs.exists ("/proc/uptime")) 
+	{
+		string suptime;
+		suptime = fs.load ("/proc/uptime");
+		suptime.cropat (' ');
+		int iuptime = suptime.toint(10);
 	
-	senv["uptime_days"] = iuptime / 86400;
-	senv["uptime_hours"] = (iuptime % 86400) / 3600;
-	senv["uptime_minutes"] = (iuptime % 3600) / 60;
-	senv["uptime_seconds"] = iuptime % 60;
-	senv["uptime_hms"] = "%i:%02i:%02i" %format (senv["uptime_hours"],
-							senv["uptime_minutes"], senv["uptime_seconds"]);
+		senv["uptime_days"] = iuptime / 86400;
+		senv["uptime_hours"] = (iuptime % 86400) / 3600;
+		senv["uptime_minutes"] = (iuptime % 3600) / 60;
+		senv["uptime_seconds"] = iuptime % 60;
+		senv["uptime_hms"] = "%i:%02i:%02i" %format (senv["uptime_hours"],
+								senv["uptime_minutes"], senv["uptime_seconds"]);
+	}	
+
+	if (fs.exists ("/proc/meminfo")) 
+	{
+		string smeminfo = fs.load ("/proc/meminfo");
+		value lmeminfo = strutil::splitlines (smeminfo);
+		
+		foreach (l,lmeminfo)
+		{
+			if (l.sval().strncasecmp ("MemTotal:",9) == 0)
+			{
+				string smem = l.sval().copyafter (": ");
+				smem = smem.trim();
+				senv["mem_total"] = smem;
+			}
+			else if (l.sval().strncasecmp ("Active:",7) == 0)
+			{
+				string smem = l.sval().copyafter (": ");
+				smem = smem.trim();
+				senv["mem_active"] = smem;
+			} 
+		}
+	}	
 	
-	string sload = fs.load ("/proc/loadavg");
-	value vload = strutil::splitspace (sload);
-	senv["load_1"] = vload[0];
-	senv["load_5"] = vload[1];
-	senv["load_15"] = vload[2];
+	if (fs.exists ("/proc/loadavg")) 
+	{
+		string sload;
+		sload = fs.load ("/proc/loadavg");
+		value vload = strutil::splitspace (sload);
+		senv["load_1"] = vload[0];
+		senv["load_5"] = vload[1];
+		senv["load_15"] = vload[2];
+	}	
+	
 	
 	value output;
 	
@@ -502,7 +557,7 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		{
 			value &into = senv["devrss"][item["guid"]];
 			into["title"] = item["title"];
-			into["url"] = item["link"];
+			into["url"	] = item["link"];
 			if (senv["devrss"].count() > 4) break;
 		}
 	}
@@ -520,11 +575,18 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		}
 	}
 	
-	string script = fs.load ("/var/openpanel/http/dynamic/welcome.html");
-	scriptparser p;
-	p.build (script);
+	try
+	{
+		string script = fs.load ("/var/openpanel/http/dynamic/welcome.html");
+		scriptparser p;
+		p.build (script);
 	
-	p.run (senv, out);
+		p.run (senv, out);
+	}
+	catch (...)
+	{
+		out = "Exception caught";
+	}
 	outhdr["Content-type"] = "text/html";
 	return 200;
 }
@@ -551,6 +613,8 @@ value *LandingPageHandler::getRSS (const string &url)
 	
 	httpsocket hs;
 	value rss;
+	
+	hs.setheader ("User-Agent", "OpenPanel/%s" %format (version::release));
 	
 	string rssdat = hs.get (url);
 	rss.fromxml (rssdat, schema);

@@ -24,7 +24,7 @@ NAME=openpanel
 set -e
 
 control_daemon( ) {
-	DAEMON_SCRIPT=/etc/init.d/openpanel-$2
+	DAEMON_SCRIPT=/etc/init.d/$2
 	if [ -f $DAEMON_SCRIPT ] ; then
 		$DAEMON_SCRIPT $1
 	fi

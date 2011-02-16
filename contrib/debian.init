@@ -29,6 +29,18 @@ DAEMON_OPTS=
 
 . /lib/lsb/init-functions
 
+generate_ssl_certificate()
+{
+  rm -f /etc/openpanel/certificate.pem
+  touch /etc/openpanel/certificate.pem
+  chmod 600 /etc/openpanel/certificate.pem
+  chown openpanel-core:openpanel-core /etc/openpanel/certificate.pem
+  echo '# automatically generated from /etc/ssl/certs/ssl-openpanel.pem' > /etc/openpanel/certificate.pem
+  echo '# and /etc/ssl/private/ssl-openpanel.key' >> /etc/openpanel/certificate.pem
+  echo '' >> /etc/openpanel/certificate.pem
+  cat /etc/ssl/certs/ssl-openpanel.pem /etc/ssl/private/ssl-openpanel.key >> /etc/openpanel/certificate.pem
+}
+
 # check if the daemon exists
 test -x $DAEMON || exit 0
 
@@ -36,6 +48,7 @@ set -e
 
 case "$1" in
   start)
+  	generate_ssl_certificate
  	log_daemon_msg "Starting $DESC" $NAME
 	if start_daemon -p $PIDFILE $DAEMON $DAEMON_OPTS; then
 	    log_success_msg
@@ -60,6 +73,7 @@ case "$1" in
 
 	killproc -p $PIDFILE $DAEMON
 
+	generate_ssl_certificate
 	if pidofproc -p $PIDFILE $DAEMON > /dev/null; then
 		sleep 1
 	

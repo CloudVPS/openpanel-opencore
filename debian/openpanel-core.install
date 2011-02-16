@@ -1,3 +1,10 @@
-/var/openpanel/*
+/var/openpanel/bin
+/var/openpanel/cache
+/var/openpanel/conf
+/var/openpanel/db
+/var/openpanel/debug
+/var/openpanel/log
+/var/openpanel/sockets
 /etc/init.d/*
+/etc/openpanel
 

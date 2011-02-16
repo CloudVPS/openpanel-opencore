@@ -249,11 +249,13 @@
         <match.data>
           <text>commandline</text>
           <text>cgi</text>
-          <text>xml</text>
-          <text>php</text>
-          <text>perl</text>
-          <text>yaml</text>
           <text>grace</text>
+          <text>xml</text>
+          <text>json</text>
+          <text>shox</text>
+          <text>php</text>
+          <text>msgpack</text>
+          <text>plist</text>
         </match.data>
       </and>
       <match.id>wantsrpc</match.id>
