@@ -12,10 +12,8 @@
 
 ### BEGIN INIT INFO
 # Provides:			opencore
-# Required-Start:	$remote_fs $syslog $all
-# Required-Stop:	$remote_fs $syslog
-# Default-Start:	2 3 4 5
-# Default-Stop:		1
+# Default-Start:	
+# Default-Stop:		
 # Short-Description:	opencore
 ### END INIT INFO
 
