@@ -33,10 +33,16 @@ Conflicts: openpanel-coreval
 Replaces: openpanel-coreval
 Description: OpenPanel shell bindings
 
-Package: openpanel-api-python
-Architecture: any
+Package: python-openpanel
+Section: python
+Architecture: all
 Depends: ${misc:Depends}
+Provides: openpanel-api-python
+Conflicts: openpanel-api-python
+Replaces: openpanel-api-python
 Description: OpenPanel python bindings
+ Python bindings for OpenPanel, both for use in OpenPanel modules and 
+ independent use of the OpenPanel RPC API.
  
 Package: openpanel-minimal
 Architecture: all
