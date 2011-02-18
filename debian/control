@@ -2,7 +2,7 @@ Source: openpanel-core
 Section: misc
 Priority: optional
 Maintainer: OpenPanel packager <packages@openpanel.com>
-Build-Depends: debhelper (>= 5), libgrace-dev, libgrace-pcre-dev, libgrace-ssl-dev, zlib1g-dev, sqlite3, libpcre3-dev, libsqlite3-dev
+Build-Depends: debhelper (>= 5), libgrace-dev, libgrace-pcre-dev, libgrace-ssl-dev, zlib1g-dev, sqlite3, libpcre3-dev, libsqlite3-dev, python
 Standards-Version: 3.7.2
 
 Package: openpanel-core
