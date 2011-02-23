@@ -357,8 +357,11 @@ bool DBManager::listObjects (value &into, const statstring &parent, const value 
 		if(row["parentuuid"].sval().strlen())
 			resrow["parentid"]=row["parentuuid"];
 		if(row["owneruuid"].sval().strlen())
+		{
 			resrow["ownerid"]=row["owneruuid"];
-
+			resrow["owner-metaid"]=_findmetaid(row["owneruuid"]);
+		}
+		
 		if(row["metaid"].sval().strlen())
 		{
 			resrow["id"]=row["metaid"];
