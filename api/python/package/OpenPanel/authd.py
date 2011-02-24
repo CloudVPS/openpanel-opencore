@@ -34,6 +34,7 @@ def do(*cmd):
 	if result[0] == "+":
 		return (True, error.ERR_OK, "")
 	else:
+	    # we should raise
 		return (False, result.split(":")[1], result.split(":")[2])
 
 def escape(str):

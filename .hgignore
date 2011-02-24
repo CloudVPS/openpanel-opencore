@@ -24,6 +24,9 @@ rsrc/resources.xml
 debian/tmp
 debian/openpanel*
 debian/files
+debian/python-openpanel
 *.exe
 mkmodulexml
 coreval
+api/python/package/build
+._*
