@@ -94,7 +94,6 @@ install:
 	install -m 770 -d ${DESTDIR}/var/openpanel/sockets/swupd
 	install -m 770 -d ${DESTDIR}/var/openpanel/db/panel
 	install -m 750 -d ${DESTDIR}/var/openpanel/debug
-	install -m 755 contrib/debian.init ${DESTDIR}/etc/init.d/openpanel-core
 	install -m 755 contrib/openpanel.init ${DESTDIR}/etc/init.d/openpanel
 	cp -r openpaneld.app ${DESTDIR}/var/openpanel/bin/
 	cp -r techsupport.app ${DESTDIR}/var/openpanel/bin/

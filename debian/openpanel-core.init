@@ -25,9 +25,6 @@ LONGNAME=com.openpanel.svc.opencore
 NAME=openpanel-core
 DESC="Openpanel core daemon"
 PIDFILE="/var/run/$LONGNAME.pid"
-DAEMON_OPTS=
-SSL_CERTIFICATE=/etc/ssl/certs/ssl-openpanel.pem
-SSL_PRIVATEKEY=/etc/ssl/private/ssl-openpanel.key
 
 if [ -f /etc/default/openpanel-core ] ; then
 	. /etc/default/openpanel-core
