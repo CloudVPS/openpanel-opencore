@@ -26,19 +26,28 @@ NAME=openpanel-core
 DESC="Openpanel core daemon"
 PIDFILE="/var/run/$LONGNAME.pid"
 DAEMON_OPTS=
+SSL_CERTIFICATE=/etc/ssl/certs/ssl-openpanel.pem
+SSL_PRIVATEKEY=/etc/ssl/private/ssl-openpanel.key
+
+if [ -f /etc/default/openpanel-core ] ; then
+	. /etc/default/openpanel-core
+fi
 
 . /lib/lsb/init-functions
 
 generate_ssl_certificate()
 {
-  rm -f /etc/openpanel/certificate.pem
-  touch /etc/openpanel/certificate.pem
-  chmod 600 /etc/openpanel/certificate.pem
-  chown openpanel-core:openpanel-core /etc/openpanel/certificate.pem
-  echo '# automatically generated from /etc/ssl/certs/ssl-openpanel.pem' > /etc/openpanel/certificate.pem
-  echo '# and /etc/ssl/private/ssl-openpanel.key' >> /etc/openpanel/certificate.pem
-  echo '' >> /etc/openpanel/certificate.pem
-  cat /etc/ssl/certs/ssl-openpanel.pem /etc/ssl/private/ssl-openpanel.key >> /etc/openpanel/certificate.pem
+	OPENPANEL_PEM=/etc/openpanel/certificate.pem    
+    
+    rm -f "${OPENPANEL_PEM}"
+    touch "${OPENPANEL_PEM}"
+    chmod 600 "${OPENPANEL_PEM}"
+    chown openpanel-core:openpanel-core "${OPENPANEL_PEM}"
+
+    echo "# automatically generated from ${SSL_CERTIFICATE}"   >  $OPENPANEL_PEM
+    echo "# and ${SSL_PRIVATEKEY}"                             >> $OPENPANEL_PEM
+    echo ''                                                    >> $OPENPANEL_PEM
+    cat  "${SSL_CERTIFICATE}" "${SSL_PRIVATEKEY}"              >> $OPENPANEL_PEM
 }
 
 # check if the daemon exists
