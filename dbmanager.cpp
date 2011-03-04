@@ -2237,10 +2237,9 @@ bool DBManager::checkfieldlist(value &members, int classid)
 		}
 		else
 		{
-			if(fid == "id" || fid == "uuid" || fid == "metaid" || fid == "parentid" || fid == "ownerid")
+			if(fid == "id" || fid == "uuid" || fid == "metaid" ||
+			   fid == "parentid" || fid == "ownerid" || fid == "owner-metaid")
 			{
-				CORE->log (log::warning, "DB", "Member <%S> not found "
-						   "in class definition", fid.str());
 			}
 			else
 			{
