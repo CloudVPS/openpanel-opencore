@@ -7,11 +7,9 @@
 # restrictions. For more information, please visit the Legal Information 
 # section of the OpenPanel website on http://www.openpanel.com/
 
-from xml.dom import minidom
+import json
 from OpenPanel import error
-from OpenPanel.ext import xmltramp
 from OpenPanel.exception import CoreException
-from xml.sax import saxutils
 import sys, os, traceback
 
 class modapirequest:
@@ -38,6 +36,19 @@ class modulecallwrapper(object):
           tree=self.req.fulltree
         )
 
+    def update(self):
+        return self.worker.update(
+            objectid=self.req.objectid,
+            object=self.req.fulltree[self.req.classid],
+            tree=self.req.fulltree
+        )
+
+    def delete(self):
+        return self.worker.delete(
+          objectid=self.req.objectid,
+          tree=self.req.fulltree
+        )
+
 class panelclass(object):
     """docstring for panelclass"""
     def __init__(self, req):
@@ -48,14 +59,14 @@ class panelmodule(object):
     """docstring for panelmodule"""
     def __init__(self):
         super(panelmodule, self).__init__()
-        self.modname = self.__class__.__name__
+        self.modname = self.__class__.__name__[:-6] # strip 'Module' suffix
         
     def getrequest(self, f = sys.stdin):
         request = modapirequest()
         size = int(f.readline())
-        requestxml = f.read(size)
+        requestjson = f.read(size)
     
-        tree = xmltramp.parse(requestxml)
+        tree = json.loads(requestjson)
         request.command = str(tree["OpenCORE:Command"])
         if request.command == "listobjects":
             request.context = str(tree["OpenCORE:Session"]["parentid"])
@@ -80,17 +91,15 @@ class panelmodule(object):
          if code == 0:
              text = "OK"
 
-         res = []
-         res.append('<?xml version="1.0" encoding="UTF-8"?>')
-         res.append( '<dict>')
-         res.append(' <dict id="OpenCORE:Result">')
-         res.append('  <integer id="error">%s</integer>' % (saxutils.escape(str(code))))
-         res.append('  <string id="message">%s</string>' % (saxutils.escape(text)))
-         res.append(' </dict>')
-         res.append(extra)     # needs to be a dict at the right level!
-         res.append('</dict>')
-         response = "\n".join(res)
-         print "%s\n%s" % (len(response), response)
+         res=json.dumps(
+           {
+             'OpenCORE:Result':
+               {
+                 'error': code,
+                 'message': text
+               }
+           })
+         print "%s\n%s" % (len(res), res)
          sys.exit(0)         # TODO: replace the whole shebang with an exception-based implementation
 
     def getworkerclass(self, pclass):
@@ -112,10 +121,11 @@ class panelmodule(object):
             workerclass = self.getworkerclass(self.req.classid)
             wrapper = modulecallwrapper(workerclass, self.req)
             worker = getattr(wrapper, self.req.command)
-            self.sendresult(0, "OK", worker())
+            result = worker()
+            self.sendresult(0, "OK", result)
         except:
             try:
-                self.sendresult(error.ERR_MODULE_FAILURE, saxutils.escape(''.join(traceback.format_exception(*sys.exc_info()))))
+                self.sendresult(error.ERR_MODULE_FAILURE, ''.join(traceback.format_exception(*sys.exc_info())))
             except:
                 sys.__excepthook__(*sys.exc_info())
 

@@ -357,8 +357,11 @@ bool DBManager::listObjects (value &into, const statstring &parent, const value 
 		if(row["parentuuid"].sval().strlen())
 			resrow["parentid"]=row["parentuuid"];
 		if(row["owneruuid"].sval().strlen())
+		{
 			resrow["ownerid"]=row["owneruuid"];
-
+			resrow["owner-metaid"]=_findmetaid(row["ownerid"]);
+		}
+		
 		if(row["metaid"].sval().strlen())
 		{
 			resrow["id"]=row["metaid"];
@@ -542,7 +545,7 @@ bool DBManager::fetchObject (value &into, const statstring &uuid, bool formodule
 		into[id]["uuid"]=row["uuid"];
 		into[id]("type")="object";
 		into[id]("owner")=_findmetaid(row["owner"]);
-		if (formodule) into[id]["owner-metaid"]=into[id]("owner");
+		into[id]["owner-metaid"]=into[id]("owner");
 		if(row["parentuuid"].sval().strlen())
 			into[id]["parentid"]=row["parentuuid"];
 		if(row["owneruuid"].sval().strlen())

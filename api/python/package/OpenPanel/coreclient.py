@@ -8,7 +8,7 @@
 # section of the OpenPanel website on http://www.openpanel.com/
 
 
-from ext import simplejson
+import json
 from OpenPanel.exception import CoreException
 
 import httplib, socket
@@ -59,8 +59,8 @@ class CoreRPCClient(object):
             self._conn = UHTTPConnection("/var/openpanel/sockets/openpanel-core.sock")
             
         self._connmutex = thread.allocate_lock()
-        self._ser = simplejson.dumps
-        self._unser = simplejson.loads
+        self._ser = json.dumps
+        self._unser = json.loads
         self._sessionid = sessionid
         self._pinger = PingerThread(self)
         
