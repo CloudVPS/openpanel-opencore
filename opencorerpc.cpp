@@ -170,7 +170,7 @@ bool OpenCoreRPC::_confcreate (const value &conf, int update)
 			new ItemIconRequestHandler (app, httpdSSL);
 			new EmblemRequestHandler (app, httpdSSL);
 			new ImagePreloader (app, httpdSSL);
-			new LandingPageHandler (app, httpdSSL);
+			new LandingPageHandler (app, httpdSSL, pdb);
 			new WallpaperHandler (app, httpdSSL);
 			new httpdfileshare (httpdSSL, "*", "/var/openpanel/http");
 		}

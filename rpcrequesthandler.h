@@ -120,7 +120,7 @@ private:
 class LandingPageHandler : public httpdobject
 {
 public:
-			 LandingPageHandler (class OpenCoreApp *papp, httpd &srv);
+			 LandingPageHandler (class OpenCoreApp *papp, httpd &srv,class SessionDB *db);
 			~LandingPageHandler (void) {}
 			
 	int		 run (string &uri, string &postbody, value &inhdr,
@@ -130,6 +130,7 @@ public:
 private:
 	lock<value>		   rsscache;
 	class OpenCoreApp *app;
+	class SessionDB		*sdb; ///< Link to session database.
 	xmlschema		   schema;
 	
 	value			  *getRSS (const string &url);

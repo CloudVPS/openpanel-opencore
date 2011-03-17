@@ -357,10 +357,11 @@ int ImagePreloader::run (string &uri, string &postbody, value &inhdr,
 // ==========================================================================
 // CONSTRUCTOR LandingPageHandler
 // ==========================================================================
-LandingPageHandler::LandingPageHandler (OpenCoreApp *papp, httpd &srv)
+LandingPageHandler::LandingPageHandler (OpenCoreApp *papp, httpd &srv, 	class SessionDB		*sessionDB )
 	: httpdobject (srv, "/dynamic/welcome.html")
 {
 	app = papp;
+	sdb = sessionDB;
 	schema.load ("schema:rss.2.0.schema.xml");
 }
 
@@ -371,8 +372,32 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 							 string &out, value &outhdr, value &env,
 							 tcpsocket &s)
 {
+	CoreSession *session = NULL;	
+
+	int pos;
+	if ((pos = uri.strchr ('?')) >= 0)
+	{
+		string reqdata = uri.mid (pos+1);
+		value reqenv = strutil::httpurldecode (reqdata);
+
+		
+		session = sdb->get (reqenv["sid"]);	
+	}	
+	
+	if (!session)
+	{
+		// can't allow access without a session
+		return 403;
+	}
+	
+	
 	value senv;
 	struct utsname name;
+	
+	senv["admin"]=session->isAdmin();
+	senv["session"]=session->meta;
+	
+	sdb->release(session);
 	
 	uname (&name);
 	senv = $("os_name",name.sysname)->
@@ -574,6 +599,10 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 			if (senv["forumrss"].count() > 4) break;
 		}
 	}
+
+	
+
+	
 	
 	try
 	{
