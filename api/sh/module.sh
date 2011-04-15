@@ -28,7 +28,7 @@ try_authd() {
   reply=`echo "$reply" | cut -c1`
   if [ "$reply" = "+" ]; then
     if [ "$cmd" = "getobject" ]; then
-      dd if=/dev/fd/3 bs=1 count=$sz
+      dd bs=1 count=$sz <&3
     fi
     return 0
   fi
