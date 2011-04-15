@@ -24,10 +24,10 @@ try_authd() {
   
   echo "$line" >&3
   read reply <&3
+  sz=$(echo "$reply" | cut -f2 -d' ')
   reply=`echo "$reply" | cut -c1`
   if [ "$reply" = "+" ]; then
     if [ "$cmd" = "getobject" ]; then
-      sz=$(echo "$reply" | cut -f2 -d' ')
       dd if=/dev/fd/3 bs=1 count=$sz
     fi
   fi
