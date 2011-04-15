@@ -30,6 +30,7 @@ try_authd() {
     if [ "$cmd" = "getobject" ]; then
       dd if=/dev/fd/3 bs=1 count=$sz
     fi
+    return 0
   fi
   return 1
 }
