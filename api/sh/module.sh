@@ -14,6 +14,7 @@
 PATH=/var/openpanel/bin:${PATH}
 
 try_authd() {
+  cmd="$1"
   line="$1"
   shift
   while [ ! -z "$1" ]; do
@@ -25,7 +26,10 @@ try_authd() {
   read reply <&3
   reply=`echo "$reply" | cut -c1`
   if [ "$reply" = "+" ]; then
-    return 0
+    if [ "$cmd" = "getobject" ]; then
+      sz=$(echo "$reply" | cut -f2 -d' ')
+      dd if=/dev/fd/3 bs=1 count=$sz
+    fi
   fi
   return 1
 }
