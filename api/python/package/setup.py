@@ -22,5 +22,5 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
       ],
 
-    packages=['OpenPanel']
+    packages=['OpenPanel','OpenPanel.test', 'OpenPanel.test.modules']
 ) 
