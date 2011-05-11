@@ -101,7 +101,7 @@ install:
 	install -m 755 openpaneld ${DESTDIR}/var/openpanel/bin/openpaneld
 	install -m 755 techsupport ${DESTDIR}/var/openpanel/bin/techsupport
 	
-	cd "api/python/package/" && python setup.py install --root=${DESTDIR}
+	cd "api/python/package/" && python setup.py install --root=${DESTDIR} --install-layout=deb
 	
 	cp -r api/sh ${DESTDIR}/var/openpanel/api/
 	install -m 755 coreval ${DESTDIR}/usr/bin/coreval
