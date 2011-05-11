@@ -164,6 +164,7 @@ int mkmodulexmlApp::main (void)
 	
 	out["implementation"]["apitype"] = refModule("apitype");
 	out["implementation"]["getconfig"] = refModule("getconfig").bval();
+	if (refModule.attribexists ("wantsrpc")) out["implementation"]["wantsrpc"] = refModule("wantsrpc");
 	
 	foreach (theclass, x["class"])
 	{
