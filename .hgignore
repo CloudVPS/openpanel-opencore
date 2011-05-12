@@ -30,3 +30,4 @@ mkmodulexml
 coreval
 api/python/package/build
 ._*
+conftest.so
