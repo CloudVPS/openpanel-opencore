@@ -35,7 +35,7 @@
 	<string id="numbers">^([+]?)([0-9]+)$$</string>
 	<string id="company">^[a-zA-Z0-9 .\-]+$$</string>
 	<string id="email">^$_email$$</string>
-	<string id="url">^(https{0,1}:\/\/){0,1}$_domain$\.([a-zA-Z]){2,4}(:[1-9][0-9]*)?(\/$_urlvalid$)?$$</string>
+	<string id="url">^https{0,1}:\/\/$_domain$\.([a-zA-Z]){2,4}(:[1-9][0-9]*)?(\/$_urlvalid$)?$$</string>
 	<string id="domain">^([a-z0-9][a-z0-9-]*)(\.[a-z0-9][a-z0-9-]*)+$$</string>
 	<string id="hostname">^(localhost)$$|^($_domain$\.([a-zA-Z]){2,5})$$|\$$prototype\$$|^($_domain$\.\$$prototype\$$)$$</string>
 	<string id="host">^(localhost|($_ipv4$\.$_ipv4$\.$_ipv4$\.$_ipv4$)|^($_domain$\.([a-zA-Z]){2,4}))$$</string>
