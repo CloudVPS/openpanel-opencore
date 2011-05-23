@@ -76,7 +76,7 @@ class Tester(object):
                 pass
         
         def dependency_key(k):
-            return (k, [ dependency_key(dep) for dep in prereqs[k] ])
+            return ([ dependency_key(dep) for dep in prereqs[k] ], k)
 
         self.order = sorted(prereqs, key=dependency_key)
 
