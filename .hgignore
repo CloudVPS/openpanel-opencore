@@ -27,6 +27,8 @@ debian/files
 debian/python-openpanel
 *.exe
 mkmodulexml
+coreclient
 coreval
 api/python/package/build
 ._*
+conftest.so
