@@ -75,6 +75,8 @@ class Tester(object):
             except ImportError:
                 pass
         
+
+        # http://192.220.96.201/dylan/linearization-oopsla96.html
         import collections
 
         def c3_linearize_keyfunc(k):
