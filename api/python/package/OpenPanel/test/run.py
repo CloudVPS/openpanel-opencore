@@ -75,10 +75,29 @@ class Tester(object):
             except ImportError:
                 pass
         
-        def dependency_key(k):
-            return ([ dependency_key(dep) for dep in prereqs[k] ], k)
+        import collections
 
-        self.order = sorted(prereqs, key=dependency_key)
+        def c3_linearize(d):
+            def c3_linearize_keyfunc(k):
+                tree = []
+                stack = collections.deque([k])
+                while stack:
+                    c = stack.popleft()
+                    tree.append(c)
+                    for dep in d[c]:
+                        stack.append(dep)
+                result = []
+                seen = set()
+                for c in reversed(tree):
+                    if c in seen:
+                        continue
+                    seen.add(c)
+                    result.append(c)
+                return result
+            return c3_linearize_keyfunc
+
+        self.order = sorted(prereqs, key=c3_linearize(prereqs))
+        
 
 if __name__ == '__main__':
     c = CoreSession()
