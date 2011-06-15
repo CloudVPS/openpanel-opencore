@@ -120,7 +120,7 @@ install:
 	install -m 644 rsrc/com.openpanel.opencore.module.schema.xml ${DESTDIR}/usr/lib/openpanel-core/schemas/com.openpanel.opencore.module.schema.xml
 	install -m 644 rsrc/com.openpanel.opencore.module.validator.xml ${DESTDIR}/usr/lib/openpanel-core/schemas/com.openpanel.opencore.module.validator.xml
 	install -m 755 mkmodulexml ${DESTDIR}/usr/bin/mkmodulexml
-	install -m 755 mkmodulexml ${DESTDIR}/usr/bin/coreclient
+	install -m 755 coreclient ${DESTDIR}/usr/bin/coreclient
 
 SUFFIXES: .cpp .o
 .cpp.o:
