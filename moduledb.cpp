@@ -818,7 +818,7 @@ corestatus_t ModuleDB::updateObject (const statstring &ofclass,
 	outp = parm; // Picking up the proper parameters for the module
 	             // shifted to the DBManager.
 	             
-	outp["OpenCORE:Command"]="delete";
+	outp["OpenCORE:Command"]="update";
 	outp["OpenCORE:Session"]["classid"]=ofclass;
 	outp["OpenCORE:Session"]["objectid"]=withid;
 
