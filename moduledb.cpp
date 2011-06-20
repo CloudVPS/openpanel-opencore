@@ -818,12 +818,10 @@ corestatus_t ModuleDB::updateObject (const statstring &ofclass,
 	outp = parm; // Picking up the proper parameters for the module
 	             // shifted to the DBManager.
 	             
-	outp << $("OpenCORE:Command", "update") ->
-			$("OpenCORE:Session",
-				$("classid", ofclass) ->
-				$("objectid", withid)
-			 );
-	
+	outp["OpenCORE:Command"]="delete";
+	outp["OpenCORE:Session"]["classid"]=ofclass;
+	outp["OpenCORE:Session"]["objectid"]=withid;
+
 	res = m->action ("update", ofclass, outp, returnp);
 	
 	if (res != status_ok)
