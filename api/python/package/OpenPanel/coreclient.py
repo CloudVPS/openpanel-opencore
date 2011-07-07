@@ -8,7 +8,11 @@
 # section of the OpenPanel website on http://www.openpanel.com/
 
 
-import json
+try:
+	import simplejson as json
+except:
+	import json
+
 from OpenPanel.exception import CoreException
 
 import httplib, socket

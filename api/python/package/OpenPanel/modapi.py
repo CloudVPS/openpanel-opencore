@@ -7,7 +7,11 @@
 # restrictions. For more information, please visit the Legal Information 
 # section of the OpenPanel website on http://www.openpanel.com/
 
-import json
+try:
+	import simplejson as json
+except:
+	import json
+
 from OpenPanel import error
 from OpenPanel.exception import CoreException
 import sys, os, traceback

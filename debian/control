@@ -36,7 +36,7 @@ Description: OpenPanel shell bindings
 Package: python-openpanel
 Section: python
 Architecture: all
-Depends: python-support, ${misc:Depends}
+Depends: python-support, python-json, ${misc:Depends}
 Provides: openpanel-api-python
 Conflicts: openpanel-api-python
 Replaces: openpanel-api-python
