@@ -57,7 +57,7 @@ case "$1" in
 	    fi
 
 	# hack to avoid openpanel-ssl from messing with our stuff
-	update-rc.d openpanel-ssl remove > /dev/null
+	update-rc.d -f openpanel-ssl remove > /dev/null
 
         dpkg-trigger /var/openpanel/modules
 
