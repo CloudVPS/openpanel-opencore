@@ -71,7 +71,11 @@ class panelmodule(object):
         requestjson = f.read(size)
     
         tree = json.loads(requestjson)
+        request.fulltree = tree
         request.command = str(tree["OpenCORE:Command"])
+
+	if request.command == "getconfig":
+	    return request
         if request.command == "listobjects":
             request.context = str(tree["OpenCORE:Session"]["parentid"])
         else:
@@ -87,7 +91,7 @@ class panelmodule(object):
     
         return request
 
-    def sendresult(self, code, text = "", extra=""):
+    def sendresult(self, code, text = "", extra=None):
          # TODO: handle extra data (getconfig etc.)
          # TODO: convince xmltramp to do our writing too
 
@@ -95,15 +99,18 @@ class panelmodule(object):
          if code == 0:
              text = "OK"
 
-         res=json.dumps(
-           {
+         res= {
              'OpenCORE:Result':
                {
                  'error': code,
                  'message': text
                }
-           })
-         print "%s\n%s" % (len(res), res)
+           }
+         if(extra):
+             res.update(extra)
+         jres=json.dumps(res)
+
+         print "%s\n%s" % (len(jres), jres)
          sys.exit(0)         # TODO: replace the whole shebang with an exception-based implementation
 
     def getworkerclass(self, pclass):
@@ -122,6 +129,10 @@ class panelmodule(object):
         
             self.req = self.getrequest()
         
+            if self.req.command == "getconfig":
+		self.sendresult(0, "OK", extra=self.getconfig())
+                return
+
             workerclass = self.getworkerclass(self.req.classid)
             wrapper = modulecallwrapper(workerclass, self.req)
             worker = getattr(wrapper, self.req.command)
