@@ -17,7 +17,9 @@ TSOBJ = techsupport.o dbmanager.o debug.o alerts.o
 
 MKOBJ = mkmodulexml.o
 
-all: cpp-api grace-api openpaneld.exe techsupport.exe mkmodulexml api/python/package/OpenPanel/error.py kickstart.panel.db coreval
+CCOBJ = coreclient.o
+
+all: cpp-api grace-api openpaneld.exe techsupport.exe mkmodulexml api/python/package/OpenPanel/error.py kickstart.panel.db coreval coreclient
 	grace mkapp openpaneld
 	grace mkapp techsupport
 
@@ -48,6 +50,9 @@ techsupport.exe: $(TSOBJ) rsrc/resources.xml
 mkmodulexml: $(MKOBJ)
 	$(LD) $(LDFLAGS) -o mkmodulexml $(MKOBJ) $(LIBS)
 
+coreclient: $(CCOBJ)
+	$(LD) $(LDFLAGS) -o coreclient $(CCOBJ) $(LIBS)
+
 kickstart.panel.db: sqlite/SCHEMA sqlite/DBCONTENT
 	rm -f kickstart.panel.db
 	sqlite3 kickstart.panel.db < sqlite/SCHEMA
@@ -60,7 +65,7 @@ clean:
 	rm -f openpanel-core techsupport
 	rm -f version.cpp
 	rm -f api/python/package/OpenPanel/error.py rsrc/resources.xml
-	rm -f mkmodulexml coreval
+	rm -f mkmodulexml coreval coreclient
 	cd "api/c++/src" && $(MAKE) clean
 	cd "api/grace/src" && $(MAKE) clean
 
@@ -101,7 +106,7 @@ install:
 	install -m 755 openpaneld ${DESTDIR}/var/openpanel/bin/openpaneld
 	install -m 755 techsupport ${DESTDIR}/var/openpanel/bin/techsupport
 	
-	cd "api/python/package/" && python setup.py install --root=${DESTDIR}
+	cd "api/python/package/" && python setup.py install --root=${DESTDIR} --prefix=/usr
 	
 	cp -r api/sh ${DESTDIR}/var/openpanel/api/
 	install -m 755 coreval ${DESTDIR}/usr/bin/coreval
@@ -115,6 +120,7 @@ install:
 	install -m 644 rsrc/com.openpanel.opencore.module.schema.xml ${DESTDIR}/usr/lib/openpanel-core/schemas/com.openpanel.opencore.module.schema.xml
 	install -m 644 rsrc/com.openpanel.opencore.module.validator.xml ${DESTDIR}/usr/lib/openpanel-core/schemas/com.openpanel.opencore.module.validator.xml
 	install -m 755 mkmodulexml ${DESTDIR}/usr/bin/mkmodulexml
+	install -m 755 coreclient ${DESTDIR}/usr/bin/coreclient
 
 SUFFIXES: .cpp .o
 .cpp.o:

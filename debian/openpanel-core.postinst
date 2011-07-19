@@ -56,6 +56,9 @@ case "$1" in
 		    ln -s /etc/ssl/certs/ssl-cert-snakeoil.pem /etc/ssl/certs/ssl-openpanel.pem
 	    fi
 
+	# hack to avoid openpanel-ssl from messing with our stuff
+	update-rc.d -f openpanel-ssl remove > /dev/null
+
         dpkg-trigger /var/openpanel/modules
 
         ;;

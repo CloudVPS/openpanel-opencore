@@ -63,22 +63,41 @@ class Tester(object):
     
     def gatherModuleInfo(self):
         modules = self.conn.rpc.listmodules()['body']['data']['modules']
+        prereqs = dict()
         for module in modules:
             name = module.rsplit('.',1)[0]
             self.mainlogger.debug('attempting import of module %s' % name)
             try:
                 info = imp.find_module('test',[os.path.join("/var/openpanel/modules",module,"tests")])
                 self.modules[name]=imp.load_module('OpenPanel.test.modules.'+name,info[0],info[1],info[2])
-                prereq = getattr(self.modules[name],'requires',[])
+                prereqs[name] = getattr(self.modules[name],'requires',[])
 
-                for p in prereq:
-                    if p not in self.order:
-                        self.order.insert(0,p)
-                if name not in self.order:
-                    self.order.append(name)
-                            
             except ImportError:
-                pass        
+                pass
+        
+
+        # http://192.220.96.201/dylan/linearization-oopsla96.html
+        import collections
+
+        def c3_linearize_keyfunc(k):
+            tree = []
+            stack = collections.deque([k])
+            while stack:
+                c = stack.popleft()
+                tree.append(c)
+                for dep in prereqs[c]:
+                    stack.append(dep)
+            result = []
+            seen = set()
+            for c in reversed(tree):
+                if c in seen:
+                    continue
+                seen.add(c)
+                result.append(c)
+            return result
+
+        self.order = sorted(prereqs, key=c3_linearize_keyfunc)
+        
 
 if __name__ == '__main__':
     c = CoreSession()
