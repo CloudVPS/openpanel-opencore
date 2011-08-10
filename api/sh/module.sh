@@ -18,7 +18,7 @@ try_authd() {
   line="$1"
   shift
   while [ ! -z "$1" ]; do
-    line="${line} \"$1\""
+    line="${line} $1"
     shift
   done
   
@@ -79,7 +79,13 @@ exittrap() {
 
 authd() {
   cmd="$1"
-  try_authd $* || {
+  line="$1"
+  shift
+  while [ ! -z "$1" ]; do
+    line="${line} \"$1\""
+    shift
+  done
+  try_authd ${line} || {
     exiterror "authd error on $cmd"
   }
 }
