@@ -20,7 +20,6 @@ set -e
 case "$1" in
     configure)
 
-        ln -sf /var/openpanel/bin/opencore.app/exec /var/openpanel/bin/opencore
         # It's already created in openpanel-authd package, so just commenting
         # ln -s /var/openpanel/log /var/log/opencore
         
