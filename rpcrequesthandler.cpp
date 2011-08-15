@@ -418,9 +418,8 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 				scpu.replace ($("(tm)","&trade;"));
 				scpu.replace ($("(TM)","&trade;"));
 				senv["os_cpu"] = scpu;
-			}
-			
-			if (l.sval().strncasecmp ("processor",9) == 0)
+			}			
+			else if (l.sval().strncasecmp ("processor",9) == 0)
 			{
 				string scpu = l.sval().copyafter (": ");
 				scpu.replace ($("(R)","&reg;"));
@@ -435,8 +434,23 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 				scpu.replace ($("(tm)","&trade;"));
 				scpu.replace ($("(TM)","&trade;"));
 				senv["os_hw"] = scpu;
-				
 			}			
+			else if (l.sval().strncasecmp ("model",5) == 0)
+			{
+				string scpu = l.sval().copyafter (": ");
+				scpu.replace ($("(R)","&reg;"));
+				scpu.replace ($("(tm)","&trade;"));
+				scpu.replace ($("(TM)","&trade;"));
+				senv["os_cpu"] = scpu;
+			} 
+			else if (l.sval().strncasecmp ("machine",7) == 0)
+			{
+				string scpu = l.sval().copyafter (": ");
+				scpu.replace ($("(R)","&reg;"));
+				scpu.replace ($("(tm)","&trade;"));
+				scpu.replace ($("(TM)","&trade;"));
+				senv["os_hw"] = scpu;
+			} 
 		}
 	}	
 	
