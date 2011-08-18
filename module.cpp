@@ -66,6 +66,7 @@ CoreClass::CoreClass (const value &imeta, CoreModule *p)
 	DEFDESERIALIZE (formmargin,0);
 	DEFDESERIALIZE (gridmargin,0);
 	DEFDESERIALIZE (gridheight,100);
+	DEFDESERIALIZE (guihide,false);
 	DEFDESERIALIZE (emptytext,"No objects found");
 	DEFDESERIALIZE (worldreadable,false);
 	DEFDESERIALIZE (dynamic,false);
@@ -449,6 +450,7 @@ value *CoreClass::makeClassInfo (void)
 				$("emptytext", emptytext) ->
 				$("sortindex", sortindex) ->
 				$("gridheight", gridheight) ->
+				$("guihide", guihide) ->
 				$("hidegrid", hidegrid) ->
 				$("formmargin", formmargin) ->
 				$("gridmargin", gridmargin) ->

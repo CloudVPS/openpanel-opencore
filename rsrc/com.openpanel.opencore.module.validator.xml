@@ -112,6 +112,7 @@
       <match.id>sortindex</match.id>
       <match.id>gridheight</match.id>
       <match.id>hidegrid</match.id>
+      <match.id>guihide</match.id>
       <match.id>formmargin</match.id>
       <match.id>gridmargin</match.id>
       <match.id>capabilities</match.id>
