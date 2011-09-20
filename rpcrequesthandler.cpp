@@ -582,7 +582,7 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		value &into = senv["mounts"][splt[5].sval()];
 		
 		into = $("device",splt[0])->
-			   $("size",splt[1].ival() / (1024 * 1024))->
+			   $("size",splt[1].ulval() / (1024 * 1024))->
 			   $("usage",splt[4].ival())->
 			   $("freepct",100-splt[4].ival())->
 			   $("mountpoint",splt[5]);
