@@ -1880,8 +1880,24 @@ bool DBManager::registerClass(const value &classdata)
 			lasterror.printf("UUID mismatch, old = %S, new = %S, metaid = %S", row["uuid"].cval(), classdata("uuid").cval(), classdata("name").cval());
 			return false;
 		}
-		return true; // FIXME: we should accept class changes
+		
+		value tv = $("content",serialize(classdata));
+		
+		query = "UPDATE /* registerClass */ objects SET ";
+		query.strcat (escapeforsql ("=", ",", tv));
+		query.strcat (" WHERE ");
+		
+		tv = $("uuid",classdata("uuid"));
+		
+		query.strcat (escapeforsql ("=", " AND ", tv));
+		value qres = dosqlite(query); // FIXME: handle error
+		if (!qres)
+		{
+			lasterror = "Error updating class definition";
+			return false;
 		}
+		return true;
+	}
 		
 	// apparently this class is new to us!
 	
