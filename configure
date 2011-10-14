@@ -757,6 +757,13 @@ for loc in /opt/local/lib /usr/local/lib /usr/lib64 /usr/lib ; do
     fi
   fi
 done
+
+if [ -z "$SQLITE3LIB" ]; then
+  echo 'int main(){}' > conftest.cpp
+  $CXX -o conftest.bin conftest.cpp -lsqlite3 >/dev/null 2>&1 && SQLITE3LIB="-lsqlite3"
+  rm -f conftest.bin conftest.cpp 
+fi
+
 if [ -z "$SQLITE3LIB" ]; then
   sayfailsoft "failed"
 else
