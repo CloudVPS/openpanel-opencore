@@ -11,12 +11,12 @@
 
 
 ### BEGIN INIT INFO
-# Provides:			opencore-core
-# Required-Start:	$remote_fs $syslog $all
-# Required-Stop:	$remote_fs $syslog
-# Default-Start:	2 3 4 5
-# Default-Stop:		0 1 6
-# Short-Description:	opencore-core
+# Provides:         opencore-core
+# Required-Start:   $remote_fs $syslog $all
+# Required-Stop:    $remote_fs $syslog
+# Default-Start:    2 3 4 5
+# Default-Stop:     0 1 6
+# Short-Description:    opencore-core
 ### END INIT INFO
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
@@ -27,14 +27,14 @@ DESC="Openpanel core daemon"
 PIDFILE="/var/run/$LONGNAME.pid"
 
 if [ -f /etc/default/openpanel-core ] ; then
-	. /etc/default/openpanel-core
+    . /etc/default/openpanel-core
 fi
 
 . /lib/lsb/init-functions
 
 generate_ssl_certificate()
 {
-	OPENPANEL_PEM=/etc/openpanel/certificate.pem    
+    OPENPANEL_PEM=/etc/openpanel/certificate.pem    
     
     rm -f "${OPENPANEL_PEM}"
     touch "${OPENPANEL_PEM}"
@@ -54,47 +54,47 @@ set -e
 
 case "$1" in
   start)
-  	generate_ssl_certificate
- 	log_daemon_msg "Starting $DESC" $NAME
-	if start_daemon -p $PIDFILE $DAEMON $DAEMON_OPTS; then
-	    log_success_msg
-	else
-	    log_failure_msg
-	fi
-	;;
+    generate_ssl_certificate
+    log_daemon_msg "Starting $DESC" $NAME
+    if start_daemon -p $PIDFILE $DAEMON $DAEMON_OPTS; then
+        log_success_msg
+    else
+        log_failure_msg
+    fi
+    ;;
   stop)
-	if killproc -p $PIDFILE $DAEMON; then
-	    log_success_msg
-	else
-	    log_failure_msg
-	fi
-	;;
+    if killproc -p $PIDFILE $DAEMON; then
+        log_success_msg
+    else
+        log_failure_msg
+    fi
+    ;;
   restart|force-reload|reload)
-	#
-	#	If the "reload" option is implemented, move the "force-reload"
-	#	option to the "reload" entry above. If not, "force-reload" is
-	#	just the same as "restart".
-	#
-	log_daemon_msg "Restarting $DESC" $NAME
+    #
+    #   If the "reload" option is implemented, move the "force-reload"
+    #   option to the "reload" entry above. If not, "force-reload" is
+    #   just the same as "restart".
+    #
+    log_daemon_msg "Restarting $DESC" $NAME
 
-	killproc -p $PIDFILE $DAEMON
+    killproc -p $PIDFILE $DAEMON
 
-	generate_ssl_certificate
-	if pidofproc -p $PIDFILE $DAEMON > /dev/null; then
-		sleep 1
-	
-		while pidofproc -p $PIDFILE $DAEMON > /dev/null; do
-			log_action_msg "."
-			sleep 5
-		done
-	fi
-	
-	if start_daemon -p $PIDFILE $DAEMON $DAEMON_OPTS; then
-	    log_end_msg 0
-	else
-	    log_end_msg 1
-	fi
-	;;
+    generate_ssl_certificate
+    if pidofproc -p $PIDFILE $DAEMON > /dev/null; then
+        sleep 1
+    
+        while pidofproc -p $PIDFILE $DAEMON > /dev/null; do
+            log_action_msg "."
+            sleep 5
+        done
+    fi
+    
+    if start_daemon -p $PIDFILE $DAEMON $DAEMON_OPTS; then
+        log_end_msg 0
+    else
+        log_end_msg 1
+    fi
+    ;;
   status)
     if pidofproc -p $PIDFILE $DAEMON > /dev/null; then
       log_success_msg "$NAME is running"
@@ -102,13 +102,13 @@ case "$1" in
       log_success_msg "$NAME is not running"
     fi
     exit $status
-	;;
+    ;;
   
   *)
-	N=/etc/init.d/$NAME
-	echo "Usage: $N {start|stop|restart|force-reload|reload|status}" >&2
-	exit 1
-	;;
+    N=/etc/init.d/$NAME
+    echo "Usage: $N {start|stop|restart|force-reload|reload|status}" >&2
+    exit 1
+    ;;
 esac
 
 exit 0
