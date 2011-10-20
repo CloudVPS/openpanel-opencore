@@ -44,7 +44,13 @@ generate_ssl_certificate()
     echo "# automatically generated from ${SSL_CERTIFICATE}"   >  $OPENPANEL_PEM
     echo "# and ${SSL_PRIVATEKEY}"                             >> $OPENPANEL_PEM
     echo ''                                                    >> $OPENPANEL_PEM
-    cat  "${SSL_CERTIFICATE}" "${SSL_PRIVATEKEY}"              >> $OPENPANEL_PEM
+    if which openssl > /dev/null; then
+        # if possible, use openssl to copy over the certificate and key
+        openssl x509 -in "${SSL_CERTIFICATE}"                  >> $OPENPANEL_PEM
+        openssl rsa  -in "${SSL_PRIVATEKEY}"                   >> $OPENPANEL_PEM
+    else
+        cat  "${SSL_CERTIFICATE}" "${SSL_PRIVATEKEY}"          >> $OPENPANEL_PEM
+    fi
 }
 
 # check if the daemon exists

@@ -10,6 +10,7 @@ Architecture: any
 Pre-Depends: adduser, debconf
 Depends: openpanel-authd, ssl-cert, ${shlibs:Depends}, ${misc:Depends}
 Recommends: openpanel-gui, openpanel-mod-user, openpanel-cli
+Suggests: openssl
 Provides: openpanel-ssl
 Replaces: openpanel-ssl
 Conflicts: openpanel-ssl
