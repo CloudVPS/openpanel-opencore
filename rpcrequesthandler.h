@@ -115,6 +115,25 @@ private:
 };
 
 //  -------------------------------------------------------------------------
+/// Handler for sending module-specific files
+//  -------------------------------------------------------------------------
+class ModuleFileHandler : public httpdobject
+{
+public:
+			 ModuleFileHandler (class OpenCoreApp *papp, httpd &srv,
+			 					class SessionDB *db);
+			~ModuleFileHandler (void);
+
+	int		 run (string &uri, string &postbody, value &inhdr,
+				  string &out, value &outhdr, value &env,
+				  tcpsocket &s);
+
+protected:
+	class OpenCoreApp	*app;
+	class SessionDB		*sdb; ///< Link to session database.
+};			
+
+//  -------------------------------------------------------------------------
 /// Script parser for the landing page.
 //  -------------------------------------------------------------------------
 class LandingPageHandler : public httpdobject

@@ -355,6 +355,69 @@ int ImagePreloader::run (string &uri, string &postbody, value &inhdr,
 }
 
 // ==========================================================================
+// CONSTRUCTOR ModuleFileHandler
+// ==========================================================================
+ModuleFileHandler::ModuleFileHandler (OpenCoreApp *papp, httpd &srv,
+									  class SessionDB *sessionDB)
+	: httpdobject (srv, "/dynamic/modulefile/*")
+{
+	app = papp;
+	sdb = sessionDB;
+}
+
+// ==========================================================================
+// DESTRUCTOR ModuleFileHandler
+// ==========================================================================
+ModuleFileHandler::~ModuleFileHandler (void)
+{
+}
+
+// ==========================================================================
+// METHOD ModuleFileHandler::run
+// ==========================================================================
+int ModuleFileHandler::run (string &uri, string &postbody, value &inhdr,
+							string &out, value &outhdr, value &env,
+							tcpsocket &s)
+{
+	CoreSession *session = NULL;
+	
+	int pos;
+	if ((pos = uri.strchr ('?')) >= 0)
+	{
+		string reqdata = uri.mid (pos+1);
+		value reqenv = strutil::httpurldecode (reqdata);
+		session = sdb->get (reqenv["sid"]);	
+	}
+
+	if (!session) return 403;
+	
+	string modname = uri.copyafter ("/modulefile/");
+	modname.cropat ("/");
+	
+	CoreModule *m = session->getModuleByName (modname);
+	if (!m) return 404;
+	
+	string inpath = uri.copyuntil ('?');
+	inpath = strutil::regexp (inpath, "s@.*/modulefile/%s/@@" %format (modname));
+	
+	string respath = m->translateFilePath (inpath, session->meta["user"]);
+	if (! respath) return 404;
+	if (! fs.exists (respath)) return 404;
+	
+	string fname = respath.copyafterlast ("/");
+	unsigned int sz = fs.size (respath);
+	
+	s.puts ("HTTP/1.1 200 OK\r\n"
+			"Content-type: application/octet-stream\r\n"
+			"Content-disposition: attachment; filename=\"%s\"\r\n"
+			"Content-length: %i\r\n"
+			"\r\n" %format (fname, sz));
+	
+	s.sendfile (respath, sz);
+	return -200;
+}
+
+// ==========================================================================
 // CONSTRUCTOR LandingPageHandler
 // ==========================================================================
 LandingPageHandler::LandingPageHandler (OpenCoreApp *papp, httpd &srv, 	class SessionDB		*sessionDB )
@@ -614,10 +677,6 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 		}
 	}
 
-	
-
-	
-	
 	try
 	{
 		string script = fs.load ("/var/openpanel/http/dynamic/welcome.html");
