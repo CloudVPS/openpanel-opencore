@@ -236,6 +236,14 @@ public:
 							 const value &param,
 							 value &returndata);
 	
+					 /// Ask the module to translate a file path to be
+					 /// served to the GUI. The file must be readable
+					 /// by the opencore group. Returns an empty string
+					 /// if the module could not translate the path or
+					 /// doesn't support file translation.
+	string			*translateFilePath (const string &inpath,
+										const string &user);
+										
 					 /// Report resource usage for a specific instance
 					 /// of the module's main class. Returns a list
 					 /// of resource names and units used.

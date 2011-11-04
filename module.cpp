@@ -709,6 +709,40 @@ corestatus_t CoreModule::action (const statstring &command,
 }
 
 // ==========================================================================
+// METHOD CoreModule::translateFilePath
+// ==========================================================================
+string *CoreModule::translateFilePath (const string &inpath,
+									   const string &foruser)
+{
+	returnclass (string) res retain;
+	string fullpath = "%s/translatepath" %format (path);
+	value argv = $(fullpath)->$(foruser)->$(inpath);
+	value env = $("PATH","/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:"
+		  			     "/usr/local/sbin:/var/openpanel/tools");
+
+	systemprocess proc (argv, env, false);
+	proc.run();
+	try
+	{
+		res = proc.gets();
+	}
+	catch (...)
+	{
+		CORE->logError ("rpc", "Exception caught handling translatepath for "
+						"module %s" %format (name));
+	}
+	proc.close();
+	proc.serialize();
+	if (! res)
+	{
+		CORE->logError ("rpc", "Error translating path %s for module %s"
+						%format (inpath, name));
+	}
+	
+	return &res;
+}
+
+// ==========================================================================
 // METHOD getCurrentConfig
 // ==========================================================================
 value *CoreModule::getCurrentConfig (void)
