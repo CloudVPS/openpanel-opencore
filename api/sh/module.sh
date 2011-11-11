@@ -92,37 +92,37 @@ authd() {
 
 module_create() {
   if [ -z "$CLASSID" ]; then exiterror "Create called without class"; fi
-  eval ${CLASSID}.create || \
-  	Module.create || \
-  	exiterror "Error in ${CLASSID}.create"
+  eval ${CLASSID}.create 2>/dev/null || \
+    Module.create 2>/dev/null || \
+    exiterror "Error in ${CLASSID}.create"
 }
 
 module_update() {
   if [ -z "$CLASSID" ]; then exiterror "Update called without class"; fi
-  eval ${CLASSID}.update || \
-  	Module.update || \
+  eval ${CLASSID}.update 2>/dev/null || \
+  	Module.update 2>/dev/null || \
   	exiterror "Error in ${CLASSID}.update"
 }
 
 module_delete() {
   if [ -z "$CLASSID" ]; then exiterror "Delete called without class"; fi
-  eval ${CLASSID}.delete || \
-  	Module.delete || \
+  eval ${CLASSID}.delete 2>/dev/null || \
+  	Module.delete 2>/dev/null || \
   	exiterror "Error in ${CLASSID}.delete"
 }
 
 module_method() {
   methodname=`coreval OpenCORE:Session method`
-  eval ${CLASSID}.${methodname} || \
-    ${CLASSID}.dispatch || \
-    Module.${methodname} || \
-    Module.dispatch || \
+  eval ${CLASSID}.${methodname} 2>/dev/null || \
+    ${CLASSID}.dispatch 2>/dev/null || \
+    Module.${methodname} 2>/dev/null || \
+    Module.dispatch 2>/dev/null || \
     exiterror "Error calling ${CLASSID}.${methodname}"
 }
 
 module_listobjects() {
-  eval ${CLASSID}.listobjects || \
-    Module.listobjects || \
+  eval ${CLASSID}.listobjects 2>/dev/null || \
+    Module.listobjects 2>/dev/null || \
     exiterror "Error calling ${CLASSID}.listobjects"
 }
 
