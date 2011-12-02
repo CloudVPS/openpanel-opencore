@@ -109,6 +109,7 @@
       <match.id>emptytext</match.id>
       <match.id>description</match.id>
       <match.id>explanation</match.id>
+      <match.id>preface</match.id>
       <match.id>sortindex</match.id>
       <match.id>gridheight</match.id>
       <match.id>hidegrid</match.id>

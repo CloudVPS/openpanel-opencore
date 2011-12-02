@@ -89,6 +89,10 @@ public:
 					 /// if it exists.
 	string			 explanation;
 	
+					 /// HTML-formatted preface text for the class
+					 /// if it exists.
+	string			 preface;
+	
 					 /// If true, the uniqueness context of the metaid
 					 /// is enforced within the context of the parent
 					 /// object, so that two objects of this class can

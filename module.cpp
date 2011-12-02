@@ -103,6 +103,20 @@ CoreClass::CoreClass (const value &imeta, CoreModule *p)
 		}
 	}
 	
+	if (imeta.exists ("preface") && imeta["preface"].sval())
+	{
+		string fn = "%s/%s" %format (module.path, imeta["preface"]);
+		try
+		{
+			preface = fs.load (fn);
+		}
+		catch (...)
+		{
+			log::write (log::error, "Module", "Error loading preface file "
+						"for class %s" %format (name));
+		}
+	}
+	
 	if (imeta["metatype"] == "derived")
 	{
 		metabaseclass = imeta["metabase"];
@@ -447,6 +461,7 @@ value *CoreClass::makeClassInfo (void)
 				$("menuclass", menuclass) ->
 				$("description", description) ->
 				$("explanation", explanation) ->
+				$("preface", preface) ->
 				$("emptytext", emptytext) ->
 				$("sortindex", sortindex) ->
 				$("gridheight", gridheight) ->
