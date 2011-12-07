@@ -24,6 +24,7 @@ try_authd() {
   
   echo "$line" >&3
   read reply <&3
+  error=$(echo "${reply}" | cut -f3- -d: | sed -e 's/\\n/; /g' | sed -e 's/\\//g' )
   sz=$(echo "$reply" | cut -f2 -d' ')
   reply=`echo "$reply" | cut -c1`
   if [ "$reply" = "+" ]; then
@@ -85,8 +86,10 @@ authd() {
     line="${line} \"$1\""
     shift
   done
-  try_authd ${line} || {
-    exiterror "authd error on $cmd"
+  RESULT=$(try_authd ${line}) || {
+    msg="authd error on $cmd"
+    [ ! -z "$RESULT" ] || msg="$msg (${RESULT})"
+    exiterror "${msg}"
   }
 }
 
