@@ -88,7 +88,7 @@ authd() {
   done
   RESULT=$(try_authd ${line}) || {
     msg="authd error on $cmd"
-    [ ! -z "$RESULT" ] || msg="$msg (${RESULT})"
+    [ ! -z "$RESULT" ] && msg="$msg (${RESULT})"
     exiterror "${msg}"
   }
 }
