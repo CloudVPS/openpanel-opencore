@@ -33,6 +33,7 @@ try_authd() {
     fi
     return 0
   fi
+  echo "${error}"
   return 1
 }
 
