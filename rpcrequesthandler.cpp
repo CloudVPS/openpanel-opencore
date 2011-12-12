@@ -386,7 +386,21 @@ int ModuleFileHandler::run (string &uri, string &postbody, value &inhdr,
 	{
 		string reqdata = uri.mid (pos+1);
 		value reqenv = strutil::httpurldecode (reqdata);
-		session = sdb->get (reqenv["sid"]);	
+		session = sdb->get (reqenv["sid"]);
+		if (session)
+		{
+			CORE->log (log::info, "MFile",
+					   "File for session %s" %format (reqenv["sid"]));
+		}
+		else
+		{
+			CORE->log (log::warning, "MFile", "File for unknown session "
+					   "%s" %format (reqenv["sid"]));
+		}
+	}
+	else
+	{
+		CORE->log (log::warning, "MFile", "Request with no sid");
 	}
 
 	if (!session) return 403;
