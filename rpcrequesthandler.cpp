@@ -234,11 +234,17 @@ int ItemIconRequestHandler::run (string &uri, string &postbody, value &inhdr,
 	return 200;
 }
 
+// ==========================================================================
+// CONSTRUCTOR WallpaperHandler
+// ==========================================================================
 WallpaperHandler::WallpaperHandler (class OpenCoreApp *papp, httpd &serv)
 	: httpdobject (serv, "/dynamic/wallpaper*"), app (papp)
 {
 }
 
+// ==========================================================================
+// METHOD WallpaperHandler::run
+// ==========================================================================
 int WallpaperHandler::run (string &uri, string &postbody, value &inhdr,
 						   string &out, value &outhdr, value &env,
 						   tcpsocket &s)
@@ -389,7 +395,7 @@ int ModuleFileHandler::run (string &uri, string &postbody, value &inhdr,
 		session = sdb->get (reqenv["sid"]);
 		if (session)
 		{
-			CORE->log (log::info, "MFile",
+			CORE->log (log::debug, "MFile",
 					   "File for session %s" %format (reqenv["sid"]));
 		}
 		else
@@ -415,11 +421,18 @@ int ModuleFileHandler::run (string &uri, string &postbody, value &inhdr,
 	inpath = strutil::regexp (inpath, "s@.*/modulefile/%s/@@" %format (modname));
 	
 	string respath = m->translateFilePath (inpath, session->meta["user"]);
+	
+	CORE->log (log::debug, "MFile", "Translated path <%S> for user <%S> "
+			   "to <%S>" %format (inpath, session->meta["user"], respath));
+	
 	if (! respath) return 404;
 	if (! fs.exists (respath)) return 404;
 	
 	string fname = respath.copyafterlast ("/");
 	unsigned int sz = fs.size (respath);
+	
+	CORE->log (log::debug, "MFile", "Serving file '%s' with size %i"
+			  						 %format (fname, sz));
 	
 	s.puts ("HTTP/1.1 200 OK\r\n"
 			"Content-type: application/octet-stream\r\n"
@@ -428,13 +441,16 @@ int ModuleFileHandler::run (string &uri, string &postbody, value &inhdr,
 			"\r\n" %format (fname, sz));
 	
 	s.sendfile (respath, sz);
+	
+	CORE->log (log::debug, "MFile", "Data sent");
 	return -200;
 }
 
 // ==========================================================================
 // CONSTRUCTOR LandingPageHandler
 // ==========================================================================
-LandingPageHandler::LandingPageHandler (OpenCoreApp *papp, httpd &srv, 	class SessionDB		*sessionDB )
+LandingPageHandler::LandingPageHandler (OpenCoreApp *papp, httpd &srv, 
+										SessionDB *sessionDB)
 	: httpdobject (srv, "/dynamic/welcome.html")
 {
 	app = papp;
@@ -707,6 +723,9 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	return 200;
 }
 
+// ==========================================================================
+// METHOD LandingPageHandler::getRSS
+// ==========================================================================
 value *LandingPageHandler::getRSS (const string &url)
 {
 	returnclass (value) res retain;
