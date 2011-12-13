@@ -496,6 +496,10 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 	senv = $("os_name",name.sysname)->
 		   $("os_release",name.release)->
 		   $("openpanel_release",version::release);
+	
+	value markreplace = $("(R)","&reg;")->
+						$("(tm)","&trade;")->
+						$("(TM)","&trade;");
 
 	if (fs.exists ("/proc/cpuinfo")) 
 	{
@@ -507,41 +511,31 @@ int LandingPageHandler::run (string &uri, string &postbody, value &inhdr,
 			if (l.sval().strncasecmp ("model name",10) == 0)
 			{
 				string scpu = l.sval().copyafter (": ");
-				scpu.replace ($("(R)","&reg;"));
-				scpu.replace ($("(tm)","&trade;"));
-				scpu.replace ($("(TM)","&trade;"));
+				scpu.replace (markreplace);
 				senv["os_cpu"] = scpu;
 			}			
 			else if (l.sval().strncasecmp ("processor",9) == 0)
 			{
 				string scpu = l.sval().copyafter (": ");
-				scpu.replace ($("(R)","&reg;"));
-				scpu.replace ($("(tm)","&trade;"));
-				scpu.replace ($("(TM)","&trade;"));
+				scpu.replace (markreplace);
 				senv["os_cpu"] = scpu;
 			} 
 			else if (l.sval().strncasecmp ("hardware",8) == 0)
 			{
 				string scpu = l.sval().copyafter (": ");
-				scpu.replace ($("(R)","&reg;"));
-				scpu.replace ($("(tm)","&trade;"));
-				scpu.replace ($("(TM)","&trade;"));
+				scpu.replace (markreplace);
 				senv["os_hw"] = scpu;
 			}			
 			else if (l.sval().strncasecmp ("model",5) == 0)
 			{
 				string scpu = l.sval().copyafter (": ");
-				scpu.replace ($("(R)","&reg;"));
-				scpu.replace ($("(tm)","&trade;"));
-				scpu.replace ($("(TM)","&trade;"));
+				scpu.replace (markreplace);
 				senv["os_cpu"] = scpu;
 			} 
 			else if (l.sval().strncasecmp ("machine",7) == 0)
 			{
 				string scpu = l.sval().copyafter (": ");
-				scpu.replace ($("(R)","&reg;"));
-				scpu.replace ($("(tm)","&trade;"));
-				scpu.replace ($("(TM)","&trade;"));
+				scpu.replace (markreplace);
 				senv["os_hw"] = scpu;
 			} 
 		}
