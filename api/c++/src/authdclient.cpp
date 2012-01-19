@@ -48,7 +48,7 @@ int authdclient::executecmd (const string &command)
 	}
 	
 	// Get Results from string
-	success 	= (result[0] == '+');
+	success 	= (result && result[0] == '+');
 	
 	if (! success)
 	{
