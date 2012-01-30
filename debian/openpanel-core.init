@@ -60,6 +60,8 @@ set -e
 
 case "$1" in
   start)
+    authd=$(pidof openpanel-authd)
+    [ -z "$authd" ] && /etc/init.d/openpanel-authd start || exit 1
     generate_ssl_certificate
     log_daemon_msg "Starting $DESC" $NAME
     if start_daemon -p $PIDFILE $DAEMON $DAEMON_OPTS; then
@@ -94,6 +96,9 @@ case "$1" in
             sleep 5
         done
     fi
+    
+    authd=$(pidof openpanel-authd)
+    [ -z "$authd" ] && /etc/init.d/openpanel-authd start 
     
     if start_daemon -p $PIDFILE $DAEMON $DAEMON_OPTS; then
         log_end_msg 0
