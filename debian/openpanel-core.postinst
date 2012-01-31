@@ -66,8 +66,7 @@ case "$1" in
         ;;
         
     triggered)
-    	invoke-rc.d openpanel-authd stop || true
-    	invoke-rc.d openpanel-authd start || true
+    	invoke-rc.d openpanel-authd restart || true
         invoke-rc.d openpanel-core reload || true
         ;;
 
