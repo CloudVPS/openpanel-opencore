@@ -380,7 +380,7 @@ protected:
 										  CoreModule *m);
 
 	bool				 checkModuleCache (const string &mname, value &cache,
-										   CoreModule *m);
+										   class DBManager &db, CoreModule *m);
 	
 	void				 registerClasses (const string &mname, value &cache,
 										  class DBManager &db, CoreModule *m);

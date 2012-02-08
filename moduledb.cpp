@@ -203,7 +203,7 @@ void ModuleDB::loadModule (const string &mname, value &cache, DBManager &db)
 		first = last = m;
 	}
 	
-	bool firsttime = checkModuleCache (mname, cache, m);
+	bool firsttime = checkModuleCache (mname, cache, db, m);
 	registerQuotas (m);
 	registerClasses (mname, cache, db, m);
 	createStagingDirectory (mname);
@@ -215,7 +215,7 @@ void ModuleDB::loadModule (const string &mname, value &cache, DBManager &db)
 // METHOD ModuleDB::checkModuleCache
 // ==========================================================================
 bool ModuleDB::checkModuleCache (const string &mname, value &cache,
-						   CoreModule *m)
+						   DBManager &db, CoreModule *m)
 {
 	if (cache["modules"].exists (mname))
 	{
@@ -244,6 +244,16 @@ bool ModuleDB::checkModuleCache (const string &mname, value &cache,
 						   "version %i" %format (mname, cachedver));
 				
 				throw (moduleInitException());
+			}
+			
+			try
+			{
+				handleGetConfig (mname, cache, db, m);
+			}
+			catch (moduleInitException e)
+			{
+				log::write (log::warning, "ModuleDB", "Getconfig data for "
+							"updated module <%S> rejected" %format (mname));
 			}
 		}
 		else
