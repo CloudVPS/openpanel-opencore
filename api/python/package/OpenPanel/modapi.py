@@ -8,9 +8,9 @@
 # section of the OpenPanel website on http://www.openpanel.com/
 
 try:
-	import simplejson as json
+        import simplejson as json
 except:
-	import json
+        import json
 
 from OpenPanel import error
 from OpenPanel.exception import CoreException
@@ -74,8 +74,8 @@ class panelmodule(object):
         request.fulltree = tree
         request.command = str(tree["OpenCORE:Command"])
 
-	if request.command == "getconfig":
-	    return request
+        if request.command == "getconfig":
+            return request
         if request.command == "listobjects":
             request.context = str(tree["OpenCORE:Session"]["parentid"])
         else:
@@ -130,8 +130,14 @@ class panelmodule(object):
             self.req = self.getrequest()
         
             if self.req.command == "getconfig":
-		self.sendresult(0, "OK", extra=self.getconfig())
+                self.sendresult(0, "OK", extra=self.getconfig())
                 return
+            
+            if self.req.command == "updateok":
+            	if self.updateok(self.fulltree["OpenCORE:Session"]["currentversion"]):
+            		self.sendresult(0, "OK")
+            	else
+            		self.sendresult(error.ERR_MODULE_UPDATE, "Cannot update")
 
             workerclass = self.getworkerclass(self.req.classid)
             wrapper = modulecallwrapper(workerclass, self.req)
