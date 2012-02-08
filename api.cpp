@@ -224,6 +224,30 @@ int API::grace (const string &mname, const string &fullcmd, const value &in, val
 {
 	return stdio("grace",mname,fullcmd,in,out);
 }
+
+void API::decodejsonattributes (value &v)
+{
+	value removekeys;
+	foreach (node, v)
+	{
+		if (node.count())
+		{
+			decodejsonattributes (node);
+		}
+		else
+		{
+			string s = node.id();
+			if (s && s[0]=='.')
+			{
+				statstring attribkey = s.mid(1);
+				v(attribkey) = node;
+				removekeys[node.id()] = true;
+			}
+		}
+	}
+	foreach (k, removekeys) v.rmval (k.id());
+}
+
 // ==========================================================================
 // METHOD API::grace
 // ==========================================================================
@@ -323,7 +347,11 @@ int API::stdio (const statstring &apitype, const string &mname, const string &fu
 		// Decode the output in any case.
 		caseselector (apitype)
 		{
-			incaseof ("json") : out.fromjson(dt); break;
+			incaseof ("json") : 
+				out.fromjson(dt);
+				decodejsonattributes(out);
+				break;
+				
 			incaseof ("shox") : out.fromshox(dt); break;
 			incaseof ("php") : out.phpdeserialize(dt); break;
 			incaseof ("msgpack") : out.frommsgpack(dt); break;

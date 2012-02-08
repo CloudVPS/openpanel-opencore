@@ -67,6 +67,8 @@ public:
 	static bool connectToAuthDaemon (tcpsocket &s, const string &err);
 	
 	static void makeShellEnvironment (value &, const string &, const value &);
+	
+	static void decodejsonattributes (value &v);
 };
 
 #endif
