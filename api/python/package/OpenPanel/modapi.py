@@ -136,7 +136,7 @@ class panelmodule(object):
             if self.req.command == "updateok":
             	if self.updateok(self.fulltree["OpenCORE:Session"]["currentversion"]):
             		self.sendresult(0, "OK")
-            	else
+            	else:
             		self.sendresult(error.ERR_MODULE_UPDATE, "Cannot update")
 
             workerclass = self.getworkerclass(self.req.classid)
