@@ -32,8 +32,8 @@
     </unixsocket>
     <httpssocket>
       <listenport>4089</listenport>
-      <minthreads>6</minthreads>
-      <maxthreads>32</maxthreads> 
+      <minthreads>16</minthreads>
+      <maxthreads>64</maxthreads> 
       <certificate>/etc/openpanel/certificate.pem</certificate>   
     </httpssocket>    
   </rpc>

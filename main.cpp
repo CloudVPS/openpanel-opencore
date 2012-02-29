@@ -13,7 +13,6 @@
 #include "alerts.h"
 
 #include <grace/defaults.h>
-
 #include <grace/thread.h>
 
 APPOBJECT(OpenCoreApp);
