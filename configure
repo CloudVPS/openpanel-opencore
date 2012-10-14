@@ -258,7 +258,7 @@ saypending "looking for c++ compiler"
 CXX=`which CC 2>/dev/null`
 
 if [ -f "$CXX" ]; then
-  actually_gcc=`$CXX -v 2>&1 | grep gcc | sed -e "s/^gcc/Y/"`
+  actually_gcc=`$CXX -v 2>&1 | egrep "gcc|clang" | sed -e "s/^(gcc|clang)/Y/"`
 
   cat >conftest.cpp <<_eof_
 #include <stdio.h>
@@ -491,85 +491,6 @@ fi
 
 
 rm -f conftest conftest.o conftest.c
-# ---------------------------------------------------------------------------
-# Figure out whether we need libdl
-# ---------------------------------------------------------------------------
-
-cat >conftest.cpp <<EOF
-#include <dlfcn.h>
-int main (int argc, char *argv[])
-{
-   void *test = dlopen ("conftest.so",RTLD_LAZY);
-   return 1;
-}
-EOF
-
-saypending "checking whether dlopen needs -ldl"
-if $CXX $CXXFLAGS -o conftest conftest.cpp >>configure.log 2>&1; then
-  LIBDL=""
-  saypass "no"
-else
-  LIBDL="-ldl"
-  saypass "yes"
-fi
-
-cat >conftest.cpp <<EOF
-#include <stdio.h>
-#include <unistd.h>
-#include <dlfcn.h>
-#include <sys/types.h>
-extern "C" int find_me (void)
-{
-	return 1;
-}
-
-typedef int (*fptr)(void);
-
-int main (int argc, char *argv[])
-{
-
-	void *test = dlopen (NULL,RTLD_LAZY);
-	fptr func = (fptr) dlsym (test, "find_me");
-	if (! func) return 1;
-	int res = (*func)();
-	if (res == 1) return 0;
-	return 1;
-}
-EOF
-
-saypending "checking need for export-dynamic"
-if $CXX $CXXFLAGS -c -o conftest.o conftest.cpp >> configure.log 2>&1; then
-  :
-else
-  sayfail "error"
-fi
-if $LD $LDFLAGS -o conftest conftest.o $LIBDL >>configure.log 2>&1; then
-  if ./conftest; then
-    LIBDL_LDFLAGS=""
-    saypass "no"
-  elif $LD $LDFLAGS -Wl,--export-dynamic -o conftest conftest.o $LIBDL >> configure.log 2>&1; then
-	if ./conftest; then
-	  LIBDL_LDFLAGS="-Wl,--export-dynamic"
-	  saypass "yes"
-	else
-	  saypass "no"
-	  echowarn "warning: no suitable method found to resolve internal symbols of the "
-	  echowarn "         running process, library-defined optional initialization "
-	  echowarn "         hooks may not work as advertised"
-	fi
-  else
-    saypass "no"
-	echowarn "warning: no suitable method found to resolve internal symbols of the "
-	echowarn "         running process, library-defined optional initialization "
-	echowarn "         hooks may not work as advertised"
-  fi
-else
-  sayfail "error - libdl linking not working out"
-fi
-
-rm -f conftest.cpp conftest
-
-
 # ---------------------------------------------------------------------------
 # Figure out whether we need libsocket
 # ---------------------------------------------------------------------------
@@ -881,6 +802,28 @@ fi
 saypass "$LIBGRACESSL"
 
 # ---------------------------------------------------------------------------
+# Figure out path to Grace SSL library
+# ---------------------------------------------------------------------------
+
+echo 'int main(){}' > conftest.cpp
+$CXX -o conftest.bin conftest.cpp -lgrace-pcre >/dev/null 2>&1 && LIBGRACEPCRE="-lgrace-pcre"
+rm -f conftest.bin conftest.cpp 
+
+if [ -z "$LIBGRACEPCRE" ]; then
+    saypending "looking for grace-pcre library"
+    for loc in /sw/lib /usr/lib32 /usr/lib /usr/local/lib /usr/freeware/lib /lib64 /usr/lib64 /usr/local/lib64 $HOME/lib $HOME/.lib ../../lib; do
+      if [ -f "$loc/libgrace-pcre.$DYNEXT" ]; then
+        LIBGRACEPCRE="-lgrace-pcre"
+      fi
+    done
+fi
+if [ -z "$LIBGRACEPCRE" ]; then
+  sayfail "failed"
+  exit 1
+fi
+saypass "$LIBGRACEPCRE"
+
+# ---------------------------------------------------------------------------
 # Figure out path to FLTK include
 # ---------------------------------------------------------------------------
 
@@ -920,26 +863,83 @@ fi
 saypass "$LIBPCRE"
 
 # ---------------------------------------------------------------------------
-# Figure out path to Grace SSL library
+# Figure out whether we need libdl
 # ---------------------------------------------------------------------------
 
-echo 'int main(){}' > conftest.cpp
-$CXX -o conftest.bin conftest.cpp -lgrace-pcre >/dev/null 2>&1 && LIBGRACEPCRE="-lgrace-pcre"
-rm -f conftest.bin conftest.cpp 
+cat >conftest.cpp <<EOF
+#include <dlfcn.h>
+int main (int argc, char *argv[])
+{
+   void *test = dlopen ("conftest.so",RTLD_LAZY);
+   return 1;
+}
+EOF
 
-if [ -z "$LIBGRACEPCRE" ]; then
-    saypending "looking for grace-pcre library"
-    for loc in /sw/lib /usr/lib32 /usr/lib /usr/local/lib /usr/freeware/lib /lib64 /usr/lib64 /usr/local/lib64 $HOME/lib $HOME/.lib ../../lib; do
-      if [ -f "$loc/libgrace-pcre.$DYNEXT" ]; then
-        LIBGRACEPCRE="-lgrace-pcre"
-      fi
-    done
+saypending "checking whether dlopen needs -ldl"
+if $CXX $CXXFLAGS -o conftest conftest.cpp >>configure.log 2>&1; then
+  LIBDL=""
+  saypass "no"
+else
+  LIBDL="-ldl"
+  saypass "yes"
 fi
-if [ -z "$LIBGRACEPCRE" ]; then
-  sayfail "failed"
-  exit 1
+
+cat >conftest.cpp <<EOF
+#include <stdio.h>
+#include <unistd.h>
+#include <dlfcn.h>
+#include <sys/types.h>
+extern "C" int find_me (void)
+{
+	return 1;
+}
+
+typedef int (*fptr)(void);
+
+int main (int argc, char *argv[])
+{
+
+	void *test = dlopen (NULL,RTLD_LAZY);
+	fptr func = (fptr) dlsym (test, "find_me");
+	if (! func) return 1;
+	int res = (*func)();
+	if (res == 1) return 0;
+	return 1;
+}
+EOF
+
+saypending "checking need for export-dynamic"
+if $CXX $CXXFLAGS -c -o conftest.o conftest.cpp >> configure.log 2>&1; then
+  :
+else
+  sayfail "error"
 fi
-saypass "$LIBGRACEPCRE"
+if $LD $LDFLAGS -o conftest conftest.o $LIBDL >>configure.log 2>&1; then
+  if ./conftest; then
+    LIBDL_LDFLAGS=""
+    saypass "no"
+  elif $LD $LDFLAGS -Wl,--export-dynamic -o conftest conftest.o $LIBDL >> configure.log 2>&1; then
+	if ./conftest; then
+	  LIBDL_LDFLAGS="-Wl,--export-dynamic"
+	  saypass "yes"
+	else
+	  saypass "no"
+	  echowarn "warning: no suitable method found to resolve internal symbols of the "
+	  echowarn "         running process, library-defined optional initialization "
+	  echowarn "         hooks may not work as advertised"
+	fi
+  else
+    saypass "no"
+	echowarn "warning: no suitable method found to resolve internal symbols of the "
+	echowarn "         running process, library-defined optional initialization "
+	echowarn "         hooks may not work as advertised"
+  fi
+else
+  sayfail "error - libdl linking not working out"
+fi
+
+rm -f conftest.cpp conftest
+
 
 # ---------------------------------------------------------------------------
 # Create the makeinclude file
@@ -964,7 +964,7 @@ LDL = $LIBDL
 LDSHARED = $LDSHARED
 LGRACE = $LIBGRACE $LIBGRACESSL
 LIBFILENAME = $LIBFILENAME
-LIBS = $LIBPTHREAD $LIBDL $LIBSOCKET $LIBNSL $LIBCRYPT $SQLITE3LIB $LIBGRACE $LIBGRACESSL $LIBPCRE $LIBGRACEPCRE
+LIBS = $LIBPTHREAD $LIBSOCKET $LIBNSL $LIBCRYPT $SQLITE3LIB $LIBGRACE $LIBGRACESSL $LIBGRACEPCRE $LIBPCRE $LIBDL
 LPTHREAD = $LIBPTHREAD
 LSOCKET = $LIBSOCKET $LIBNSL
 RANLIB = $RANLIB
