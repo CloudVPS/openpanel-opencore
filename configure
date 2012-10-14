@@ -492,158 +492,6 @@ fi
 
 rm -f conftest conftest.o conftest.c
 # ---------------------------------------------------------------------------
-# Figure out whether we need libsocket
-# ---------------------------------------------------------------------------
-
-cat >conftest.c <<EOF
-#include <sys/types.h>
-#include <sys/socket.h>
-
-int main (int argc, char *argv[])
-{
-    int test = socket(PF_INET, SOCK_STREAM, 0);
-    return 1;
-}
-EOF
-
-saypending "checking whether socket needs -lsocket"
-if $COMPILER $COMPILERFLAGS -o conftest conftest.c >>configure.log 2>&1; then
-  LIBSOCKET=""
-  saypass "no"
-else
-  LIBSOCKET="-lsocket"
-  saypass "yes"
-fi
-
-rm -f conftest.c conftest
-
-# ---------------------------------------------------------------------------
-# Figure out whether we need libnsl
-# ---------------------------------------------------------------------------
-
-cat >conftest.c <<EOF
-#include <netdb.h>
-
-int main (int argc, char *argv[])
-{
-	struct hostent *h = gethostbyname("localhost");
-    return 1;
-}
-EOF
-
-saypending "checking whether gethostbyname needs -lnsl"
-if $COMPILER $COMPILERFLAGS -o conftest conftest.c >>configure.log 2>&1; then
-  LIBNSL=""
-  saypass "no"
-else
-  LIBNSL="-lnsl"
-  saypass "yes"
-fi
-
-rm -f conftest.c conftest
-
-# ---------------------------------------------------------------------------
-# Figure out whether socklen_t is defined
-# ---------------------------------------------------------------------------
-
-cat >conftest.c <<EOF
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-int main(int argc, char *argv[])
-{
-	socklen_t len = (socklen_t) 4;
-	return 1;
-}
-EOF
-
-saypending "checking whether socklen_t needs to be defined"
-if $COMPILER $COMPILERFLAGS -o conftest conftest.c >> configure.log 2>&1; then
-  SOCKLEN_TYPEDEF=""
-  saypass "no"
-else
-  SOCKLEN_TYPEDEF="typedef int socklen_t;"
-  saypass "yes"
-fi
-
-rm -f conftest conftest.c
-
-
-# ---------------------------------------------------------------------------
-# Figure out whether we need libcrypt
-# ---------------------------------------------------------------------------
-
-cat >conftest.c <<EOF
-#include <crypt.h>
-int main (int argc, char *argv[])
-{
-  char *test = crypt("abcdefg","aB");
-  return 1;
-}
-EOF
-
-saypending "checking where crypt() hides"
-if $COMPILER $COMPILERFLAGS -o conftest.o -c conftest.c >> configure.log 2>&1; then
-  CRYPTH="#include <crypt.h>"
-  saypass "crypt.h"
-else
-cat >conftest.c <<EOF
-#include <unistd.h>
-int main (int argc, char *argv[])
-{
-   char *test = crypt("abcdefg","aB");
-   return 1;
-}
-EOF
-if $COMPILER $COMPILERFLAGS -o conftest.o -c conftest.c >>configure.log 2>&1; then
-  saypass "unistd.h"
-  CRYPTDEFINE=""
-else
-cat >conftest.c <<EOF
-#define _XOPEN_SOURCE
-#include <unistd.h>
-int main (int argc, char *argv[])
-{
-   char *test = crypt("abcdefg","aB");
-   return 1;
-}
-EOF
-if $COMPILER $COMPILERFLAGS -o conftest.o -c conftest.c >>configure.log 2>&1; then
-  saypass "unistd.h"
-  CRYPTDEFINE="#define _XOPEN_SOURCE"
-else
-  cat > conftest.c <<EOF
-#define _XOPEN_SOURCE 5
-#include <unistd.h>
-int main (int argc, char *argv[])
-{
-    char *test = crypt("abcdefg","aB");
-    return 1;
-}
-EOF
-if $COMPILER $COMPILERFLAGS -o conftest.o -c conftest.c >> configure.log 2>&1; then
-  saypass "unistd.h (evil netbsd)"
-  CRYPTDEFINE="#define _XOPEN_SOURCE 5"
-else
-  sayfail "failed"
-  exit 1
-fi
-fi
-fi
-fi
-saypending "checking whether crypt needs -lcrypt"
-if $COMPILER $COMPILERFLAGS -o conftest conftest.o >>configure.log 2>&1; then
-  LIBCRYPT=""
-  saypass "no"
-else
-  LIBCRYPT="-lcrypt"
-  saypass "yes"
-fi
-
-rm -f conftest.c conftest.o conftest
-# ---------------------------------------------------------------------------
 # Figure out path to mysql include
 # ---------------------------------------------------------------------------
 
@@ -942,6 +790,158 @@ rm -f conftest.cpp conftest
 
 
 # ---------------------------------------------------------------------------
+# Figure out whether we need libsocket
+# ---------------------------------------------------------------------------
+
+cat >conftest.c <<EOF
+#include <sys/types.h>
+#include <sys/socket.h>
+
+int main (int argc, char *argv[])
+{
+    int test = socket(PF_INET, SOCK_STREAM, 0);
+    return 1;
+}
+EOF
+
+saypending "checking whether socket needs -lsocket"
+if $COMPILER $COMPILERFLAGS -o conftest conftest.c >>configure.log 2>&1; then
+  LIBSOCKET=""
+  saypass "no"
+else
+  LIBSOCKET="-lsocket"
+  saypass "yes"
+fi
+
+rm -f conftest.c conftest
+
+# ---------------------------------------------------------------------------
+# Figure out whether we need libnsl
+# ---------------------------------------------------------------------------
+
+cat >conftest.c <<EOF
+#include <netdb.h>
+
+int main (int argc, char *argv[])
+{
+	struct hostent *h = gethostbyname("localhost");
+    return 1;
+}
+EOF
+
+saypending "checking whether gethostbyname needs -lnsl"
+if $COMPILER $COMPILERFLAGS -o conftest conftest.c >>configure.log 2>&1; then
+  LIBNSL=""
+  saypass "no"
+else
+  LIBNSL="-lnsl"
+  saypass "yes"
+fi
+
+rm -f conftest.c conftest
+
+# ---------------------------------------------------------------------------
+# Figure out whether socklen_t is defined
+# ---------------------------------------------------------------------------
+
+cat >conftest.c <<EOF
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+int main(int argc, char *argv[])
+{
+	socklen_t len = (socklen_t) 4;
+	return 1;
+}
+EOF
+
+saypending "checking whether socklen_t needs to be defined"
+if $COMPILER $COMPILERFLAGS -o conftest conftest.c >> configure.log 2>&1; then
+  SOCKLEN_TYPEDEF=""
+  saypass "no"
+else
+  SOCKLEN_TYPEDEF="typedef int socklen_t;"
+  saypass "yes"
+fi
+
+rm -f conftest conftest.c
+
+
+# ---------------------------------------------------------------------------
+# Figure out whether we need libcrypt
+# ---------------------------------------------------------------------------
+
+cat >conftest.c <<EOF
+#include <crypt.h>
+int main (int argc, char *argv[])
+{
+  char *test = crypt("abcdefg","aB");
+  return 1;
+}
+EOF
+
+saypending "checking where crypt() hides"
+if $COMPILER $COMPILERFLAGS -o conftest.o -c conftest.c >> configure.log 2>&1; then
+  CRYPTH="#include <crypt.h>"
+  saypass "crypt.h"
+else
+cat >conftest.c <<EOF
+#include <unistd.h>
+int main (int argc, char *argv[])
+{
+   char *test = crypt("abcdefg","aB");
+   return 1;
+}
+EOF
+if $COMPILER $COMPILERFLAGS -o conftest.o -c conftest.c >>configure.log 2>&1; then
+  saypass "unistd.h"
+  CRYPTDEFINE=""
+else
+cat >conftest.c <<EOF
+#define _XOPEN_SOURCE
+#include <unistd.h>
+int main (int argc, char *argv[])
+{
+   char *test = crypt("abcdefg","aB");
+   return 1;
+}
+EOF
+if $COMPILER $COMPILERFLAGS -o conftest.o -c conftest.c >>configure.log 2>&1; then
+  saypass "unistd.h"
+  CRYPTDEFINE="#define _XOPEN_SOURCE"
+else
+  cat > conftest.c <<EOF
+#define _XOPEN_SOURCE 5
+#include <unistd.h>
+int main (int argc, char *argv[])
+{
+    char *test = crypt("abcdefg","aB");
+    return 1;
+}
+EOF
+if $COMPILER $COMPILERFLAGS -o conftest.o -c conftest.c >> configure.log 2>&1; then
+  saypass "unistd.h (evil netbsd)"
+  CRYPTDEFINE="#define _XOPEN_SOURCE 5"
+else
+  sayfail "failed"
+  exit 1
+fi
+fi
+fi
+fi
+saypending "checking whether crypt needs -lcrypt"
+if $COMPILER $COMPILERFLAGS -o conftest conftest.o >>configure.log 2>&1; then
+  LIBCRYPT=""
+  saypass "no"
+else
+  LIBCRYPT="-lcrypt"
+  saypass "yes"
+fi
+
+rm -f conftest.c conftest.o conftest
+# ---------------------------------------------------------------------------
 # Create the makeinclude file
 # ---------------------------------------------------------------------------
 
@@ -964,7 +964,7 @@ LDL = $LIBDL
 LDSHARED = $LDSHARED
 LGRACE = $LIBGRACE $LIBGRACESSL
 LIBFILENAME = $LIBFILENAME
-LIBS = $LIBPTHREAD $LIBSOCKET $LIBNSL $LIBCRYPT $SQLITE3LIB $LIBGRACE $LIBGRACESSL $LIBGRACEPCRE $LIBPCRE $LIBDL
+LIBS = $LIBPTHREAD $SQLITE3LIB $LIBGRACE $LIBGRACESSL $LIBGRACEPCRE $LIBPCRE $LIBDL $LIBSOCKET $LIBNSL $LIBCRYPT
 LPTHREAD = $LIBPTHREAD
 LSOCKET = $LIBSOCKET $LIBNSL
 RANLIB = $RANLIB
@@ -991,11 +991,11 @@ $CTIME_R_INCLUDE
 $PTHREAD_HAVE_RWLOCK
 $PTHREAD_HAVE_TIMEDLOCK
 
+$HAVE_GMTOFF
+$HAVE_SENDFILE
 $SOCKLEN_TYPEDEF
 $CRYPTH
 $CRYPTDEFINE
-$HAVE_GMTOFF
-$HAVE_SENDFILE
 #endif
 EOF
 

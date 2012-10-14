@@ -2,8 +2,6 @@ cxx
 ranlib
 shared
 pthread
-libsocket
-libcrypt
 libsqlite3
 gmtoff
 sendfile
@@ -12,3 +10,5 @@ gracessl
 gracepcre
 pcre
 libdl
+libsocket
+libcrypt
