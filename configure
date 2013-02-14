@@ -512,7 +512,7 @@ saypass "$LIBGRACE"
 saypending "looking for grace-ssl library"
 
 echo 'int main(){}' > conftest.cpp
-$CXX -o conftest.bin conftest.cpp -ldbfile >/dev/null 2>&1 && LIBGRACESSL="-lgrace-ssl"
+$CXX -o conftest.bin conftest.cpp -lgrace-ssl >/dev/null 2>&1 && LIBGRACESSL="-lgrace-ssl"
 rm -f conftest.bin conftest.cpp 
 
 if [ -z "$LIBGRACESSL" ]; then
