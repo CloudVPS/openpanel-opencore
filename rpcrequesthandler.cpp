@@ -142,7 +142,7 @@ int IconRequestHandler::run (string &uri, string &postbody, value &inhdr,
 		s.puts ("HTTP/1.1 304 NOT CHANGED\r\n"
 				"Connection: %s\r\n"
 				"Content-length: 0\r\n\r\n"
-				%format (env["keepalive"].bval() ? "keepalive" : "close"));
+				%format (env["keepalive"].bval() ? "keep-alive" : "close"));
 		
 		env["sentbytes"] = 0;
 		return -304;

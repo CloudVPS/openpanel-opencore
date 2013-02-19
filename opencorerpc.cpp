@@ -146,6 +146,9 @@ bool OpenCoreRPC::_confcreate (const value &conf, int update)
 			return false;	
 		}
 		
+		httpdSSL.minthreads (8);
+		httpdSSL.maxthreads (64);
+		
 		if (conf["httpssocket"].exists ("listenaddr"))
 		{
 			string listenaddr = conf["httpssocket"]["listenaddr"];
